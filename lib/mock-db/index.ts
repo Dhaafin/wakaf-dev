@@ -87,13 +87,23 @@ export function makeTransactionId(): string {
 }
 
 /**
- * Nomor Virtual Account mock — format realistis:
- * prefix "88808" (kode biller demo) + 11 digit acak. Total 16 digit.
+ * Nomor Virtual Account TIRUAN untuk demo.
+ *
+ * PENTING: sengaja diawali huruf ("DEMO") supaya TIDAK BISA dimasukkan ke
+ * field transfer / bayar-tagihan aplikasi bank manapun. Sebelumnya prefix
+ * angka "88808" dipakai dan ternyata bentrok dengan kode biller nyata
+ * (nomor acak bisa "nyangkut" ke merchant sungguhan di m-banking). Jangan
+ * kembalikan ke format angka murni selama masih pakai simulasi pembayaran.
+ *
+ * Contoh keluaran: "DEMO 4830 5567 1029"
  */
 export function makeVaNumber(): string {
   let digits = "";
-  for (let i = 0; i < 11; i++) digits += Math.floor(Math.random() * 10).toString();
-  return `88808${digits}`;
+  for (let i = 0; i < 12; i++) {
+    digits += Math.floor(Math.random() * 10).toString();
+    if (i % 4 === 3 && i !== 11) digits += " ";
+  }
+  return `DEMO ${digits}`;
 }
 
 function slugify(s: string): string {

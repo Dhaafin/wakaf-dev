@@ -218,6 +218,13 @@ export function PaymentWaiting({ txId }: { txId: string }) {
               {copied ? "Tersalin ✓" : "Salin"}
             </button>
           </div>
+          {/* Nomor VA di demo ini fiktif & diawali "DEMO" agar tidak bisa
+              dipakai di aplikasi bank sungguhan. Lihat lib/mock-db -> makeVaNumber. */}
+          <p className="mt-2 flex items-start gap-1.5 text-xs text-amber-700">
+            <span aria-hidden>⚠️</span>
+            Nomor ini fiktif untuk simulasi — jangan dimasukkan ke aplikasi bank
+            / m-banking. Pembayaran dijalankan lewat tombol di bawah.
+          </p>
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-brand-100 pt-4">
           <span className="text-sm text-brand-500">Total tagihan</span>

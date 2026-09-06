@@ -29,7 +29,8 @@ npm run build && npm start
 
 1. **Browse & filter** — `/program`: 6 program, filter kategori + pencarian kata kunci.
 2. **Flow wakaf penuh** — buka satu program → isi form (validasi jalan) → terbit
-   transaksi + nomor Virtual Account mock (`88808…`).
+   transaksi + nomor Virtual Account tiruan (diawali `DEMO …` — sengaja
+   memakai huruf agar tidak bisa dimasukkan ke aplikasi bank sungguhan).
 3. **Menunggu pembayaran** — `/wakaf/[id]`: countdown mundur **benar-benar jalan**.
    - Tombol **"Simulasikan pembayaran berhasil"** → memicu mock webhook
      `POST /api/transactions/[id]/pay` → status `paid` → redirect ke halaman sukses.
@@ -145,6 +146,7 @@ Semua ditandai komentar di kode. Ringkasnya:
 | `lib/config.ts` → `VA_TTL_MS` | Masa berlaku VA **3 menit** | Kembalikan ke 24 jam |
 | `lib/api/server.ts` → `mockLatency()` | Delay 500–1500ms tiap request | Hapus |
 | `lib/mock-db/` | Store di memori proses | Database sungguhan (Prisma/Drizzle) |
+| `lib/mock-db/` → `makeVaNumber()` | Nomor VA tiruan diawali `DEMO ` (tidak bisa dibayar) | VA asli dari payment gateway (Midtrans/Xendit) |
 | `app/api/transactions/[id]/pay` | Webhook dipicu tombol | Callback + verifikasi signature dari payment gateway |
 | `app/api/transactions/[id]/expire` | Expiry di-set dari browser | Job terjadwal / callback gateway |
 | `app/api/auth/*` | 1 akun admin hardcode; OTP wakif selalu `123456` | User store + hash + sesi ber-token + OTP asli |
