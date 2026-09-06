@@ -95,6 +95,24 @@ Rp 313.500.000 → **Rp 313.600.000**, 214 → **215 wakif** (baca dari mock-db 
 ### 11. Halaman transparansi — data dari input penyaluran admin
 ![Transparansi](docs/screenshots/11-transparansi.png)
 
+### Tampilan HP (390px) — layout stack, angka ringkas, nav jadi menu
+
+| Beranda | Daftar program | Detail + form |
+| --- | --- | --- |
+| ![Beranda HP](docs/screenshots/mobile-01-beranda.png) | ![Daftar program HP](docs/screenshots/mobile-02-daftar-program.png) | ![Detail program HP](docs/screenshots/mobile-03-detail-program.png) |
+
+## Responsif
+
+Diuji pada 3 lebar: **HP 390px**, **tablet 768px**, **desktop ≥1024px**.
+
+- Navigasi utama jadi menu (hamburger) di bawah `lg`; nav penuh muncul di desktop.
+- Kartu statistik & angka besar memakai format ringkas (`Rp 1,04 miliar`,
+  `Rp 325 juta`) via `formatRupiahCompact` agar tidak terpotong di layar sempit.
+- Baris statistik program: daftar vertikal (label–nilai) di HP, 3 kolom di `sm+`.
+- Tabel admin & transparansi scroll horizontal di dalam kontainernya sendiri —
+  body halaman tidak pernah scroll ke samping.
+- Semua grid: 1 kolom di HP → 2 di tablet → 3–4 di desktop.
+
 ## Arsitektur
 
 ```
@@ -131,7 +149,11 @@ Semua ditandai komentar di kode. Ringkasnya:
 
 ## Catatan
 
-- Semua teks Bahasa Indonesia. Mobile-first / responsif.
+- Semua teks Bahasa Indonesia. Mobile-first / responsif (lihat bagian **Responsif**).
 - `reactStrictMode: false` (`next.config.js`) agar interval countdown demo tidak
   double-fire di dev.
 - Gambar program memakai Unsplash (lihat `next.config.js` → `remotePatterns`).
+
+## Lisensi
+
+[MIT](LICENSE).

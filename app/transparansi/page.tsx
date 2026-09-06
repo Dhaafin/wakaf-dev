@@ -4,7 +4,12 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
-import { formatRupiah, formatTanggal, persen } from "@/lib/format";
+import {
+  formatRupiah,
+  formatRupiahCompact,
+  formatTanggal,
+  persen,
+} from "@/lib/format";
 import { CountUp } from "@/components/count-up";
 import { CategoryBadge } from "@/components/category-badge";
 import { EmptyState } from "@/components/empty-state";
@@ -56,23 +61,23 @@ export default function TransparansiPage() {
         <p className="mt-8 text-sm text-red-600">{error}</p>
       ) : (
         <>
-          {/* Ringkasan */}
+          {/* Ringkasan — angka ringkas (nilai penuh ada di tabel di bawah). */}
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             <div className="card p-5">
               <p className="text-xs text-brand-500">Total dana terkumpul</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-brand-800">
-                <CountUp value={totalTerkumpul} format={formatRupiah} />
+              <p className="mt-1 font-serif text-xl font-bold text-brand-800 sm:text-2xl">
+                <CountUp value={totalTerkumpul} format={formatRupiahCompact} />
               </p>
             </div>
             <div className="card p-5">
               <p className="text-xs text-brand-500">Total dana tersalurkan</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-brand-800">
-                <CountUp value={totalDisalurkan} format={formatRupiah} />
+              <p className="mt-1 font-serif text-xl font-bold text-brand-800 sm:text-2xl">
+                <CountUp value={totalDisalurkan} format={formatRupiahCompact} />
               </p>
             </div>
             <div className="card p-5">
               <p className="text-xs text-brand-500">Rasio penyaluran</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-brand-800">
+              <p className="mt-1 font-serif text-xl font-bold text-brand-800 sm:text-2xl">
                 {persen(totalDisalurkan, totalTerkumpul || 1)}%
               </p>
             </div>

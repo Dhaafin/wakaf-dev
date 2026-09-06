@@ -3,7 +3,7 @@
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { CountUp } from "@/components/count-up";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiahCompact } from "@/lib/format";
 
 // Counter statistik global. Angka "jumlah wakif" & "dana terkumpul" dibaca dari
 // /api/stats (mock-db yang sama dengan yang di-update saat pembayaran mock
@@ -15,7 +15,7 @@ export function HomeStats() {
     {
       label: "Dana wakaf terkumpul",
       value: data?.totalTerkumpul ?? 0,
-      fmt: (n: number) => formatRupiah(n),
+      fmt: (n: number) => formatRupiahCompact(n),
     },
     {
       label: "Jumlah wakif",
@@ -30,7 +30,7 @@ export function HomeStats() {
     {
       label: "Dana tersalurkan",
       value: data?.totalDisalurkan ?? 0,
-      fmt: (n: number) => formatRupiah(n),
+      fmt: (n: number) => formatRupiahCompact(n),
     },
   ];
 
@@ -39,16 +39,18 @@ export function HomeStats() {
       {items.map((it) => (
         <div
           key={it.label}
-          className="card p-5 text-center transition hover:shadow-md"
+          className="card p-4 text-center transition hover:shadow-md sm:p-5"
         >
           {loading ? (
             <div className="skeleton mx-auto h-7 w-24" />
           ) : (
-            <p className="font-serif text-xl font-bold text-brand-800 sm:text-2xl">
+            <p className="font-serif text-lg font-bold text-brand-800 sm:text-2xl">
               <CountUp value={it.value} format={it.fmt} />
             </p>
           )}
-          <p className="mt-1 text-xs text-brand-500">{it.label}</p>
+          <p className="mt-1 text-[11px] leading-tight text-brand-500 sm:text-xs">
+            {it.label}
+          </p>
         </div>
       ))}
     </div>

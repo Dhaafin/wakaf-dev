@@ -5,7 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
-import { formatRupiah, formatNumber, formatTanggal, persen } from "@/lib/format";
+import {
+  formatRupiah,
+  formatRupiahCompact,
+  formatNumber,
+  formatTanggal,
+  persen,
+} from "@/lib/format";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { CategoryBadge } from "@/components/category-badge";
 import { WakafForm } from "@/components/wakaf-form";
@@ -95,23 +101,25 @@ export function ProgramDetail({ slug }: { slug: string }) {
               target={program.target}
               showLabel={false}
             />
-            <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-              <div>
-                <p className="font-serif text-lg font-bold text-brand-800">
+            {/* Mobile: daftar vertikal (label kiri, nilai kanan).
+                sm+: 3 kolom rata tengah. */}
+            <div className="mt-3 grid grid-cols-1 divide-y divide-brand-100 sm:grid-cols-3 sm:gap-3 sm:divide-y-0 sm:text-center">
+              <div className="flex items-baseline justify-between py-2 sm:block sm:py-0">
+                <p className="order-2 font-serif text-base font-bold text-brand-800 sm:order-none sm:text-lg">
                   {formatRupiah(program.terkumpul)}
                 </p>
                 <p className="text-xs text-brand-500">terkumpul</p>
               </div>
-              <div>
-                <p className="font-serif text-lg font-bold text-brand-800">
+              <div className="flex items-baseline justify-between py-2 sm:block sm:py-0">
+                <p className="order-2 font-serif text-base font-bold text-brand-800 sm:order-none sm:text-lg">
                   {persen(program.terkumpul, program.target)}%
                 </p>
                 <p className="text-xs text-brand-500">
-                  dari {formatRupiah(program.target)}
+                  dari {formatRupiahCompact(program.target)}
                 </p>
               </div>
-              <div>
-                <p className="font-serif text-lg font-bold text-brand-800">
+              <div className="flex items-baseline justify-between py-2 sm:block sm:py-0">
+                <p className="order-2 font-serif text-base font-bold text-brand-800 sm:order-none sm:text-lg">
                   {formatNumber(program.jumlahWakif)}
                 </p>
                 <p className="text-xs text-brand-500">wakif</p>

@@ -208,5 +208,22 @@ await goto("/transparansi");
 await sleep(1800);
 await shot("11-transparansi", { full: true });
 
+// --------------------------------------------------------------------------
+// Pass mobile (390px) — membuktikan layout jalan di HP, bukan cuma desktop.
+// --------------------------------------------------------------------------
+await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
+
+await goto("/");
+await sleep(1600);
+await shot("mobile-01-beranda", { full: true });
+
+await goto("/program");
+await sleep(1400);
+await shot("mobile-02-daftar-program", { full: true });
+
+await goto("/program/pembangunan-masjid-al-barokah");
+await sleep(1400);
+await shot("mobile-03-detail-program", { full: true });
+
 await browser.close();
 console.log("\nSelesai. Lihat", OUT);

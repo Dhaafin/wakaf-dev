@@ -31,7 +31,7 @@ export function SiteHeader() {
           <BrandLogo />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((n) => (
             <Link
               key={n.href}
@@ -47,7 +47,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           {mounted && wakif ? (
             <Link href="/riwayat" className="btn-outline px-4 py-2 text-xs">
               👤 {wakif.nama.split(" ")[0]}
@@ -63,7 +63,7 @@ export function SiteHeader() {
         </div>
 
         <button
-          className="rounded-lg p-2 text-brand-800 md:hidden"
+          className="rounded-lg p-2 text-brand-800 lg:hidden"
           onClick={() => setOpen((o) => !o)}
           aria-label="Menu"
         >
@@ -72,7 +72,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-brand-100 bg-sand-50 md:hidden">
+        <div className="border-t border-brand-100 bg-sand-50 lg:hidden">
           <nav className="container-app flex flex-col gap-1 py-3">
             {NAV.map((n) => (
               <Link

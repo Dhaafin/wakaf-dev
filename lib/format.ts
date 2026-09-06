@@ -12,6 +12,26 @@ export function formatNumber(n: number): string {
   return new Intl.NumberFormat("id-ID").format(n);
 }
 
+/**
+ * Format rupiah ringkas untuk kartu statistik / tampilan sempit (HP).
+ * Contoh: 1_044_600_000 -> "Rp 1,04 miliar", 313_500_000 -> "Rp 313,5 juta",
+ * 850_000 -> "Rp 850 ribu", 9_500 -> "Rp 9.500".
+ */
+export function formatRupiahCompact(n: number): string {
+  const abs = Math.abs(n);
+  const fmt = (val: number, suffix: string) => {
+    const rounded = Math.round(val * 100) / 100;
+    const str = rounded
+      .toLocaleString("id-ID", { maximumFractionDigits: 2 })
+      .replace(/,00$/, "");
+    return `Rp ${str} ${suffix}`;
+  };
+  if (abs >= 1_000_000_000) return fmt(n / 1_000_000_000, "miliar");
+  if (abs >= 1_000_000) return fmt(n / 1_000_000, "juta");
+  if (abs >= 1_000) return fmt(n / 1_000, "ribu");
+  return formatRupiah(n);
+}
+
 export function formatTanggal(iso: string): string {
   return new Date(iso).toLocaleDateString("id-ID", {
     day: "numeric",

@@ -17,12 +17,12 @@ export default function BerandaPage() {
               "radial-gradient(600px circle at 15% 20%, #2aa19d 0, transparent 45%), radial-gradient(500px circle at 85% 10%, #46bab6 0, transparent 40%)",
           }}
         />
-        <div className="container-app relative py-16 sm:py-24">
+        <div className="container-app relative py-12 sm:py-24">
           <div className="max-w-2xl animate-fade-in">
             <span className="badge bg-white/10 text-brand-100">
               Wakaf uang &amp; aset · tercatat &amp; transparan
             </span>
-            <h1 className="mt-4 font-serif text-4xl font-bold leading-tight sm:text-5xl">
+            <h1 className="mt-4 font-serif text-[1.9rem] font-bold leading-[1.15] sm:text-5xl">
               Wakaf yang manfaatnya{" "}
               <span className="text-brand-300">terus mengalir</span>.
             </h1>
@@ -44,7 +44,7 @@ export default function BerandaPage() {
             </div>
           </div>
 
-          <div className="relative mt-14">
+          <div className="relative mt-10 sm:mt-14">
             <HomeStats />
           </div>
         </div>
