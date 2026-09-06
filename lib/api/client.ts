@@ -7,6 +7,7 @@ import type {
   Certificate,
   GlobalStats,
   DisbursementReport,
+  PublicDonation,
 } from "@/types";
 
 // ============================================================================
@@ -113,6 +114,10 @@ export const api = {
     req<Transaction[]>(
       `/api/transactions?email=${encodeURIComponent(email)}`,
     ),
+
+  /** Wakif terbaru (proyeksi publik) untuk halaman transparansi. */
+  listRecentDonations: (limit = 12) =>
+    req<PublicDonation[]>(`/api/donations?limit=${limit}`),
 
   /** Mock "webhook": memanggil ini menandai transaksi sebagai paid. */
   simulatePayment: (id: string) =>

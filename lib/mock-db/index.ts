@@ -4,6 +4,7 @@ import type {
   Certificate,
   DisbursementReport,
   GlobalStats,
+  PublicDonation,
 } from "@/types";
 import {
   SEED_PROGRAMS,
@@ -201,6 +202,37 @@ export function listTransactionsByEmail(email: string): Transaction[] {
   return deepClone(getStore().transactions)
     .filter((t) => t.emailWakif.toLowerCase() === e)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/**
+ * Daftar wakif terbaru untuk halaman transparansi (proyeksi PUBLIK).
+ * Hanya transaksi lunas, tanpa email/telepon. Nama dipakai apa adanya bila
+ * "publik" (atau nama pihak yang diwakafkan), disamarkan jadi "Hamba Allah"
+ * bila wakif memilih anonim.
+ */
+export function listRecentDonations(limit = 12): PublicDonation[] {
+  return getStore()
+    .transactions.filter((t) => t.status === "paid" && t.paidAt)
+    .sort((a, b) => (b.paidAt ?? "").localeCompare(a.paidAt ?? ""))
+    .slice(0, limit)
+    .map((t) => {
+      const anonim = t.visibilitas === "anonim";
+      const namaAsli =
+        t.atasNama === "orang-lain" && t.namaAtasNama
+          ? t.namaAtasNama
+          : t.namaWakif;
+      return {
+        id: t.id,
+        nama: anonim ? "Hamba Allah" : namaAsli,
+        anonim,
+        programId: t.programId,
+        programNama: t.programNama,
+        program_type: t.program_type,
+        nominal: t.nominal,
+        doa: t.doa,
+        paidAt: t.paidAt!,
+      };
+    });
 }
 
 export interface NewTransactionInput {

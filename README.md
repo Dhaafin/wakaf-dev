@@ -47,9 +47,13 @@ npm run build && npm start
    - Tambah program baru → langsung muncul di listing publik.
    - Catat penyaluran dana per program + unggah bukti (mock file upload,
      preview gambar).
-8. **Transparansi** — `/transparansi`: laporan penyaluran yang datanya berasal
-   dari input admin panel. Tambah laporan di admin → refresh halaman ini →
-   entri baru muncul.
+8. **Transparansi** — `/transparansi`:
+   - **Wakif terbaru** — daftar siapa saja yang baru menyelesaikan wakaf
+     (`GET /api/donations`, proyeksi publik: tanpa email/telepon; wakif anonim
+     tampil sebagai "Hamba Allah"). Selesaikan pembayaran mock → nama langsung
+     muncul di paling atas.
+   - Laporan penyaluran yang datanya berasal dari input admin panel. Tambah
+     laporan di admin → refresh halaman ini → entri baru muncul.
 
 **Reset data demo**: tombol di banner atas setiap halaman, atau
 `POST /api/reset`. Mengembalikan mock-db ke kondisi seed.

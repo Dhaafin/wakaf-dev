@@ -124,6 +124,23 @@ export interface GlobalStats {
   totalDisalurkan: number;
 }
 
+/**
+ * Proyeksi PUBLIK dari transaksi yang sudah lunas — untuk "wall of donors" di
+ * halaman transparansi. Tidak memuat email/telepon. Nama disembunyikan bila
+ * wakif memilih anonim.
+ */
+export interface PublicDonation {
+  id: string;
+  nama: string; // "Hamba Allah" bila anonim
+  anonim: boolean;
+  programId: string;
+  programNama: string;
+  program_type: ProgramType;
+  nominal: number;
+  doa?: string;
+  paidAt: string; // ISO
+}
+
 // Bentuk respons API generik
 export interface ApiOk<T> {
   ok: true;

@@ -50,6 +50,22 @@ export function formatTanggalWaktu(iso: string): string {
   });
 }
 
+/** Waktu relatif singkat, mis. "baru saja", "5 menit lalu", "3 hari lalu". */
+export function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const detik = Math.round(diffMs / 1000);
+  if (detik < 45) return "baru saja";
+  const menit = Math.round(detik / 60);
+  if (menit < 60) return `${menit} menit lalu`;
+  const jam = Math.round(menit / 60);
+  if (jam < 24) return `${jam} jam lalu`;
+  const hari = Math.round(jam / 24);
+  if (hari < 30) return `${hari} hari lalu`;
+  const bulan = Math.round(hari / 30);
+  if (bulan < 12) return `${bulan} bulan lalu`;
+  return `${Math.round(bulan / 12)} tahun lalu`;
+}
+
 export function persen(terkumpul: number, target: number): number {
   if (target <= 0) return 0;
   return Math.min(100, Math.round((terkumpul / target) * 1000) / 10);

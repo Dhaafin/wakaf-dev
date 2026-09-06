@@ -13,6 +13,7 @@ import {
 import { CountUp } from "@/components/count-up";
 import { CategoryBadge } from "@/components/category-badge";
 import { EmptyState } from "@/components/empty-state";
+import { RecentDonations } from "@/components/recent-donations";
 
 // Halaman transparansi. SELURUH data di sini dibaca dari mock-db yang sama
 // dengan yang diisi lewat Admin Panel (POST /api/programs/:id/disbursements).
@@ -82,6 +83,9 @@ export default function TransparansiPage() {
               </p>
             </div>
           </div>
+
+          {/* Wakif terbaru — siapa saja yang baru berwakaf */}
+          <RecentDonations limit={10} />
 
           {/* Rekap per program */}
           <h2 className="mt-12 font-serif text-xl font-bold text-brand-950">
