@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-sand-50 text-brand-950 antialiased;
+  font-feature-settings: "ss01";
+}
+
+/* ------------------------------------------------------------------ */
+/* Komponen util                                                       */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3
+      text-sm font-semibold transition-all duration-200
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500
+      focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700
+      hover:shadow-md active:scale-[0.98];
+  }
+  .btn-dark {
+    @apply btn bg-brand-900 text-white hover:bg-brand-950 active:scale-[0.98];
+  }
+  .btn-accent {
+    @apply btn bg-accent-600 text-white hover:bg-accent-700 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-brand-800 hover:bg-brand-100;
+  }
+  .btn-outline {
+    @apply btn border border-brand-200 bg-white text-brand-800 hover:border-brand-400
+      hover:bg-brand-50;
+  }
+
+  .card {
+    @apply rounded-2xl border border-brand-100 bg-white shadow-sm;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm
+      text-brand-950 placeholder:text-brand-400
+      focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200
+      transition;
+  }
+  .input-error {
+    @apply border-red-400 focus:border-red-500 focus:ring-red-200;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-brand-900;
+  }
+  .field-error {
+    @apply mt-1 text-xs font-medium text-red-600;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-brand-100/70;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r
+      from-transparent via-white/60 to-transparent animate-shimmer;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Print — dipakai halaman sertifikat                                  */
+/* ------------------------------------------------------------------ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
