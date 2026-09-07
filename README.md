@@ -121,7 +121,9 @@ Rp 313.500.000 → **Rp 313.600.000**, 214 → **215 wakif** (baca dari mock-db 
 | --- | --- | --- |
 | ![Beranda HP](docs/screenshots/mobile-01-beranda.png) | ![Daftar program HP](docs/screenshots/mobile-02-daftar-program.png) | ![Detail program HP](docs/screenshots/mobile-03-detail-program.png) |
 
-![Kalkulator zakat HP](docs/screenshots/mobile-04-kalkulator-zakat.png)
+| Kalkulator zakat | Profil yayasan |
+| --- | --- |
+| ![Kalkulator zakat HP](docs/screenshots/mobile-04-kalkulator-zakat.png) | ![Profil yayasan HP](docs/screenshots/mobile-05-profil-yayasan.png) |
 
 ## Responsif
 
