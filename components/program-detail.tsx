@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
@@ -12,6 +11,7 @@ import {
   formatTanggal,
   persen,
 } from "@/lib/format";
+import { ProgramImage } from "@/components/program-image";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { CategoryBadge } from "@/components/category-badge";
 import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
@@ -76,13 +76,12 @@ export function ProgramDetail({ slug }: { slug: string }) {
       </nav>
 
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-brand-100 sm:aspect-[21/9]">
-        <Image
-          src={program.imageUrl}
+        <ProgramImage
+          imageUrl={program.imageUrl}
+          kategori={program.kategori}
           alt={program.nama}
-          fill
-          priority
           sizes="100vw"
-          className="object-cover"
+          priority
         />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           <span className="badge bg-white/90 text-brand-800">

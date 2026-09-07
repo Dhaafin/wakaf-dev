@@ -4,17 +4,20 @@ import { YAYASAN } from "@/lib/config";
 // ============================================================================
 // PROFIL YAYASAN
 // ----------------------------------------------------------------------------
-// !!! KONTEN MASIH PLACEHOLDER !!!
-// Struktur halaman mengikuti pola profil lembaga wakaf (rujukan wakafmulia.org):
+// !!! SELURUH ISI HALAMAN INI MASIH DATA DUMMY !!!
+// Struktur mengikuti pola profil lembaga wakaf (rujukan wakafmulia.org):
 //   latar belakang -> visi -> misi/tujuan -> legalitas -> pengurus -> kontak.
-// Semua teks bertanda TODO di bawah harus diganti dengan isi company profile
-// (compro) resmi Yayasan Khazanah Berkah Mulia. Nomor SK/NIB/registrasi nazhir
-// yang tertulis di sini ADALAH CONTOH, bukan data asli.
+//
+// Nama pengurus, nomor akta/SK/NIB/NPWP/registrasi nazhir, alamat, telepon, dan
+// email di bawah SEMUANYA KARANGAN — dibuat berformat wajar supaya tampilan
+// demo tidak terlihat kosong. JANGAN dipakai sebagai data resmi. Ganti seluruh
+// konstanta bertanda TODO(compro) begitu company profile resmi KBM tersedia.
 // ============================================================================
 
 export const metadata = { title: "Profil Yayasan — KBM" };
 
 // TODO(compro): ganti seluruh isi konstanta di bawah dengan data resmi KBM.
+// Semua nilai saat ini adalah dummy.
 const TUJUAN = [
   "Menghimpun dan mengelola dana wakaf, infaq, shadaqah, dan zakat secara amanah dan profesional.",
   "Mengembangkan wakaf produktif agar manfaatnya berkelanjutan bagi penerima manfaat.",
@@ -32,20 +35,20 @@ const MISI = [
 ];
 
 const LEGALITAS: [string, string][] = [
-  ["Akta Pendirian", "TODO — Nomor akta notaris"],
-  ["SK Kemenkumham RI", "TODO — mis. AHU-0000000.AH.01.04 Tahun 2026"],
-  ["Nomor Induk Berusaha (NIB)", "TODO — nomor NIB"],
-  ["Registrasi Nazhir Wakaf Uang (BWI)", "TODO — nomor registrasi nazhir"],
-  ["NPWP Yayasan", "TODO — nomor NPWP"],
+  ["Akta Pendirian", "No. 42 / 18 Februari 2021"],
+  ["SK Kemenkumham RI", "AHU-0002841.AH.01.04 Tahun 2021"],
+  ["Nomor Induk Berusaha (NIB)", "1274000512983"],
+  ["Registrasi Nazhir Wakaf Uang (BWI)", "3.3.00417"],
+  ["NPWP Yayasan", "91.234.567.8-045.000"],
 ];
 
 const PENGURUS: [string, string][] = [
-  ["Pembina", "TODO — nama pembina"],
-  ["Ketua Pengurus", "TODO — nama ketua"],
-  ["Sekretaris", "TODO — nama sekretaris"],
-  ["Bendahara", "TODO — nama bendahara"],
-  ["Pengawas", "TODO — nama pengawas"],
-  ["Nazhir Wakaf Uang", "TODO — nama nazhir tersertifikasi"],
+  ["Pembina", "H. Abdul Rahman Hakim, S.E."],
+  ["Ketua Pengurus", "Muhammad Fadhil Ramadhan, S.H."],
+  ["Sekretaris", "Nurul Aisyah Rahmawati, S.Pd."],
+  ["Bendahara", "Siti Khadijah Amelia, S.E., Ak."],
+  ["Pengawas", "Drs. H. Bambang Wijayanto, M.M."],
+  ["Nazhir Wakaf Uang", "Ahmad Zulfikar Nugroho, S.H.I."],
 ];
 
 export default function ProfilPage() {
@@ -64,16 +67,11 @@ export default function ProfilPage() {
         </p>
       </header>
 
-      {/* Penanda konten contoh — hapus setelah compro resmi masuk. */}
-      <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-        <p className="font-semibold">⚠️ Konten contoh</p>
-        <p className="mt-1">
-          Narasi, data legalitas, dan susunan pengurus di halaman ini masih
-          placeholder untuk keperluan demo. Bagian bertanda{" "}
-          <span className="font-mono text-xs">TODO</span> akan diganti dengan isi
-          company profile resmi KBM.
-        </p>
-      </div>
+      {/* Catatan kecil — jujur bahwa isinya dummy, tanpa mengganggu tampilan.
+          Hapus setelah company profile resmi masuk. */}
+      <p className="mt-4 text-xs text-brand-400">
+        Data pada halaman ini masih contoh untuk keperluan demo.
+      </p>
 
       {/* --------------------- Latar belakang --------------------- */}
       <section className="mt-10">
@@ -191,20 +189,22 @@ export default function ProfilPage() {
             <p className="text-xs uppercase tracking-wide text-brand-400">
               Kantor
             </p>
-            {/* TODO(compro): alamat kantor resmi */}
+            {/* TODO(compro): alamat kantor resmi — saat ini dummy */}
             <p className="mt-1 text-sm text-brand-700">
-              TODO — alamat lengkap kantor KBM
+              Jl. Melati Raya No. 18, Kel. Sukamaju,
+              <br />
+              Kec. Cilodong, Kota Depok, Jawa Barat 16415
             </p>
           </div>
           <div className="card p-4">
             <p className="text-xs uppercase tracking-wide text-brand-400">
               Telepon &amp; Email
             </p>
-            {/* TODO(compro): kontak resmi */}
+            {/* TODO(compro): kontak resmi — saat ini dummy */}
             <p className="mt-1 text-sm text-brand-700">
-              TODO — nomor telepon
+              (021) 1234-5678 · WA 0812-3456-7890
               <br />
-              TODO — alamat email
+              info@kbm.or.id
             </p>
           </div>
         </div>

@@ -221,10 +221,10 @@ export function ProgramsPanel() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 className="input"
-                placeholder="https://images.unsplash.com/…"
+                placeholder="https://… (foto dokumentasi program)"
               />
               <p className="mt-1 text-xs text-brand-400">
-                Kosongkan untuk memakai gambar bawaan.
+                Kosongkan untuk memakai ilustrasi bawaan sesuai kategori.
               </p>
             </div>
 

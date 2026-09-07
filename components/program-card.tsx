@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PROGRAM_TYPE_TERMS, type Program } from "@/types";
 import { formatRupiah, formatNumber } from "@/lib/format";
+import { ProgramImage } from "@/components/program-image";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { CategoryBadge } from "@/components/category-badge";
 
@@ -12,13 +12,14 @@ export function ProgramCard({ program }: { program: Program }) {
       className="card group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-brand-100">
-        <Image
-          src={program.imageUrl}
-          alt={program.nama}
-          fill
-          sizes="(max-width: 768px) 100vw, 400px"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+          <ProgramImage
+            imageUrl={program.imageUrl}
+            kategori={program.kategori}
+            alt={program.nama}
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        </div>
         <div className="absolute left-3 top-3">
           <CategoryBadge kategori={program.kategori} />
         </div>

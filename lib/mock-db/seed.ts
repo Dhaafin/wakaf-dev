@@ -4,9 +4,11 @@ import type { Program, Transaction, Certificate } from "@/types";
 // DATA DUMMY AWAL
 // ----------------------------------------------------------------------------
 // Semua angka dibuat "masuk akal" untuk yayasan yang baru memulai program
-// wakaf digital. Gambar memakai Unsplash (placeholder sesuai konteks program).
-// 4 transaksi riwayat sudah berstatus "paid" sejak awal supaya halaman
-// Riwayat & Transparansi tidak kosong saat demo pertama kali dibuka.
+// wakaf digital. `imageUrl` sengaja dikosongkan sehingga tiap program memakai
+// ILUSTRASI DUMMY sesuai kategori (components/program-illustration.tsx) —
+// TODO(compro): isi dengan URL foto dokumentasi asli begitu materi dari
+// yayasan tersedia. Transaksi riwayat sudah berstatus "paid" sejak awal supaya
+// halaman Riwayat & Transparansi tidak kosong saat demo pertama kali dibuka.
 // ============================================================================
 
 export const SEED_PROGRAMS: Program[] = [
@@ -21,8 +23,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Renovasi & perluasan Masjid Al-Barokah agar mampu menampung 800 jamaah pada salat Jumat.",
     deskripsi:
       "Masjid Al-Barokah berdiri sejak 1998 dan kini tidak lagi mampu menampung jamaah yang terus bertambah. Dana wakaf digunakan untuk perluasan lantai dua, perbaikan atap, sistem tata suara, serta area wudu ramah difabel. Aset wakaf dikelola nazhir resmi dan bersertifikat Badan Wakaf Indonesia.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&w=1200&q=80",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 750_000_000,
     terkumpul: 313_500_000,
     jumlahWakif: 214,
@@ -52,8 +53,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Dana abadi pendidikan untuk 50 santri penghafal Al-Qur'an dari keluarga prasejahtera.",
     deskripsi:
       "Wakaf uang dikelola sebagai dana abadi (endowment). Hasil pengelolaannya menutup biaya asrama, makan, dan pendidikan santri tahfiz selama satu tahun ajaran. Pokok wakaf tidak berkurang sehingga manfaat mengalir terus-menerus.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=80",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 500_000_000,
     terkumpul: 187_250_000,
     jumlahWakif: 132,
@@ -73,8 +73,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Modal usaha bergulir untuk 30 ibu rumah tangga pengelola warung kelontong binaan.",
     deskripsi:
       "Dana wakaf diputar sebagai modal usaha produktif. Surplus keuntungan disalurkan kembali untuk program sosial yayasan, sementara pokok wakaf tetap terjaga. Setiap mitra mendapat pendampingan pembukuan sederhana.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 300_000_000,
     terkumpul: 268_900_000,
     jumlahWakif: 305,
@@ -113,8 +112,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Pembangunan 8 titik sumur bor dalam untuk 1.200 jiwa di wilayah rawan kekeringan.",
     deskripsi:
       "Dana wakaf membiayai pengeboran sumur dalam, pompa submersible tenaga surya, tandon, dan jaringan pipa ke titik-titik komunal. Aset air diwakafkan untuk kemaslahatan warga dan dikelola kelompok pengelola air desa.",
-    imageUrl:
-      "https://picsum.photos/seed/kbm-air-bersih/1200/675",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 240_000_000,
     terkumpul: 96_400_000,
     jumlahWakif: 178,
@@ -134,8 +132,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Perbaikan 4 ruang kelas rusak berat pascagempa agar 160 siswa kembali belajar dengan aman.",
     deskripsi:
       "Wakaf pembangunan untuk mengganti kuda-kuda atap, plafon, lantai, serta perabot kelas. Tanah dan bangunan berstatus wakaf atas nama yayasan dan tercatat pada Kantor Urusan Agama setempat.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 180_000_000,
     terkumpul: 45_800_000,
     jumlahWakif: 61,
@@ -155,8 +152,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Pembangunan musala permanen di perkampungan nelayan yang selama ini salat di saung darurat.",
     deskripsi:
       "Dana wakaf membiayai pondasi tahan abrasi, dinding, atap, tempat wudu, dan sumur air tawar untuk musala berkapasitas 120 jamaah. Lahan hibah warga telah diikrarkan sebagai tanah wakaf.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1200&q=80",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 220_000_000,
     terkumpul: 132_750_000,
     jumlahWakif: 149,
@@ -188,7 +184,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Menyediakan 500 porsi makanan bergizi setiap hari untuk lansia dan keluarga prasejahtera.",
     deskripsi:
       "Berbeda dengan wakaf, dana infaq disalurkan langsung habis untuk kebutuhan penerima manfaat. Setiap Rp15.000 setara satu porsi makanan lengkap. Dapur umum beroperasi setiap hari dengan pengawasan ahli gizi dan laporan distribusi harian.",
-    imageUrl: "https://picsum.photos/seed/kbm-dapur-dhuafa/1200/675",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 90_000_000,
     terkumpul: 41_300_000,
     jumlahWakif: 268,
@@ -218,7 +214,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Bantuan tanggap darurat: air bersih, selimut, tenda keluarga, dan obat-obatan.",
     deskripsi:
       "Dana disalurkan langsung dalam bentuk paket kebutuhan mendesak untuk keluarga terdampak bencana. Tim relawan berada di lokasi dan mengirim laporan penyaluran setiap pekan.",
-    imageUrl: "https://picsum.photos/seed/kbm-infaq-bencana/1200/675",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 150_000_000,
     terkumpul: 78_900_000,
     jumlahWakif: 412,
@@ -240,7 +236,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Penyaluran zakat harta kepada delapan golongan penerima sesuai ketentuan syariah.",
     deskripsi:
       "Zakat maal wajib ditunaikan bila harta telah mencapai nisab (setara 85 gram emas) dan dimiliki selama satu haul. Dana dihimpun amil dan disalurkan kepada 8 asnaf: fakir, miskin, amil, mualaf, riqab, gharimin, fi sabilillah, dan ibnu sabil. Gunakan kalkulator zakat untuk menghitung kewajiban Anda.",
-    imageUrl: "https://picsum.photos/seed/kbm-zakat-asnaf/1200/675",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 400_000_000,
     terkumpul: 156_400_000,
     jumlahWakif: 523,
@@ -270,7 +266,7 @@ export const SEED_PROGRAMS: Program[] = [
       "Zakat penghasilan 2,5% disalurkan sebagai beasiswa pendidikan 120 anak yatim.",
     deskripsi:
       "Zakat penghasilan (zakat profesi) ditunaikan dari pendapatan rutin yang telah melewati nisab. Penyalurannya diarahkan pada asnaf fakir-miskin melalui beasiswa: biaya sekolah, seragam, buku, dan uang saku bulanan anak yatim binaan.",
-    imageUrl: "https://picsum.photos/seed/kbm-zakat-beasiswa/1200/675",
+    imageUrl: "", // ilustrasi dummy dipakai selama foto asli belum ada
     target: 250_000_000,
     terkumpul: 88_150_000,
     jumlahWakif: 197,

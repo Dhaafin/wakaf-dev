@@ -86,10 +86,14 @@ export function SiteFooter() {
         </div>
         <div>
           <h4 className="text-sm font-semibold text-brand-900">Legalitas</h4>
+          {/* TODO(compro): data legalitas masih dummy — samakan dengan
+              app/profil/page.tsx begitu compro resmi KBM masuk. */}
           <p className="mt-3 text-sm text-brand-600">
-            Terdaftar di Badan Wakaf Indonesia (BWI).
+            Terdaftar &amp; diawasi Badan Wakaf Indonesia (BWI).
             <br />
-            SK Menteri Agama No. 00.00.0/2026.
+            Reg. Nazhir Wakaf Uang: 3.3.00417
+            <br />
+            SK Kemenkumham AHU-0002841.AH.01.04/2021
           </p>
           <p className="mt-3 text-xs text-brand-400">
             Situs ini adalah demo. Tidak ada transaksi keuangan nyata.

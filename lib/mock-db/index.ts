@@ -151,10 +151,8 @@ export function createProgram(input: NewProgramInput): Program {
     lokasi: input.lokasi,
     ringkasan: input.ringkasan,
     deskripsi: input.deskripsi,
-    imageUrl:
-      input.imageUrl && input.imageUrl.trim().length > 0
-        ? input.imageUrl.trim()
-        : "https://picsum.photos/seed/kbm-program-baru/1200/675",
+    // Kosong = pakai ilustrasi dummy sesuai kategori (components/program-illustration).
+    imageUrl: input.imageUrl?.trim() ?? "",
     target: input.target,
     terkumpul: 0,
     jumlahWakif: 0,

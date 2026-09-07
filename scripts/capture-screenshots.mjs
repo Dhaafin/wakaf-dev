@@ -132,16 +132,16 @@ await page.waitForFunction(() => location.pathname.startsWith("/sukses/"), {
 await sleep(1500);
 await shot("06-pembayaran-sukses", { full: true });
 
-// 7. Sertifikat
-await page.evaluate(() => {
+// 7. Sertifikat — ambil href-nya lalu navigasi langsung (lebih andal daripada
+//    mengklik <Link>, karena teks tombol menyesuaikan jenis program).
+const hrefSertifikat = await page.evaluate(() => {
   const a = [...document.querySelectorAll("a")].find((x) =>
-    x.textContent.includes("Lihat & unduh sertifikat"),
+    x.getAttribute("href")?.startsWith("/sertifikat/"),
   );
-  a?.click();
+  return a?.getAttribute("href") ?? null;
 });
-await page.waitForFunction(() => location.pathname.startsWith("/sertifikat/"), {
-  timeout: 15000,
-});
+if (!hrefSertifikat) throw new Error("Tautan sertifikat tidak ditemukan");
+await goto(hrefSertifikat);
 await sleep(1400);
 await shot("07-sertifikat", { full: true });
 
@@ -253,6 +253,10 @@ await shot("mobile-03-detail-program", { full: true });
 await goto("/zakat");
 await sleep(1200);
 await shot("mobile-04-kalkulator-zakat", { full: true });
+
+await goto("/profil");
+await sleep(1200);
+await shot("mobile-05-profil-yayasan", { full: true });
 
 await browser.close();
 console.log("\nSelesai. Lihat", OUT);

@@ -125,6 +125,10 @@ Rp 313.500.000 → **Rp 313.600.000**, 214 → **215 wakif** (baca dari mock-db 
 | --- | --- |
 | ![Kalkulator zakat HP](docs/screenshots/mobile-04-kalkulator-zakat.png) | ![Profil yayasan HP](docs/screenshots/mobile-05-profil-yayasan.png) |
 
+> Seluruh gambar program adalah **ilustrasi dummy**, dan isi halaman Profil
+> (nama pengurus, nomor legalitas, alamat, kontak) adalah **data karangan**
+> untuk keperluan demo — semuanya akan diganti dengan materi resmi KBM.
+
 ## Responsif
 
 Diuji pada 3 lebar: **HP 390px**, **tablet 768px**, **desktop ≥1024px**.
@@ -191,14 +195,19 @@ Semua ditandai komentar di kode. Ringkasnya:
 | `components/mock-file-input.tsx` | File dibaca jadi data URL di browser | Upload ke object storage, simpan URL |
 | `components/brand-logo.tsx` | Wordmark "kbm" dibuat via CSS | Ganti dengan file SVG/PNG logo resmi |
 | `lib/config.ts` → `HARGA_EMAS_PER_GRAM` | Harga emas di-hardcode untuk nisab zakat | Ambil dari API harga emas / setelan admin |
-| `app/profil/page.tsx` | Narasi, legalitas & pengurus masih `TODO` | Isi dari company profile resmi KBM |
+| `app/profil/page.tsx` | Nama pengurus, akta/SK/NIB/NPWP, alamat & kontak semuanya **dummy karangan** | Isi dari company profile resmi KBM |
+| `components/site-footer.tsx` | Legalitas di footer ikut dummy | Samakan dengan data resmi |
+| `components/program-illustration.tsx` | Ilustrasi SVG dummy menggantikan foto program | Isi `imageUrl` dengan foto dokumentasi asli |
 
 ## Catatan
 
 - Semua teks Bahasa Indonesia. Mobile-first / responsif (lihat bagian **Responsif**).
 - `reactStrictMode: false` (`next.config.js`) agar interval countdown demo tidak
   double-fire di dev.
-- Gambar program memakai Unsplash (lihat `next.config.js` → `remotePatterns`).
+- Gambar program memakai **ilustrasi SVG dummy** per kategori
+  (`components/program-illustration.tsx`) — bukan foto stok, supaya konsisten
+  dan tidak ada gambar yang tidak sesuai konteks. Begitu foto dokumentasi asli
+  tersedia, cukup isi `imageUrl` pada data program.
 
 ## Lisensi
 
