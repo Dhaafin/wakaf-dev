@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import {
@@ -14,11 +14,15 @@ import {
 } from "@/lib/format";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { CategoryBadge } from "@/components/category-badge";
+import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 import { WakafForm } from "@/components/wakaf-form";
 import { EmptyState } from "@/components/empty-state";
 
 export function ProgramDetail({ slug }: { slug: string }) {
   const router = useRouter();
+  // ?nominal=... dipakai saat pengunjung datang dari kalkulator zakat.
+  const searchParams = useSearchParams();
+  const nominalAwal = Number(searchParams.get("nominal")) || undefined;
   const { data: program, loading, error } = useAsync(
     () => api.getProgram(slug),
     [slug],
@@ -80,7 +84,10 @@ export function ProgramDetail({ slug }: { slug: string }) {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute left-4 top-4">
+        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+          <span className="badge bg-white/90 text-brand-800">
+            {PROGRAM_TYPE_LABEL[program.program_type]}
+          </span>
           <CategoryBadge kategori={program.kategori} />
         </div>
       </div>
@@ -122,7 +129,9 @@ export function ProgramDetail({ slug }: { slug: string }) {
                 <p className="order-2 font-serif text-base font-bold text-brand-800 sm:order-none sm:text-lg">
                   {formatNumber(program.jumlahWakif)}
                 </p>
-                <p className="text-xs text-brand-500">wakif</p>
+                <p className="text-xs text-brand-500">
+                  {PROGRAM_TYPE_TERMS[program.program_type].pemberiJamak}
+                </p>
               </div>
             </div>
           </div>
@@ -138,7 +147,9 @@ export function ProgramDetail({ slug }: { slug: string }) {
 
           <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
             <div className="card p-4">
-              <dt className="text-brand-400">Nazhir pengelola</dt>
+              <dt className="text-brand-400">
+                {PROGRAM_TYPE_TERMS[program.program_type].pengelola} pengelola
+              </dt>
               <dd className="mt-0.5 font-semibold text-brand-900">
                 {program.nazhir}
               </dd>
@@ -205,6 +216,7 @@ export function ProgramDetail({ slug }: { slug: string }) {
         <div className="lg:sticky lg:top-24 lg:self-start">
           <WakafForm
             program={program}
+            nominalAwal={nominalAwal}
             onCreated={(txId) => router.push(`/wakaf/${txId}`)}
           />
         </div>

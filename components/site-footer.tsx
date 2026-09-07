@@ -22,29 +22,29 @@ export function SiteFooter() {
           <h4 className="text-sm font-semibold text-brand-900">Program</h4>
           <ul className="mt-3 space-y-2 text-sm text-brand-600">
             <li>
-              <Link href="/program?kategori=masjid" className="hover:text-brand-800">
-                Masjid & Rumah Ibadah
-              </Link>
-            </li>
-            <li>
-              <Link href="/program?kategori=pendidikan" className="hover:text-brand-800">
-                Pendidikan
+              <Link href="/program#wakaf-uang" className="hover:text-brand-800">
+                Wakaf Uang
               </Link>
             </li>
             <li>
               <Link
-                href="/program?kategori=produktif-umkm"
+                href="/program#wakaf-melalui-uang"
                 className="hover:text-brand-800"
               >
-                Wakaf Produktif
+                Wakaf Melalui Uang
               </Link>
             </li>
             <li>
               <Link
-                href="/program?kategori=sumur-air-bersih"
+                href="/program#infaq-shadaqah"
                 className="hover:text-brand-800"
               >
-                Sumur & Air Bersih
+                Infaq &amp; Shadaqah
+              </Link>
+            </li>
+            <li>
+              <Link href="/program#zakat" className="hover:text-brand-800">
+                Zakat
               </Link>
             </li>
           </ul>
@@ -52,6 +52,16 @@ export function SiteFooter() {
         <div>
           <h4 className="text-sm font-semibold text-brand-900">Tautan</h4>
           <ul className="mt-3 space-y-2 text-sm text-brand-600">
+            <li>
+              <Link href="/profil" className="hover:text-brand-800">
+                Profil Yayasan
+              </Link>
+            </li>
+            <li>
+              <Link href="/zakat" className="hover:text-brand-800">
+                Kalkulator Zakat
+              </Link>
+            </li>
             <li>
               <Link href="/transparansi" className="hover:text-brand-800">
                 Laporan Transparansi

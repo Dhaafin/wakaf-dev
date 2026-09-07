@@ -7,9 +7,11 @@ import { useSession } from "@/lib/store/session";
 import { BrandLogo } from "@/components/brand-logo";
 
 const NAV = [
+  { href: "/profil", label: "Profil" },
   { href: "/program", label: "Program" },
+  { href: "/zakat", label: "Zakat" },
   { href: "/transparansi", label: "Transparansi" },
-  { href: "/riwayat", label: "Riwayat Saya" },
+  { href: "/riwayat", label: "Riwayat" },
 ];
 
 export function SiteHeader() {
@@ -58,7 +60,7 @@ export function SiteHeader() {
             </Link>
           )}
           <Link href="/program" className="btn-primary px-4 py-2 text-xs">
-            Wakaf Sekarang
+            Tunaikan Sekarang
           </Link>
         </div>
 
@@ -83,11 +85,8 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
-            <Link
-              href="/program"
-              className="btn-primary mt-2 w-full"
-            >
-              Wakaf Sekarang
+            <Link href="/program" className="btn-primary mt-2 w-full">
+              Tunaikan Sekarang
             </Link>
           </nav>
         </div>

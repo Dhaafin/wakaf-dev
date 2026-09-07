@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah, formatRelativeTime } from "@/lib/format";
 import { EmptyState } from "@/components/empty-state";
+import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
 // "Wall of donors" untuk halaman transparansi: menampilkan wakif yang baru saja
 // menyelesaikan pembayaran. Data dari /api/donations (proyeksi publik: tanpa
@@ -28,11 +29,12 @@ export function RecentDonations({ limit = 10 }: { limit?: number }) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <h2 className="font-serif text-xl font-bold text-brand-950">
-            Wakif terbaru
+            Transaksi terbaru
           </h2>
           <p className="mt-1 text-sm text-brand-600">
-            Setiap wakaf yang lunas langsung tercatat di sini. Wakif yang memilih
-            anonim tampil sebagai &ldquo;Hamba Allah&rdquo;.
+            Setiap wakaf, infaq, dan zakat yang lunas langsung tercatat di sini.
+            Pemberi yang memilih anonim tampil sebagai &ldquo;Hamba
+            Allah&rdquo;.
           </p>
         </div>
         <button
@@ -54,8 +56,8 @@ export function RecentDonations({ limit = 10 }: { limit?: number }) {
           <p className="text-sm text-red-600">{error}</p>
         ) : !data || data.length === 0 ? (
           <EmptyState
-            title="Belum ada wakaf tercatat"
-            desc="Wakif yang menyelesaikan pembayaran akan muncul di sini."
+            title="Belum ada transaksi tercatat"
+            desc="Pemberi yang menyelesaikan pembayaran akan muncul di sini."
           />
         ) : (
           <ul className="space-y-2">
@@ -93,13 +95,18 @@ function DonationRow({ d }: { d: PublicDonation }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <p className="font-semibold text-brand-950">{d.nama}</p>
+          <p className="font-semibold text-brand-950">
+            {d.nama}
+            <span className="ml-2 badge bg-brand-50 align-middle text-brand-600">
+              {PROGRAM_TYPE_LABEL[d.program_type]}
+            </span>
+          </p>
           <span className="text-xs text-brand-400">
             {formatRelativeTime(d.paidAt)}
           </span>
         </div>
         <p className="text-sm text-brand-600">
-          berwakaf{" "}
+          {PROGRAM_TYPE_TERMS[d.program_type].kataKerja}{" "}
           <span className="font-semibold text-brand-800">
             {formatRupiah(d.nominal)}
           </span>{" "}

@@ -46,3 +46,22 @@ export const YAYASAN = {
 export const DEMO_OTP = "123456";
 
 export const BANK_OPTIONS = ["BSI", "BCA", "Mandiri", "BNI", "BRI"] as const;
+
+// ---------------------------------------------------------------------------
+// Parameter ZAKAT untuk kalkulator.
+// CATATAN: harga emas berubah tiap hari. Untuk produksi, ambil dari API harga
+// emas / setelan admin, jangan hardcode seperti di bawah.
+// ---------------------------------------------------------------------------
+
+/** Nisab zakat maal = 85 gram emas (mengikuti ketentuan BAZNAS/BWI). */
+export const NISAB_EMAS_GRAM = 85;
+
+/** DEMO: harga emas per gram (rupiah). Ganti dengan sumber harga real-time. */
+export const HARGA_EMAS_PER_GRAM = 1_350_000;
+
+/** Kadar zakat maal & penghasilan = 2,5%. */
+export const KADAR_ZAKAT = 0.025;
+
+/** Slug program tujuan pembayaran dari kalkulator. */
+export const PROGRAM_ZAKAT_MAAL = "zakat-maal-untuk-8-asnaf";
+export const PROGRAM_ZAKAT_PENGHASILAN = "zakat-penghasilan-beasiswa-anak-yatim";

@@ -12,7 +12,8 @@ export async function GET() {
 }
 
 // POST /api/programs — buat program baru (dipakai admin panel).
-// Modular: `program_type` bisa dikirim (default "wakaf") untuk zakat/donasi dsb.
+// Modular: `program_type` menentukan pengelompokan di halaman publik
+// (wakaf-uang / wakaf-melalui-uang / infaq-shadaqah / zakat).
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   const prog = createProgram({
     nama: values.nama.trim(),
     kategori: values.kategori as ProgramCategory,
-    program_type: (body.program_type as ProgramType) ?? "wakaf",
+    program_type: (body.program_type as ProgramType) ?? "wakaf-melalui-uang",
     lokasi: values.lokasi.trim(),
     ringkasan: values.ringkasan.trim(),
     deskripsi: values.deskripsi.trim(),

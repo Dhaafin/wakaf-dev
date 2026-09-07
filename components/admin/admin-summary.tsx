@@ -18,7 +18,7 @@ export function AdminSummary() {
   const cards = [
     { label: "Dana terkumpul", value: stats ? formatRupiah(stats.totalTerkumpul) : "—" },
     { label: "Dana tersalurkan", value: stats ? formatRupiah(stats.totalDisalurkan) : "—" },
-    { label: "Wakif unik", value: stats ? stats.totalWakif.toString() : "—" },
+    { label: "Pemberi unik", value: stats ? stats.totalWakif.toString() : "—" },
     { label: "Transaksi lunas", value: stats ? stats.totalTransaksiPaid.toString() : "—" },
     { label: "Menunggu pembayaran", value: pending.toString() },
     { label: "Kedaluwarsa", value: expired.toString() },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Program } from "@/types";
+import { PROGRAM_TYPE_TERMS, type Program } from "@/types";
 import { api, ApiError } from "@/lib/api/client";
 import { validateWakafForm } from "@/lib/validation";
 import { formatRupiah } from "@/lib/format";
@@ -16,14 +16,19 @@ type Errors = Record<string, string>;
 export function WakafForm({
   program,
   onCreated,
+  nominalAwal,
 }: {
   program: Program;
   onCreated: (txId: string) => void;
+  /** Nominal awal terisi — dipakai saat datang dari kalkulator zakat. */
+  nominalAwal?: number;
 }) {
+  // Istilah menyesuaikan jenis program (wakaf / infaq / zakat).
+  const terms = PROGRAM_TYPE_TERMS[program.program_type];
   const wakif = useSession((s) => s.wakif);
   const { push } = useToast();
 
-  const [nominal, setNominal] = useState<number | "">("");
+  const [nominal, setNominal] = useState<number | "">(nominalAwal ?? "");
   const [nama, setNama] = useState(wakif?.nama ?? "");
   const [email, setEmail] = useState(wakif?.email ?? "");
   const [telepon, setTelepon] = useState("");
@@ -83,7 +88,7 @@ export function WakafForm({
       });
       push({
         kind: "success",
-        title: "Tagihan wakaf dibuat",
+        title: `Tagihan ${terms.judulForm.toLowerCase().replace(/^(tunaikan|salurkan) /, "")} dibuat`,
         desc: `Nomor VA ${tx.vaNumber} telah diterbitkan.`,
       });
       onCreated(tx.id);
@@ -105,10 +110,10 @@ export function WakafForm({
       onSubmit={handleSubmit}
       noValidate
       className="card p-6"
-      aria-label="Formulir wakaf"
+      aria-label={`Formulir ${terms.judulForm}`}
     >
       <h2 className="font-serif text-xl font-bold text-brand-950">
-        Tunaikan wakaf
+        {terms.judulForm}
       </h2>
       <p className="mt-1 text-sm text-brand-500">
         untuk <span className="font-medium text-brand-700">{program.nama}</span>
@@ -117,7 +122,7 @@ export function WakafForm({
       {/* Nominal */}
       <div className="mt-5">
         <label htmlFor="nominal" className="label">
-          Nominal wakaf
+          Nominal {terms.judulForm.split(" ").slice(1).join(" ")}
         </label>
         <div className="mb-2 flex flex-wrap gap-2">
           {NOMINAL_PRESETS.map((p) => (
@@ -152,7 +157,7 @@ export function WakafForm({
 
       {/* Atas nama */}
       <fieldset className="mt-5">
-        <legend className="label">Wakaf atas nama</legend>
+        <legend className="label">Atas nama</legend>
         <div className="grid grid-cols-2 gap-2">
           {(
             [
@@ -310,7 +315,7 @@ export function WakafForm({
       {/* Ringkasan */}
       <div className="mt-5 rounded-xl bg-brand-50 p-4 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-brand-600">Nominal wakaf</span>
+          <span className="text-brand-600">Nominal</span>
           <span className="font-semibold text-brand-900">
             {nominal ? formatRupiah(Number(nominal)) : "—"}
           </span>
@@ -336,7 +341,11 @@ export function WakafForm({
         {submitting ? "Menerbitkan tagihan…" : "Lanjut ke pembayaran"}
       </button>
       <p className="mt-2 text-center text-xs text-brand-400">
-        Dengan melanjutkan, Anda menyetujui akad wakaf yang berlaku.
+        {program.program_type === "zakat"
+          ? "Dengan melanjutkan, Anda menyatakan menunaikan zakat melalui amil KBM."
+          : program.program_type === "infaq-shadaqah"
+            ? "Dengan melanjutkan, dana Anda akan disalurkan sesuai peruntukan program."
+            : "Dengan melanjutkan, Anda menyetujui akad wakaf yang berlaku."}
       </p>
     </form>
   );

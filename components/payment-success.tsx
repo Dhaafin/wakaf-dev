@@ -9,6 +9,7 @@ import { formatRupiah } from "@/lib/format";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/empty-state";
 import { useSession } from "@/lib/store/session";
+import { PROGRAM_TYPE_TERMS } from "@/types";
 
 export function PaymentSuccess({ txId }: { txId: string }) {
   const router = useRouter();
@@ -58,6 +59,9 @@ export function PaymentSuccess({ txId }: { txId: string }) {
     );
   }
 
+  // Istilah menyesuaikan jenis program (wakaf / infaq / zakat).
+  const terms = PROGRAM_TYPE_TERMS[tx.program_type];
+
   return (
     <div className="container-app max-w-2xl py-10">
       <div className="card overflow-hidden">
@@ -66,7 +70,11 @@ export function PaymentSuccess({ txId }: { txId: string }) {
             ✓
           </div>
           <h1 className="mt-4 font-serif text-2xl font-bold">
-            Wakaf Anda tercatat
+            {terms.pemberi === "Muzakki"
+              ? "Zakat Anda tercatat"
+              : terms.pemberi === "Donatur"
+                ? "Donasi Anda tercatat"
+                : "Wakaf Anda tercatat"}
           </h1>
           <p className="mt-1 text-sm text-brand-100/90">
             Jazākumullāhu khairan. Semoga menjadi amal jariyah yang tak terputus.
@@ -78,7 +86,7 @@ export function PaymentSuccess({ txId }: { txId: string }) {
             <Row k="Nomor transaksi" v={<span className="font-mono">{tx.id}</span>} />
             <Row k="Program" v={tx.programNama} />
             <Row
-              k="Nominal wakaf"
+              k="Nominal"
               v={
                 <span className="font-serif text-base font-bold text-brand-900">
                   {formatRupiah(tx.nominal)}
@@ -107,7 +115,7 @@ export function PaymentSuccess({ txId }: { txId: string }) {
               href={`/sertifikat/${encodeURIComponent(tx.certificateId ?? "")}`}
               className="btn-primary w-full"
             >
-              Lihat &amp; unduh sertifikat
+              Lihat &amp; unduh {terms.bukti.toLowerCase()}
             </Link>
             <Link
               href={`/program/${tx.programId}`}
@@ -120,7 +128,7 @@ export function PaymentSuccess({ txId }: { txId: string }) {
             href="/riwayat"
             className="mt-3 block text-center text-sm font-semibold text-brand-700 hover:text-brand-900"
           >
-            Buka riwayat wakaf saya →
+            Buka riwayat saya →
           </Link>
         </div>
       </div>

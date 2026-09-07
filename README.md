@@ -27,7 +27,10 @@ npm run build && npm start
 
 ## Alur yang bisa dicoba
 
-1. **Browse & filter** — `/program`: 6 program, filter kategori + pencarian kata kunci.
+1. **Browse & filter** — `/program`: 10 program dikelompokkan jadi 4 seksi
+   berdasarkan jenis — **Wakaf Uang**, **Wakaf Melalui Uang**, **Infaq &
+   Shadaqah**, dan **Zakat** — masing-masing dengan penjelasan singkat. Filter
+   kategori + pencarian kata kunci berlaku lintas seksi.
 2. **Flow wakaf penuh** — buka satu program → isi form (validasi jalan) → terbit
    transaksi + nomor Virtual Account tiruan (diawali `DEMO …` — sengaja
    memakai huruf agar tidak bisa dimasukkan ke aplikasi bank sungguhan).
@@ -48,13 +51,19 @@ npm run build && npm start
    - Tambah program baru → langsung muncul di listing publik.
    - Catat penyaluran dana per program + unggah bukti (mock file upload,
      preview gambar).
-8. **Transparansi** — `/transparansi`:
-   - **Wakif terbaru** — daftar siapa saja yang baru menyelesaikan wakaf
-     (`GET /api/donations`, proyeksi publik: tanpa email/telepon; wakif anonim
-     tampil sebagai "Hamba Allah"). Selesaikan pembayaran mock → nama langsung
-     muncul di paling atas.
-   - Laporan penyaluran yang datanya berasal dari input admin panel. Tambah
-     laporan di admin → refresh halaman ini → entri baru muncul.
+8. **Kalkulator zakat** — `/zakat`: hitung **zakat maal** (nisab 85 gr emas,
+   kadar 2,5%) dan **zakat penghasilan**. Hasil hitungan langsung membawa
+   nominalnya ke form pembayaran lewat `?nominal=`.
+9. **Profil yayasan** — `/profil`: latar belakang, visi, misi, tujuan,
+   legalitas, dewan pengurus & nazhir, kontak. **Konten masih placeholder**
+   (bertanda `TODO`) menunggu company profile resmi KBM.
+10. **Transparansi** — `/transparansi`:
+    - **Transaksi terbaru** — daftar siapa saja yang baru menyelesaikan wakaf,
+      infaq, atau zakat (`GET /api/donations`, proyeksi publik: tanpa
+      email/telepon; yang memilih anonim tampil sebagai "Hamba Allah").
+      Selesaikan pembayaran mock → nama langsung muncul di paling atas.
+    - Laporan penyaluran yang datanya berasal dari input admin panel. Tambah
+      laporan di admin → refresh halaman ini → entri baru muncul.
 
 **Reset data demo**: tombol di banner atas setiap halaman, atau
 `POST /api/reset`. Mengembalikan mock-db ke kondisi seed.
@@ -100,11 +109,19 @@ Rp 313.500.000 → **Rp 313.600.000**, 214 → **215 wakif** (baca dari mock-db 
 ### 11. Halaman transparansi — data dari input penyaluran admin
 ![Transparansi](docs/screenshots/11-transparansi.png)
 
+### 12. Profil yayasan (struktur siap, konten placeholder)
+![Profil yayasan](docs/screenshots/12-profil-yayasan.png)
+
+### 13. Kalkulator zakat — hasil langsung terhubung ke form pembayaran
+![Kalkulator zakat](docs/screenshots/13-kalkulator-zakat.png)
+
 ### Tampilan HP (390px) — layout stack, angka ringkas, nav jadi menu
 
 | Beranda | Daftar program | Detail + form |
 | --- | --- | --- |
 | ![Beranda HP](docs/screenshots/mobile-01-beranda.png) | ![Daftar program HP](docs/screenshots/mobile-02-daftar-program.png) | ![Detail program HP](docs/screenshots/mobile-03-detail-program.png) |
+
+![Kalkulator zakat HP](docs/screenshots/mobile-04-kalkulator-zakat.png)
 
 ## Responsif
 
@@ -128,14 +145,33 @@ lib/mock-db/           In-memory store server-side + data seed
 lib/api/client.ts      Wrapper fetch tunggal untuk semua komponen
 lib/store/             Zustand: sesi login (persist localStorage) & toast
 lib/config.ts          SEMUA nilai yang dipercepat/dipalsukan untuk demo
-types/                 Tipe domain bersama; ada field `program_type` (wakaf | zakat | donasi | qurban)
+types/                 Tipe domain bersama + kamus istilah per jenis program
 ```
 
-### Modular untuk pengembangan lanjutan
+### Pengelompokan program & istilah per jenis
 
-`program_type` sudah disiapkan di tipe `Program`, `Transaction`, `Certificate`,
-dan bisa dipilih saat admin membuat program. Menambah zakat/donasi/qurban tidak
-perlu mengubah struktur inti.
+`program_type` adalah sumbu utama pengelompokan, mengikuti pembagian lembaga
+wakaf ([rujukan definisi BWI](https://www.bwi.go.id/literasiwakaf/perbedaan-wakaf-uang-dan-wakaf-melalui-uang/)):
+
+| Jenis | Arti singkat |
+| --- | --- |
+| `wakaf-uang` | Uangnya jadi objek wakaf. Pokok dijaga, **hasil pengelolaan** yang disalurkan (dana abadi). |
+| `wakaf-melalui-uang` | Uang langsung **diwujudkan jadi aset wakaf** (tanah, masjid, sumur). |
+| `infaq-shadaqah` | Sedekah sukarela, disalurkan langsung habis. |
+| `zakat` | Kewajiban, terikat nisab/haul & 8 asnaf. |
+
+Karena istilahnya berbeda-beda, `PROGRAM_TYPE_TERMS` di `types/index.ts` memetakan
+sebutan per jenis dan dipakai konsisten di form, sertifikat, riwayat, dan
+transparansi:
+
+| | Wakaf | Infaq/Shadaqah | Zakat |
+| --- | --- | --- | --- |
+| Pemberi | Wakif | Donatur | Muzakki |
+| Pengelola | Nazhir | Lembaga penyalur | Amil |
+| Bukti | Sertifikat Wakaf | Bukti Donasi | Bukti Setor Zakat |
+
+`kategori` (masjid, pendidikan, produktif-UMKM, sumur & air bersih, kemanusiaan,
+sosial & dhuafa) tetap ada sebagai klasifikasi sekunder untuk filter.
 
 ## Bagian yang disederhanakan untuk demo (ganti saat produksi)
 
@@ -152,6 +188,8 @@ Semua ditandai komentar di kode. Ringkasnya:
 | `app/api/auth/*` | 1 akun admin hardcode; OTP wakif selalu `123456` | User store + hash + sesi ber-token + OTP asli |
 | `components/mock-file-input.tsx` | File dibaca jadi data URL di browser | Upload ke object storage, simpan URL |
 | `components/brand-logo.tsx` | Wordmark "kbm" dibuat via CSS | Ganti dengan file SVG/PNG logo resmi |
+| `lib/config.ts` → `HARGA_EMAS_PER_GRAM` | Harga emas di-hardcode untuk nisab zakat | Ambil dari API harga emas / setelan admin |
+| `app/profil/page.tsx` | Narasi, legalitas & pengurus masih `TODO` | Isi dari company profile resmi KBM |
 
 ## Catatan
 

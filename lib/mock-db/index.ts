@@ -144,7 +144,7 @@ export function createProgram(input: NewProgramInput): Program {
   const now = new Date().toISOString();
   const prog: Program = {
     id: `prg-${slugify(input.nama)}-${randToken(4).toLowerCase()}`,
-    program_type: input.program_type ?? "wakaf",
+    program_type: input.program_type ?? "wakaf-melalui-uang",
     kategori: input.kategori,
     nama: input.nama,
     slug: slugify(input.nama),

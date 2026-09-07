@@ -208,6 +208,31 @@ await goto("/transparansi");
 await sleep(1800);
 await shot("11-transparansi", { full: true });
 
+// 12. Profil yayasan
+await goto("/profil");
+await sleep(1200);
+await shot("12-profil-yayasan", { full: true });
+
+// 13. Kalkulator zakat (terisi contoh)
+await goto("/zakat");
+await sleep(1000);
+await page.evaluate(() => {
+  const setter = Object.getOwnPropertyDescriptor(
+    window.HTMLInputElement.prototype,
+    "value",
+  ).set;
+  const inputs = [...document.querySelectorAll("input")];
+  const fill = (i, v) => {
+    setter.call(inputs[i], v);
+    inputs[i].dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  fill(0, "200000000"); // kas & tabungan
+  fill(1, "50000000"); // emas
+  fill(4, "10000000"); // hutang
+});
+await sleep(900);
+await shot("13-kalkulator-zakat", { full: true });
+
 // --------------------------------------------------------------------------
 // Pass mobile (390px) — membuktikan layout jalan di HP, bukan cuma desktop.
 // --------------------------------------------------------------------------
@@ -224,6 +249,10 @@ await shot("mobile-02-daftar-program", { full: true });
 await goto("/program/pembangunan-masjid-al-barokah");
 await sleep(1400);
 await shot("mobile-03-detail-program", { full: true });
+
+await goto("/zakat");
+await sleep(1200);
+await shot("mobile-04-kalkulator-zakat", { full: true });
 
 await browser.close();
 console.log("\nSelesai. Lihat", OUT);

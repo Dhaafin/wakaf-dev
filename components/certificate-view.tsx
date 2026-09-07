@@ -3,14 +3,18 @@
 import { useState } from "react";
 import type { Certificate } from "@/types";
 import { formatRupiah, formatTanggal } from "@/lib/format";
-import { PROGRAM_TYPE_LABEL } from "@/types";
+import { PROGRAM_TYPE_TERMS } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 
-// Sertifikat wakaf. Tampil sebagai kartu print-friendly + tombol:
+// Dokumen bukti (Sertifikat Wakaf / Bukti Donasi / Bukti Setor Zakat —
+// menyesuaikan jenis program). Kartu print-friendly + tombol:
 //  - "Unduh PDF": generate PDF sungguhan via jsPDF (import dinamis).
 //  - "Cetak": window.print() (globals.css punya aturan @media print).
 export function CertificateView({ cert }: { cert: Certificate }) {
   const [downloading, setDownloading] = useState(false);
+  // Nama dokumen & istilah menyesuaikan jenis: wakaf -> Sertifikat Wakaf,
+  // infaq -> Bukti Donasi, zakat -> Bukti Setor Zakat.
+  const terms = PROGRAM_TYPE_TERMS[cert.program_type];
 
   async function unduhPdf() {
     setDownloading(true);
@@ -30,7 +34,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
       doc.setTextColor(12, 58, 32);
       doc.setFont("times", "bold");
       doc.setFontSize(26);
-      doc.text("SERTIFIKAT WAKAF", W / 2, 100, { align: "center" });
+      doc.text(terms.bukti.toUpperCase(), W / 2, 100, { align: "center" });
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
@@ -51,7 +55,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
       doc.setTextColor(60, 60, 60);
-      const narasi = `telah menunaikan ${PROGRAM_TYPE_LABEL[cert.program_type]} sebesar ${formatRupiah(
+      const narasi = `telah ${terms.kataKerja} sebesar ${formatRupiah(
         cert.nominal,
       )} untuk program "${cert.programNama}".`;
       doc.text(doc.splitTextToSize(narasi, W - 200), W / 2, 235, {
@@ -59,11 +63,11 @@ export function CertificateView({ cert }: { cert: Certificate }) {
       });
 
       doc.setFontSize(11);
-      doc.text(`Nomor Sertifikat : ${cert.id}`, W / 2, 290, { align: "center" });
+      doc.text(`Nomor Dokumen    : ${cert.id}`, W / 2, 290, { align: "center" });
       doc.text(`Tanggal          : ${formatTanggal(cert.tanggal)}`, W / 2, 308, {
         align: "center",
       });
-      doc.text(`Nazhir Pengelola : ${cert.nazhir}`, W / 2, 326, {
+      doc.text(`${terms.pengelola} Pengelola : ${cert.nazhir}`, W / 2, 326, {
         align: "center",
       });
 
@@ -82,7 +86,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
         { align: "center" },
       );
 
-      doc.save(`Sertifikat-Wakaf-${cert.id.replace(/\//g, "-")}.pdf`);
+      doc.save(`${terms.bukti.replace(/ /g, "-")}-${cert.id.replace(/\//g, "-")}.pdf`);
     } finally {
       setDownloading(false);
     }
@@ -100,7 +104,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
             Yayasan Khazanah Berkah Mulia
           </p>
           <h2 className="mt-3 font-serif text-2xl font-bold text-brand-950 sm:text-3xl">
-            Sertifikat Wakaf
+            {terms.bukti}
           </h2>
           <p className="mt-1 text-xs text-brand-400">
             Terdaftar di Badan Wakaf Indonesia (BWI)
@@ -112,11 +116,8 @@ export function CertificateView({ cert }: { cert: Certificate }) {
               {cert.namaPihak}
             </p>
             <p className="mt-4 text-sm leading-relaxed text-brand-700">
-              yang telah menunaikan{" "}
-              <span className="font-semibold">
-                {PROGRAM_TYPE_LABEL[cert.program_type]}
-              </span>{" "}
-              sebesar{" "}
+              yang telah{" "}
+              <span className="font-semibold">{terms.kataKerja}</span> sebesar{" "}
               <span className="font-semibold">{formatRupiah(cert.nominal)}</span>{" "}
               untuk program{" "}
               <span className="font-semibold">&ldquo;{cert.programNama}&rdquo;</span>.
@@ -125,7 +126,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
 
           <dl className="mx-auto mt-8 grid max-w-md grid-cols-1 gap-x-8 gap-y-2 text-left text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-brand-400">Nomor Sertifikat</dt>
+              <dt className="text-brand-400">Nomor Dokumen</dt>
               <dd className="font-semibold text-brand-900">{cert.id}</dd>
             </div>
             <div>
@@ -135,13 +136,13 @@ export function CertificateView({ cert }: { cert: Certificate }) {
               </dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-brand-400">Nazhir Pengelola</dt>
+              <dt className="text-brand-400">{terms.pengelola} Pengelola</dt>
               <dd className="font-semibold text-brand-900">{cert.nazhir}</dd>
             </div>
           </dl>
 
           <p className="mt-8 text-[11px] text-brand-400">
-            Verifikasi keaslian sertifikat di halaman{" "}
+            Verifikasi keaslian dokumen di halaman{" "}
             <span className="font-semibold">Verifikasi Sertifikat</span> dengan
             kode <span className="font-mono">{cert.id}</span>.
             <br />
@@ -157,7 +158,7 @@ export function CertificateView({ cert }: { cert: Certificate }) {
           className="btn-primary"
         >
           {downloading ? <Spinner className="h-4 w-4" /> : "⬇️"}
-          Unduh Sertifikat (PDF)
+          Unduh {terms.bukti} (PDF)
         </button>
         <button onClick={() => window.print()} className="btn-outline">
           🖨️ Cetak

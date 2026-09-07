@@ -48,8 +48,9 @@ export default function TransparansiPage() {
           Laporan Transparansi
         </h1>
         <p className="mt-2 text-brand-600">
-          Setiap rupiah yang tersalur dilaporkan lengkap dengan bukti. Data pada
-          halaman ini terhubung langsung dengan pencatatan internal yayasan.
+          Setiap rupiah wakaf, infaq, dan zakat yang tersalur dilaporkan lengkap
+          dengan bukti. Data pada halaman ini terhubung langsung dengan
+          pencatatan internal yayasan.
         </p>
       </header>
 

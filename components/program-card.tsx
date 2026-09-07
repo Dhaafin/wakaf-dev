@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { Program } from "@/types";
+import { PROGRAM_TYPE_TERMS, type Program } from "@/types";
 import { formatRupiah, formatNumber } from "@/lib/format";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { CategoryBadge } from "@/components/category-badge";
@@ -51,7 +51,9 @@ export function ProgramCard({ program }: { program: Program }) {
             </p>
           </div>
           <p className="mt-2 text-xs text-brand-400">
-            {formatNumber(program.jumlahWakif)} wakif telah berpartisipasi
+            {formatNumber(program.jumlahWakif)}{" "}
+            {PROGRAM_TYPE_TERMS[program.program_type].pemberiJamak} telah
+            berpartisipasi
           </p>
         </div>
       </div>

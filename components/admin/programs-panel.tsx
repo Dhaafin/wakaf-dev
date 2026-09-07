@@ -29,7 +29,7 @@ export function ProgramsPanel() {
 
   // --- form state ---
   const [nama, setNama] = useState("");
-  const [programType, setProgramType] = useState<ProgramType>("wakaf");
+  const [programType, setProgramType] = useState<ProgramType>("wakaf-melalui-uang");
   const [kategori, setKategori] = useState<ProgramCategory>("masjid");
   const [lokasi, setLokasi] = useState("");
   const [ringkasan, setRingkasan] = useState("");
@@ -42,7 +42,7 @@ export function ProgramsPanel() {
 
   function resetForm() {
     setNama("");
-    setProgramType("wakaf");
+    setProgramType("wakaf-melalui-uang");
     setKategori("masjid");
     setLokasi("");
     setRingkasan("");

@@ -9,11 +9,18 @@ import { ProgramGridSkeleton } from "@/components/program-card-skeleton";
 import { EmptyState } from "@/components/empty-state";
 import {
   PROGRAM_CATEGORY_LABEL,
+  PROGRAM_TYPE_LABEL,
+  PROGRAM_TYPE_DESC,
+  PROGRAM_TYPE_ORDER,
   type ProgramCategory,
 } from "@/types";
 
 const CATEGORIES = Object.keys(PROGRAM_CATEGORY_LABEL) as ProgramCategory[];
 
+// Halaman program dikelompokkan per JENIS (wakaf uang / wakaf melalui uang /
+// infaq & shadaqah / zakat) sebagai seksi bertumpuk — mengikuti pola yang
+// diminta klien. Filter kategori & pencarian tetap berlaku lintas seksi;
+// seksi yang tidak punya hasil disembunyikan.
 export function ProgramBrowser() {
   const searchParams = useSearchParams();
   const initialKategori = searchParams.get("kategori") as ProgramCategory | null;
@@ -41,6 +48,16 @@ export function ProgramBrowser() {
     return list;
   }, [data, kategori, q]);
 
+  // Kelompokkan hasil per jenis, mengikuti urutan tetap PROGRAM_TYPE_ORDER.
+  const seksi = useMemo(
+    () =>
+      PROGRAM_TYPE_ORDER.map((jenis) => ({
+        jenis,
+        programs: hasil.filter((p) => p.program_type === jenis),
+      })).filter((s) => s.programs.length > 0),
+    [hasil],
+  );
+
   return (
     <div className="mt-8">
       {/* ------------------------- Filter bar ------------------------- */}
@@ -65,7 +82,7 @@ export function ProgramBrowser() {
                 : "bg-brand-50 text-brand-700 hover:bg-brand-100"
             }`}
           >
-            Semua
+            Semua kategori
           </button>
           {CATEGORIES.map((c) => (
             <button
@@ -89,19 +106,32 @@ export function ProgramBrowser() {
           <ProgramGridSkeleton />
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
-        ) : hasil.length === 0 ? (
+        ) : seksi.length === 0 ? (
           <EmptyState
             title="Tidak ada program yang cocok"
             desc="Coba ubah kata kunci atau pilih kategori lain."
           />
         ) : (
           <>
-            <p className="mb-4 text-sm text-brand-500">
-              Menampilkan {hasil.length} program
+            <p className="mb-6 text-sm text-brand-500">
+              Menampilkan {hasil.length} program dalam {seksi.length} kelompok
             </p>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {hasil.map((p) => (
-                <ProgramCard key={p.id} program={p} />
+
+            <div className="space-y-12">
+              {seksi.map(({ jenis, programs }) => (
+                <section key={jenis} id={jenis} className="scroll-mt-24">
+                  <h2 className="font-serif text-2xl font-bold text-brand-950">
+                    {PROGRAM_TYPE_LABEL[jenis]}
+                  </h2>
+                  <p className="mt-1 max-w-2xl text-sm text-brand-600">
+                    {PROGRAM_TYPE_DESC[jenis]}
+                  </p>
+                  <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {programs.map((p) => (
+                      <ProgramCard key={p.id} program={p} />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </>

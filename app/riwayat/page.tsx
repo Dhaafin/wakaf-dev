@@ -11,6 +11,7 @@ import { formatRupiah, formatTanggalWaktu } from "@/lib/format";
 import { DEMO_OTP } from "@/lib/config";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyState } from "@/components/empty-state";
+import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
 export default function RiwayatPage() {
   const wakif = useSession((s) => s.wakif);
@@ -23,7 +24,7 @@ export default function RiwayatPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl font-bold text-brand-950">
-            Riwayat Wakaf
+            Riwayat Transaksi
           </h1>
           <p className="mt-1 text-sm text-brand-600">
             Masuk sebagai{" "}
@@ -94,7 +95,7 @@ function WakifLogin() {
           Masuk untuk lihat riwayat
         </h1>
         <p className="mt-1 text-sm text-brand-600">
-          Tanpa kata sandi. Masukkan email yang Anda pakai saat berwakaf.
+          Tanpa kata sandi. Masukkan email yang Anda pakai saat bertransaksi.
         </p>
 
         {step === "email" ? (
@@ -185,11 +186,11 @@ function RiwayatList({ email }: { email: string }) {
     return (
       <div className="mt-8">
         <EmptyState
-          title="Belum ada wakaf"
-          desc="Riwayat wakaf Anda akan muncul di sini setelah transaksi pertama."
+          title="Belum ada transaksi"
+          desc="Riwayat wakaf, infaq, dan zakat Anda akan muncul di sini setelah transaksi pertama."
           action={
             <Link href="/program" className="btn-primary">
-              Mulai berwakaf
+              Lihat program
             </Link>
           }
         />
@@ -205,7 +206,7 @@ function RiwayatList({ email }: { email: string }) {
     <>
       <div className="mt-6 flex flex-wrap gap-4">
         <div className="card flex-1 p-4">
-          <p className="text-xs text-brand-500">Total wakaf tersalur</p>
+          <p className="text-xs text-brand-500">Total tersalur</p>
           <p className="font-serif text-xl font-bold text-brand-800">
             {formatRupiah(totalWakaf)}
           </p>
@@ -248,7 +249,10 @@ function RiwayatItem({ t }: { t: Transaction }) {
     <li className="card p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-semibold text-brand-950">{t.programNama}</p>
+          <span className="badge bg-brand-50 text-brand-700">
+            {PROGRAM_TYPE_LABEL[t.program_type]}
+          </span>
+          <p className="mt-1 font-semibold text-brand-950">{t.programNama}</p>
           <p className="mt-0.5 text-xs text-brand-500">
             {formatTanggalWaktu(t.createdAt)} · <span className="font-mono">{t.id}</span>
           </p>
@@ -266,7 +270,7 @@ function RiwayatItem({ t }: { t: Transaction }) {
               href={`/sertifikat/${encodeURIComponent(t.certificateId)}`}
               className="btn-outline px-3 py-2 text-xs"
             >
-              Lihat sertifikat
+              Lihat {PROGRAM_TYPE_TERMS[t.program_type].bukti.toLowerCase()}
             </Link>
           )}
           {t.status === "pending" && (
@@ -282,7 +286,7 @@ function RiwayatItem({ t }: { t: Transaction }) {
               href={`/program/${t.programId}`}
               className="btn-outline px-3 py-2 text-xs"
             >
-              Wakaf ulang
+              Ulangi
             </Link>
           )}
         </div>

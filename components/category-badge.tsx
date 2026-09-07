@@ -5,6 +5,8 @@ const STYLE: Record<ProgramCategory, string> = {
   pendidikan: "bg-amber-100 text-amber-800",
   "produktif-umkm": "bg-violet-100 text-violet-800",
   "sumur-air-bersih": "bg-sky-100 text-sky-800",
+  kemanusiaan: "bg-rose-100 text-rose-800",
+  "sosial-dhuafa": "bg-teal-100 text-teal-800",
 };
 
 export function CategoryBadge({ kategori }: { kategori: ProgramCategory }) {

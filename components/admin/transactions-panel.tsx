@@ -72,7 +72,7 @@ export function TransactionsPanel() {
           <thead className="bg-brand-50 text-left text-xs uppercase tracking-wide text-brand-400">
             <tr>
               <th className="px-4 py-3">Transaksi</th>
-              <th className="px-4 py-3">Wakif</th>
+              <th className="px-4 py-3">Pemberi</th>
               <th className="px-4 py-3">Program</th>
               <th className="px-4 py-3 text-right">Nominal</th>
               <th className="px-4 py-3">Status</th>
