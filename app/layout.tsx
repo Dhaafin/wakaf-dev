@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { ToastViewport } from "@/components/toast-viewport";
-import { DemoBanner } from "@/components/demo-banner";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { ToastViewport } from "@/components/layout/ToastViewport";
+import { DemoBanner } from "@/components/layout/DemoBanner";
 
 const serif = Fraunces({
   subsets: ["latin"],
