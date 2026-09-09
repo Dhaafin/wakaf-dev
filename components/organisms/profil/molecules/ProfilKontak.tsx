@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { CtaTrustBanner } from "@/components/molecules/CtaTrustBanner";
 
 export function ProfilKontak() {
   return (
@@ -33,27 +33,14 @@ export function ProfilKontak() {
 
       {/* CTA */}
       <section className="mt-12">
-        <div className="rounded-2xl bg-brand-900 p-8 text-white sm:p-10">
-          <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
-            <div>
-              <h2 className="font-serif text-2xl font-bold">
-                Ikut menumbuhkan manfaat
-              </h2>
-              <p className="mt-2 max-w-xl text-sm text-brand-100/90">
-                Wakaf, infaq, shadaqah, dan zakat Anda dikelola dengan
-                pencatatan yang bisa diperiksa kapan saja di halaman
-                transparansi.
-              </p>
-            </div>
-            <Link
-              href="/program"
-              className="btn bg-white text-brand-900 hover:bg-brand-50"
-            >
-              Lihat Program
-            </Link>
-          </div>
-        </div>
+        <CtaTrustBanner
+          title="Ikut menumbuhkan manfaat"
+          description="Wakaf, infaq, shadaqah, dan zakat Anda dikelola dengan pencatatan yang bisa diperiksa kapan saja di halaman transparansi."
+          buttonText="Lihat Program"
+          buttonHref="/program"
+        />
       </section>
     </>
   );
 }
+

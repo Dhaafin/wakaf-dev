@@ -7,6 +7,8 @@ import {
   PROGRAM_TYPE_DESC,
 } from "@/types";
 
+import { CtaTrustBanner } from "@/components/molecules/CtaTrustBanner";
+
 export function LandingPageOrganism() {
   return (
     <>
@@ -131,26 +133,7 @@ export function LandingPageOrganism() {
 
       {/* CTA TRUST */}
       <section className="container-app pb-16">
-        <div className="rounded-2xl bg-brand-900 p-8 text-white sm:p-12">
-          <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
-            <div>
-              <h2 className="font-serif text-2xl font-bold">
-                Amanah yang bisa Anda periksa
-              </h2>
-              <p className="mt-2 max-w-xl text-sm text-brand-100/90">
-                Setiap penyaluran dana dilaporkan lengkap dengan bukti pada
-                halaman transparansi. Data laporan terhubung langsung dengan
-                pencatatan internal — bukan sekadar gambar.
-              </p>
-            </div>
-            <Link
-              href="/transparansi"
-              className="btn bg-white text-brand-900 hover:bg-brand-50"
-            >
-              Buka Laporan
-            </Link>
-          </div>
-        </div>
+        <CtaTrustBanner />
       </section>
     </>
   );
