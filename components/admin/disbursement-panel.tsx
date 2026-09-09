@@ -8,7 +8,7 @@ import { formatRupiah, formatTanggal } from "@/lib/format";
 import { validateDisbursementForm } from "@/lib/validation";
 import { RupiahInput } from "@/components/rupiah-input";
 import { MockFileInput } from "@/components/mock-file-input";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 import { useToast } from "@/lib/store/toast";
 
 // Update status penyaluran dana per program + unggah bukti (mock file upload).

@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api/client";
 import { useSession } from "@/lib/store/session";
 import { useToast } from "@/lib/store/toast";
 import { DEMO_ADMIN } from "@/lib/config";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 
 // LOGIN ADMIN (mock). Satu akun di-hardcode di lib/config.ts (DEMO_ADMIN).
 export default function AdminLoginPage() {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 
 // Banner tipis di atas semua halaman: menegaskan ini MODE DEMO dan menyediakan
 // tombol "Reset data demo" (memanggil POST /api/reset -> seed ulang mock-db).

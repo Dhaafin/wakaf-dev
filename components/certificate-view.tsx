@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Certificate } from "@/types";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { PROGRAM_TYPE_TERMS } from "@/types";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 
 // Dokumen bukti (Sertifikat Wakaf / Bukti Donasi / Bukti Setor Zakat —
 // menyesuaikan jenis program). Kartu print-friendly + tombol:

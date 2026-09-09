@@ -9,8 +9,8 @@ import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah, formatTanggalWaktu } from "@/lib/format";
 import { VA_TTL_LABEL } from "@/lib/config";
 import { Countdown } from "@/components/countdown";
-import { Spinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/empty-state";
+import { Spinner } from "@/components/atoms/Spinner";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import { useToast } from "@/lib/store/toast";
 
 export function PaymentWaiting({ txId }: { txId: string }) {

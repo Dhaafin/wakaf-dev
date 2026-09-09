@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { PROGRAM_TYPE_TERMS, type Program } from "@/types";
 import { formatRupiah, formatNumber } from "@/lib/format";
-import { ProgramImage } from "./ProgramImage";
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { CategoryBadge } from "@/components/category-badge";
+import { ProgramImage } from "@/components/organisms/program/molecules/ProgramImage";
+import { ProgressBar } from "@/components/atoms/ProgressBar";
+import { CategoryBadge } from "@/components/atoms/CategoryBadge";
 
 export function ProgramCard({ program }: { program: Program }) {
   return (

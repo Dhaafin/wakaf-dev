@@ -6,7 +6,7 @@ import type { PublicDonation } from "@/types";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah, formatRelativeTime } from "@/lib/format";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
 // "Wall of donors" untuk halaman transparansi: menampilkan wakif yang baru saja

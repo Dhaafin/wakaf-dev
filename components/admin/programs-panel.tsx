@@ -13,7 +13,7 @@ import {
   type ProgramType,
 } from "@/types";
 import { RupiahInput } from "@/components/rupiah-input";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 import { useToast } from "@/lib/store/toast";
 
 const CATEGORIES = Object.keys(PROGRAM_CATEGORY_LABEL) as ProgramCategory[];

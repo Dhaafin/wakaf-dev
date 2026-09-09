@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ProgramBrowserOrganism } from "@/components/organisms/program/ProgramBrowserOrganism";
-import { ProgramGridSkeleton } from "@/components/organisms/program/molecules/ProgramCardSkeleton";
+import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton";
 
 export const metadata = { title: "Program — KBM" };
 

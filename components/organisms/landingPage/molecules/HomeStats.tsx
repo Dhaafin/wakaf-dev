@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
-import { CountUp } from "@/components/count-up";
+import { CountUp } from "@/components/atoms/CountUp";
 import { formatRupiahCompact } from "@/lib/format";
 
 // Counter statistik global landing page.

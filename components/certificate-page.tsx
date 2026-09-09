@@ -4,7 +4,7 @@ import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { CertificateView } from "@/components/certificate-view";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/atoms/EmptyState";
 
 export function CertificatePage({ certId }: { certId: string }) {
   // certId dari URL sudah ter-encode (mengandung "/"). Decode untuk request.

@@ -4,9 +4,9 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
-import { ProgramCard } from "./molecules/ProgramCard";
-import { ProgramGridSkeleton } from "./molecules/ProgramCardSkeleton";
-import { EmptyState } from "@/components/empty-state";
+import { ProgramCard } from "@/components/molecules/ProgramCard";
+import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import {
   PROGRAM_CATEGORY_LABEL,
   PROGRAM_TYPE_LABEL,

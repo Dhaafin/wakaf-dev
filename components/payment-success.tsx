@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah } from "@/lib/format";
-import { Spinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/empty-state";
+import { Spinner } from "@/components/atoms/Spinner";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import { useSession } from "@/lib/store/session";
 import { PROGRAM_TYPE_TERMS } from "@/types";
 

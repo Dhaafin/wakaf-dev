@@ -9,8 +9,8 @@ import { useSession } from "@/lib/store/session";
 import { useToast } from "@/lib/store/toast";
 import { formatRupiah, formatTanggalWaktu } from "@/lib/format";
 import { DEMO_OTP } from "@/lib/config";
-import { Spinner } from "@/components/ui/spinner";
-import { EmptyState } from "@/components/empty-state";
+import { Spinner } from "@/components/atoms/Spinner";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
 export default function RiwayatPage() {

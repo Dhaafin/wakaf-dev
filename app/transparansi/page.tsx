@@ -10,9 +10,9 @@ import {
   formatTanggal,
   persen,
 } from "@/lib/format";
-import { CountUp } from "@/components/count-up";
-import { CategoryBadge } from "@/components/category-badge";
-import { EmptyState } from "@/components/empty-state";
+import { CountUp } from "@/components/atoms/CountUp";
+import { CategoryBadge } from "@/components/atoms/CategoryBadge";
+import { EmptyState } from "@/components/atoms/EmptyState";
 import { RecentDonations } from "@/components/recent-donations";
 
 // Halaman transparansi. SELURUH data di sini dibaca dari mock-db yang sama

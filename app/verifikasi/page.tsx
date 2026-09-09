@@ -6,7 +6,7 @@ import type { Certificate } from "@/types";
 import { api, ApiError } from "@/lib/api/client";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { PROGRAM_TYPE_LABEL } from "@/types";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@/components/atoms/Spinner";
 
 export default function VerifikasiPage() {
   const [kode, setKode] = useState("");
