@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { ProgramBrowser } from "@/components/program-browser";
-import { ProgramGridSkeleton } from "@/components/program-card-skeleton";
+import { ProgramBrowserOrganism } from "@/components/organisms/program/ProgramBrowserOrganism";
+import { ProgramGridSkeleton } from "@/components/organisms/program/molecules/ProgramCardSkeleton";
 
 export const metadata = { title: "Program — KBM" };
 
@@ -25,8 +25,9 @@ export default function ProgramListPage() {
           </div>
         }
       >
-        <ProgramBrowser />
+        <ProgramBrowserOrganism />
       </Suspense>
     </div>
   );
 }
+

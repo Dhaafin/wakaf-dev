@@ -1,13 +1,11 @@
 import { Suspense } from "react";
-import { ProgramDetail } from "@/components/program-detail";
+import { ProgramDetailOrganism } from "@/components/organisms/program/ProgramDetailOrganism";
 
 export default function ProgramDetailPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  // Suspense: ProgramDetail memakai useSearchParams (prefill ?nominal= dari
-  // kalkulator zakat).
   return (
     <Suspense
       fallback={
@@ -16,7 +14,8 @@ export default function ProgramDetailPage({
         </div>
       }
     >
-      <ProgramDetail slug={params.slug} />
+      <ProgramDetailOrganism slug={params.slug} />
     </Suspense>
   );
 }
+

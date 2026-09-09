@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
-import { ProgramCard } from "@/components/program-card";
-import { ProgramGridSkeleton } from "@/components/program-card-skeleton";
+import { ProgramCard } from "@/components/organisms/program/molecules/ProgramCard";
+import { ProgramGridSkeleton } from "@/components/organisms/program/molecules/ProgramCardSkeleton";
+
 
 export function FeaturedPrograms() {
   const { data, loading, error } = useAsync(() => api.listPrograms(), []);
