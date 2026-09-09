@@ -1,6 +1,3 @@
-// Wordmark KBM — mendekati logo Yayasan Khazanah Berkah Mulia:
-// huruf kecil "kbm" hijau dengan sapuan aksen merah di kanan atas.
-// (Placeholder demo — ganti dengan file SVG/PNG logo resmi bila tersedia.)
 export function BrandLogo({
   variant = "dark",
   showText = true,

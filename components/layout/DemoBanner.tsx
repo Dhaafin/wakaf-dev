@@ -6,8 +6,6 @@ import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
 import { Spinner } from "@/components/atoms/Spinner";
 
-// Banner tipis di atas semua halaman: menegaskan ini MODE DEMO dan menyediakan
-// tombol "Reset data demo" (memanggil POST /api/reset -> seed ulang mock-db).
 export function DemoBanner() {
   const [loading, setLoading] = useState(false);
   const { push } = useToast();

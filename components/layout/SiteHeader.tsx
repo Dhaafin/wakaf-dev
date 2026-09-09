@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/store/session";
-import { BrandLogo } from "@/components/brand-logo";
+import { BrandLogo } from "@/components/atoms/BrandLogo";
 
 const NAV = [
   { href: "/profil", label: "Profil" },
@@ -23,7 +23,6 @@ export function SiteHeader() {
   useEffect(() => setMounted(true), []);
   useEffect(() => setOpen(false), [pathname]);
 
-  // Sembunyikan header publik di area admin (punya layout sendiri).
   if (pathname?.startsWith("/admin")) return null;
 
   return (

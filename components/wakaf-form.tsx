@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api/client";
 import { validateWakafForm } from "@/lib/validation";
 import { formatRupiah } from "@/lib/format";
 import { NOMINAL_PRESETS, NOMINAL_MIN, BANK_OPTIONS } from "@/lib/config";
-import { RupiahInput } from "@/components/rupiah-input";
+import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { Spinner } from "@/components/atoms/Spinner";
 import { useSession } from "@/lib/store/session";
 import { useToast } from "@/lib/store/toast";

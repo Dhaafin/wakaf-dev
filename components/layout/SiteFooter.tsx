@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrandLogo } from "@/components/brand-logo";
+import { BrandLogo } from "@/components/atoms/BrandLogo";
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -86,8 +86,6 @@ export function SiteFooter() {
         </div>
         <div>
           <h4 className="text-sm font-semibold text-brand-900">Legalitas</h4>
-          {/* TODO(compro): data legalitas masih dummy — samakan dengan
-              app/profil/page.tsx begitu compro resmi KBM masuk. */}
           <p className="mt-3 text-sm text-brand-600">
             Terdaftar &amp; diawasi Badan Wakaf Indonesia (BWI).
             <br />

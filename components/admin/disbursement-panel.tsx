@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api/client";
 import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { validateDisbursementForm } from "@/lib/validation";
-import { RupiahInput } from "@/components/rupiah-input";
+import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { MockFileInput } from "@/components/mock-file-input";
 import { Spinner } from "@/components/atoms/Spinner";
 import { useToast } from "@/lib/store/toast";

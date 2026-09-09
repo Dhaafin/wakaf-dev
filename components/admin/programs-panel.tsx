@@ -12,7 +12,7 @@ import {
   type ProgramCategory,
   type ProgramType,
 } from "@/types";
-import { RupiahInput } from "@/components/rupiah-input";
+import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { Spinner } from "@/components/atoms/Spinner";
 import { useToast } from "@/lib/store/toast";
 
