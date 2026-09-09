@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "screenshots": "node scripts/capture-screenshots.mjs"
+    "screenshots": "node scripts/capture-screenshots.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
