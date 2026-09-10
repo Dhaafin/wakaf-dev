@@ -8,4 +8,4 @@ npm-debug.log*
 .env*.local
 next-env.d.ts.bak
 *.tsbuildinfo
-
+AGENTS.md
