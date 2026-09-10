@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "@/lib/auth-client";
+import { signIn, authClient } from "@/lib/auth-client";
 import { Spinner } from "@/components/atoms/Spinner";
 
 export function LoginForm() {
@@ -26,7 +26,13 @@ export function LoginForm() {
       if (res.error) {
         setErrorMessage(res.error.message || "Gagal masuk. Periksa kembali email & password Anda.");
       } else {
-        router.replace("/admin/dashboard");
+        const session = await authClient.getSession();
+        const user = session?.data?.user as { role?: string } | undefined;
+        if (user?.role === "admin") {
+          router.replace("/admin/dashboard");
+        } else {
+          router.replace("/riwayat");
+        }
       }
     } catch {
       setErrorMessage("Terjadi kesalahan sistem. Silakan coba lagi.");

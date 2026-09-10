@@ -30,7 +30,7 @@ export function RegisterForm() {
           res.error.message || "Gagal mendaftar. Periksa kembali data Anda."
         );
       } else {
-        router.replace("/admin/dashboard");
+        router.replace("/riwayat");
       }
     } catch {
       setErrorMessage("Terjadi kesalahan sistem. Silakan coba lagi.");
