@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession as useBetterAuthSession } from "@/lib/auth-client";
 import { useSession } from "@/lib/store/session";
 import { BrandLogo } from "@/components/atoms/BrandLogo";
 
@@ -18,7 +19,12 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { data: authSession } = useBetterAuthSession();
   const wakif = useSession((s) => s.wakif);
+
+  const currentUser = authSession?.user
+    ? { nama: authSession.user.name || authSession.user.email }
+    : wakif;
 
   useEffect(() => setMounted(true), []);
   useEffect(() => setOpen(false), [pathname]);
@@ -49,9 +55,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {mounted && wakif ? (
+          {mounted && currentUser ? (
             <Link href="/riwayat" className="btn-outline px-4 py-2 text-xs">
-              👤 {wakif.nama.split(" ")[0]}
+              👤 {currentUser.nama.split(" ")[0]}
             </Link>
           ) : (
             <Link href="/login" className="btn-ghost px-4 py-2 text-xs">
