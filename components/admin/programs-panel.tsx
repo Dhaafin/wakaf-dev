@@ -101,7 +101,7 @@ export function ProgramsPanel() {
     <div>
       <div className="flex items-center justify-between">
         <p className="text-sm text-brand-600">
-          {data?.length ?? 0} program terdaftar
+          {data?.pagination?.total ?? data?.items?.length ?? 0} program terdaftar
         </p>
         <button
           onClick={() => setShowForm((s) => !s)}
@@ -270,7 +270,7 @@ export function ProgramsPanel() {
         ) : error ? (
           <p className="text-sm text-red-600">{error}</p>
         ) : (
-          (data ?? []).map((p) => (
+          (data?.items ?? []).map((p) => (
             <div
               key={p.id}
               className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-brand-200 bg-white p-4"

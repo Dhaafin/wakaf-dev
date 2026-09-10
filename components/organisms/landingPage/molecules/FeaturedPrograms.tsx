@@ -10,10 +10,11 @@ import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton"
 export function FeaturedPrograms() {
   const { data, loading, error } = useAsync(() => api.listPrograms(), []);
 
-  const programs = (data ?? [])
+  const programs = (data?.items ?? [])
     .slice()
     .sort((a, b) => b.terkumpul / b.target - a.terkumpul / a.target)
     .slice(0, 3);
+
 
   return (
     <section className="container-app py-14">

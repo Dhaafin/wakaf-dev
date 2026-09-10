@@ -30,7 +30,7 @@ export function ProgramBrowserOrganism() {
   );
 
   const hasil = useMemo(() => {
-    let list = data ?? [];
+    let list = data?.items ?? [];
     if (kategori !== "semua") list = list.filter((p) => p.kategori === kategori);
     const term = q.trim().toLowerCase();
     if (term) {

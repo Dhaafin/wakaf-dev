@@ -29,7 +29,7 @@ export function DisbursementPanel() {
   const [submitting, setSubmitting] = useState(false);
 
   const selected: Program | undefined = useMemo(
-    () => (programs ?? []).find((p) => p.id === programId),
+    () => (programs?.items ?? []).find((p) => p.id === programId),
     [programs, programId],
   );
 
@@ -98,7 +98,7 @@ export function DisbursementPanel() {
               disabled={loading}
             >
               <option value="">— pilih program —</option>
-              {(programs ?? []).map((p) => (
+              {(programs?.items ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nama}
                 </option>

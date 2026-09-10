@@ -25,8 +25,8 @@ export default function TransparansiPage() {
   );
 
   const rows = useMemo(() => {
-    if (!programs) return [];
-    return programs
+    if (!programs?.items) return [];
+    return programs.items
       .flatMap((p) =>
         p.disbursements.map((d) => ({
           ...d,
@@ -38,7 +38,7 @@ export default function TransparansiPage() {
       .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
   }, [programs]);
 
-  const totalTerkumpul = (programs ?? []).reduce((s, p) => s + p.terkumpul, 0);
+  const totalTerkumpul = (programs?.items ?? []).reduce((s, p) => s + p.terkumpul, 0);
   const totalDisalurkan = rows.reduce((s, d) => s + d.nominal, 0);
 
   return (
@@ -103,7 +103,7 @@ export default function TransparansiPage() {
                 </tr>
               </thead>
               <tbody>
-                {(programs ?? []).map((p) => {
+                {(programs?.items ?? []).map((p) => {
                   const disb = p.disbursements.reduce(
                     (s, d) => s + d.nominal,
                     0,

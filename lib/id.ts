@@ -12,3 +12,14 @@ export function createId(prefix: IdPrefix, length = 12): string {
   const rand = crypto.randomUUID().replace(/-/g, '').slice(0, length);
   return `${prefix}_${rand}`;
 }
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+

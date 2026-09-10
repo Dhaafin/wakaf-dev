@@ -8,7 +8,9 @@ import type {
   GlobalStats,
   DisbursementReport,
   PublicDonation,
+  PaginatedResult,
 } from "@/types";
+
 
 // ============================================================================
 // API client sisi browser. Semua pemanggilan lewat sini agar komponen tidak
@@ -47,10 +49,29 @@ async function req<T>(url: string, init?: RequestInit): Promise<T> {
   return json.data;
 }
 
-// ------------------------------- Programs ---------------------------------
+export interface ListProgramsParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  type?: string;
+  kategori?: string;
+  status?: "all" | "active" | "inactive";
+  sort?: "latest" | "oldest" | "target_asc" | "target_desc";
+}
 
 export const api = {
-  listPrograms: () => req<Program[]>("/api/programs"),
+  listPrograms: (params?: ListProgramsParams) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    if (params?.q) searchParams.set("q", params.q);
+    if (params?.type) searchParams.set("type", params.type);
+    if (params?.kategori) searchParams.set("kategori", params.kategori);
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.sort) searchParams.set("sort", params.sort);
+    const qs = searchParams.toString();
+    return req<PaginatedResult<Program>>(`/api/programs${qs ? `?${qs}` : ""}`);
+  },
 
   getProgram: (idOrSlug: string) =>
     req<Program>(`/api/programs/${encodeURIComponent(idOrSlug)}`),
@@ -70,6 +91,27 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  updateProgram: (
+    id: string,
+    payload: Partial<{
+      nama: string;
+      kategori: string;
+      program_type?: string;
+      lokasi: string;
+      ringkasan: string;
+      deskripsi: string;
+      imageUrl?: string;
+      target: number;
+      nazhir: string;
+      aktif?: boolean;
+    }>,
+  ) =>
+    req<Program>(`/api/programs/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    }),
+
 
   addDisbursement: (
     programId: string,

@@ -251,3 +251,17 @@ export interface ApiErr {
   fieldErrors?: Record<string, string>;
 }
 export type ApiResponse<T> = ApiOk<T> | ApiErr;
+
+// Tipe Pagination
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: PaginationMeta;
+}
+
