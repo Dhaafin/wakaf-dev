@@ -2,7 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get("better-auth.session_token")?.value;
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
+  const isAuthRoute =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/register");
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith("/admin/dashboard") ||
     request.nextUrl.pathname.startsWith("/profil");
@@ -19,5 +21,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/dashboard/:path*", "/profil/:path*", "/login"],
+  matcher: ["/admin/dashboard/:path*", "/profil/:path*", "/login", "/register"],
 };

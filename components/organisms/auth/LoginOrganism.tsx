@@ -30,11 +30,18 @@ export function LoginOrganism() {
         <div className="rounded-2xl border border-white/10 bg-white p-8 text-brand-950 shadow-2xl">
           <LoginForm />
 
-          <div className="mt-6 text-center text-xs text-brand-600 border-t border-brand-100 pt-4">
-            Belum punya akun?{" "}
-            <Link href="/program" className="font-semibold text-brand-700 hover:underline">
-              Mulai Berwakaf Tanpa Akun
-            </Link>
+          <div className="mt-6 flex flex-col gap-2 text-center text-xs text-brand-600 border-t border-brand-100 pt-4">
+            <p>
+              Belum punya akun?{" "}
+              <Link href="/register" className="font-semibold text-brand-700 hover:underline">
+                Daftar sekarang
+              </Link>
+            </p>
+            <p>
+              <Link href="/program" className="text-brand-500 hover:underline">
+                Mulai Berwakaf Tanpa Akun →
+              </Link>
+            </p>
           </div>
         </div>
       </div>
