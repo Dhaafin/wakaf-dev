@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { AdminSummary } from "@/components/admin/admin-summary";
 import { TransactionsPanel } from "@/components/admin/transactions-panel";
 import { ProgramsPanel } from "@/components/admin/programs-panel";
@@ -16,7 +16,13 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export default function AdminDashboardPage() {
-  const [tab, setTab] = useState<TabId>("ringkasan");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = (searchParams?.get("tab") as TabId) || "ringkasan";
+
+  function setTab(newTab: TabId) {
+    router.replace(`/admin/dashboard?tab=${newTab}`);
+  }
 
   return (
     <div>
