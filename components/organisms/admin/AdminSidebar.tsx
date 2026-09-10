@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { signOut, useSession } from "@/lib/auth-client";
 
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   {
     id: "ringkasan",
     label: "Ringkasan",
+    href: "/admin/dashboard?tab=ringkasan",
     // Clean SVG icon: Grid / Dashboard
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   {
     id: "transaksi",
     label: "Transaksi Masuk",
+    href: "/admin/dashboard?tab=transaksi",
     // Clean SVG icon: Credit card / receipt
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -29,6 +31,7 @@ const NAV_ITEMS = [
   {
     id: "program",
     label: "Kelola Program",
+    href: "/admin/program",
     // Clean SVG icon: Folder / Program
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -39,6 +42,7 @@ const NAV_ITEMS = [
   {
     id: "penyaluran",
     label: "Penyaluran Dana",
+    href: "/admin/dashboard?tab=penyaluran",
     // Clean SVG icon: Arrows transfer / hand-heart
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -50,6 +54,7 @@ const NAV_ITEMS = [
 
 export function AdminSidebar() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeTab = searchParams?.get("tab") || "ringkasan";
   const { data: session } = useSession();
@@ -106,11 +111,14 @@ export function AdminSidebar() {
             Menu
           </p>
           {NAV_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
+            const isActive =
+              item.id === "program"
+                ? pathname.startsWith("/admin/program")
+                : pathname === "/admin/dashboard" && activeTab === item.id;
             return (
               <Link
                 key={item.id}
-                href={`/admin/dashboard?tab=${item.id}`}
+                href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                   isActive

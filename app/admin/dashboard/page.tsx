@@ -21,6 +21,10 @@ export default function AdminDashboardPage() {
   const tab = (searchParams?.get("tab") as TabId) || "ringkasan";
 
   function setTab(newTab: TabId) {
+    if (newTab === "program") {
+      router.push("/admin/program");
+      return;
+    }
     router.replace(`/admin/dashboard?tab=${newTab}`);
   }
 
