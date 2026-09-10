@@ -54,7 +54,7 @@ export function SiteHeader() {
               👤 {wakif.nama.split(" ")[0]}
             </Link>
           ) : (
-            <Link href="/riwayat" className="btn-ghost px-4 py-2 text-xs">
+            <Link href="/login" className="btn-ghost px-4 py-2 text-xs">
               Masuk
             </Link>
           )}
