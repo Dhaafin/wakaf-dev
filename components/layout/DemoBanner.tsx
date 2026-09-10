@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
 import { Spinner } from "@/components/atoms/Spinner";
 
 export function DemoBanner() {
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const { push } = useToast();
   const router = useRouter();
+
+  if (pathname?.startsWith("/admin")) return null;
 
   async function handleReset() {
     if (loading) return;
