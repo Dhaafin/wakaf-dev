@@ -1,28 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useSession } from "@/lib/store/session";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "@/lib/auth-client";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const router = useRouter();
-  const admin = useSession((s) => s.admin);
-  const logoutAdmin = useSession((s) => s.logoutAdmin);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const { data: session, isPending } = useSession();
 
-  const isLoginPage = pathname === "/admin";
+  // Guard: hanya user dengan role admin yang boleh berada di layout admin
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-brand-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent" />
+      </div>
+    );
+  }
 
-  // Lindungi halaman dalam area admin: kalau belum login, tendang ke /admin.
-  useEffect(() => {
-    if (mounted && !admin && !isLoginPage) router.replace("/admin");
-  }, [mounted, admin, isLoginPage, router]);
+  const user = session?.user as { role?: string; name?: string } | undefined;
+  if (!session || user?.role !== "admin") {
+    router.replace(session ? "/riwayat" : "/login");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-brand-50">
@@ -46,17 +49,15 @@ export default function AdminLayout({
             <Link href="/" className="text-brand-200 hover:text-white">
               ↗ Situs publik
             </Link>
-            {mounted && admin && (
-              <button
-                onClick={() => {
-                  logoutAdmin();
-                  router.replace("/admin");
-                }}
-                className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold hover:bg-white/20"
-              >
-                Keluar
-              </button>
-            )}
+            <button
+              onClick={async () => {
+                await signOut();
+                router.replace("/login");
+              }}
+              className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold hover:bg-white/20"
+            >
+              Keluar
+            </button>
           </div>
         </div>
       </header>

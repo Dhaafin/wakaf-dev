@@ -13,10 +13,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (sessionToken && isAuthRoute) {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-  }
-
   return NextResponse.next();
 }
 

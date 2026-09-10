@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "@/lib/store/session";
 import { AdminSummary } from "@/components/admin/admin-summary";
 import { TransactionsPanel } from "@/components/admin/transactions-panel";
 import { ProgramsPanel } from "@/components/admin/programs-panel";
@@ -17,11 +16,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export default function AdminDashboardPage() {
-  const admin = useSession((s) => s.admin);
   const [tab, setTab] = useState<TabId>("ringkasan");
-
-  // Guard tambahan (layout juga sudah redirect). Hindari flash konten.
-  if (!admin) return null;
 
   return (
     <div>

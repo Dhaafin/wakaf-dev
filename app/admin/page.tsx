@@ -1,10 +1,5 @@
-import { LoginOrganism } from "@/components/organisms/auth/LoginOrganism";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Masuk Admin - Wakaf Digital KBM",
-  description: "Masuk ke Panel Pengelola Wakaf Digital KBM",
-};
-
-export default function AdminLoginPage() {
-  return <LoginOrganism />;
+export default function AdminPage() {
+  redirect("/admin/dashboard");
 }
