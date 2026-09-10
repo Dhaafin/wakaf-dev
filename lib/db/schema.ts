@@ -5,7 +5,9 @@ import {
   timestamp,
   boolean,
   bigint,
+  index,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // Health check table
 export const healthchecks = pgTable("healthchecks", {
@@ -71,37 +73,67 @@ export const verification = pgTable("verification", {
 });
 
 // Program & Penyaluran (Disbursement) Schema
-export const programs = pgTable("programs", {
-  id: text("id").primaryKey(),
-  nama: text("nama").notNull(),
-  slug: text("slug").notNull().unique(),
-  programType: text("program_type").notNull(), // 'wakaf-uang' | 'wakaf-melalui-uang' | 'infaq-shadaqah' | 'zakat'
-  kategori: text("kategori").notNull(), // 'masjid' | 'pendidikan' | 'produktif-umkm' | 'sumur-air-bersih' | 'kemanusiaan' | 'sosial-dhuafa'
-  lokasi: text("lokasi").notNull(),
-  ringkasan: text("ringkasan").notNull(),
-  deskripsi: text("deskripsi").notNull(),
-  imageUrl: text("image_url"),
-  target: bigint("target", { mode: "number" }).notNull(),
-  terkumpul: bigint("terkumpul", { mode: "number" }).notNull().default(0),
-  jumlahWakif: integer("jumlah_wakif").notNull().default(0),
-  nazhir: text("nazhir")
-    .notNull()
-    .default("Nazhir Yayasan Khazanah Berkah Mulia"),
-  aktif: boolean("aktif").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const programs = pgTable(
+  "programs",
+  {
+    id: text("id").primaryKey(),
+    nama: text("nama").notNull(),
+    slug: text("slug").notNull().unique(),
+    programType: text("program_type").notNull(), // 'wakaf-uang' | 'wakaf-melalui-uang' | 'infaq-shadaqah' | 'zakat'
+    kategori: text("kategori").notNull(), // 'masjid' | 'pendidikan' | 'produktif-umkm' | 'sumur-air-bersih' | 'kemanusiaan' | 'sosial-dhuafa'
+    lokasi: text("lokasi").notNull(),
+    ringkasan: text("ringkasan").notNull(),
+    deskripsi: text("deskripsi").notNull(),
+    imageUrl: text("image_url"),
+    target: bigint("target", { mode: "number" }).notNull(),
+    terkumpul: bigint("terkumpul", { mode: "number" }).notNull().default(0),
+    jumlahWakif: integer("jumlah_wakif").notNull().default(0),
+    nazhir: text("nazhir")
+      .notNull()
+      .default("Nazhir Yayasan Khazanah Berkah Mulia"),
+    aktif: boolean("aktif").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index("programs_aktif_idx").on(table.aktif),
+    index("programs_type_kategori_idx").on(table.programType, table.kategori),
+    index("programs_created_at_idx").on(table.createdAt),
+  ],
+);
 
-export const disbursements = pgTable("disbursements", {
-  id: text("id").primaryKey(),
-  programId: text("program_id")
-    .notNull()
-    .references(() => programs.id, { onDelete: "cascade" }),
-  tanggal: timestamp("tanggal").notNull().defaultNow(),
-  judul: text("judul").notNull(),
-  deskripsi: text("deskripsi").notNull(),
-  nominal: bigint("nominal", { mode: "number" }).notNull(),
-  buktiImageUrl: text("bukti_image_url"),
-  buktiFileName: text("bukti_file_name"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const disbursements = pgTable(
+  "disbursements",
+  {
+    id: text("id").primaryKey(),
+    programId: text("program_id")
+      .notNull()
+      .references(() => programs.id, { onDelete: "cascade" }),
+    tanggal: timestamp("tanggal").notNull().defaultNow(),
+    judul: text("judul").notNull(),
+    deskripsi: text("deskripsi").notNull(),
+    nominal: bigint("nominal", { mode: "number" }).notNull(),
+    buktiImageUrl: text("bukti_image_url"),
+    buktiFileName: text("bukti_file_name"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("disbursements_program_id_idx").on(table.programId),
+  ],
+);
+
+// Drizzle Relations
+export const programsRelations = relations(programs, ({ many }) => ({
+  disbursements: many(disbursements),
+}));
+
+export const disbursementsRelations = relations(disbursements, ({ one }) => ({
+  program: one(programs, {
+    fields: [disbursements.programId],
+    references: [programs.id],
+  }),
+}));
+
