@@ -15,6 +15,20 @@
       "when": 1788965439780,
       "tag": "0001_colossal_madrox",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789010540473,
+      "tag": "0002_robust_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789010698515,
+      "tag": "0003_gifted_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }
