@@ -3,8 +3,8 @@ import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { ToastViewport } from "@/components/layout/ToastViewport";
 import { DemoBanner } from "@/components/layout/DemoBanner";
+import { FlashMessageProvider } from "@/context/FlashMessageContext";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -33,11 +33,12 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
-        <DemoBanner />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <ToastViewport />
+        <FlashMessageProvider>
+          <DemoBanner />
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </FlashMessageProvider>
       </body>
     </html>
   );
