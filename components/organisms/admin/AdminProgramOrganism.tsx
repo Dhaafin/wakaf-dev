@@ -80,10 +80,6 @@ export function AdminProgramOrganism() {
 
         <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-200 backdrop-blur-xs ring-1 ring-white/10">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-              <span>Portal Admin Yayasan KBM</span>
-            </div>
             <h1 className="font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
               Kelola Portofolio Program
             </h1>
@@ -124,7 +120,7 @@ export function AdminProgramOrganism() {
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              <span>+ Tambah Program</span>
+              <span>Tambah Program</span>
             </button>
           </div>
         </div>
