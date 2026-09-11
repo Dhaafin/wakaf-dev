@@ -7,6 +7,8 @@ import {
 import { Modal } from "@/components/molecules/Modal";
 import { Spinner } from "@/components/atoms/Spinner";
 import { RupiahInput } from "@/components/molecules/RupiahInput";
+import { TextInput } from "@/components/molecules/TextInput";
+import { SelectDropdown } from "@/components/molecules/SelectDropdown";
 
 const CATEGORIES = Object.keys(PROGRAM_CATEGORY_LABEL) as ProgramCategory[];
 const TYPES = Object.keys(PROGRAM_TYPE_LABEL) as ProgramType[];
@@ -109,58 +111,43 @@ export function AdminProgramCreateModal({
 
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Nama Program */}
-            <div className="sm:col-span-2">
-              <label className="label">
-                Nama Program <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={formNama}
-                onChange={(e) => onNamaChange(e.target.value)}
-                disabled={formSubmitting}
-                className={`input ${formErrors.nama ? "input-error" : ""}`}
-                placeholder="mis. Pembangunan Sumur Wakaf Dusun Berkah"
-              />
-              {formErrors.nama && <p className="field-error">{formErrors.nama}</p>}
-            </div>
+            <TextInput
+              containerClassName="sm:col-span-2"
+              label="Nama Program"
+              required
+              value={formNama}
+              onChange={(e) => onNamaChange(e.target.value)}
+              disabled={formSubmitting}
+              error={formErrors.nama}
+              placeholder="mis. Pembangunan Sumur Wakaf Dusun Berkah"
+            />
 
             {/* Jenis Program */}
-            <div>
-              <label className="label">
-                Jenis Instrumen <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formType}
-                onChange={(e) => onTypeChange(e.target.value as ProgramType)}
-                disabled={formSubmitting}
-                className="input"
-              >
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {PROGRAM_TYPE_LABEL[t]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SelectDropdown<ProgramType>
+              label="Jenis Instrumen"
+              required
+              value={formType}
+              onChange={onTypeChange}
+              options={TYPES.map((t) => ({
+                value: t,
+                label: PROGRAM_TYPE_LABEL[t],
+              }))}
+              disabled={formSubmitting}
+            />
 
             {/* Kategori */}
-            <div>
-              <label className="label">
-                Kategori Peruntukan <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formKategori}
-                onChange={(e) => onKategoriChange(e.target.value as ProgramCategory)}
-                disabled={formSubmitting}
-                className={`input ${formErrors.kategori ? "input-error" : ""}`}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {PROGRAM_CATEGORY_LABEL[c]}
-                  </option>
-                ))}
-              </select>
-              {formErrors.kategori && <p className="field-error">{formErrors.kategori}</p>}
-            </div>
+            <SelectDropdown<ProgramCategory>
+              label="Kategori Peruntukan"
+              required
+              value={formKategori}
+              onChange={onKategoriChange}
+              options={CATEGORIES.map((c) => ({
+                value: c,
+                label: PROGRAM_CATEGORY_LABEL[c],
+              }))}
+              disabled={formSubmitting}
+              error={formErrors.kategori}
+            />
           </div>
         </div>
 
@@ -190,33 +177,26 @@ export function AdminProgramCreateModal({
             </div>
 
             {/* Lokasi */}
-            <div>
-              <label className="label">
-                Lokasi Wilayah <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={formLokasi}
-                onChange={(e) => onLokasiChange(e.target.value)}
-                disabled={formSubmitting}
-                className={`input ${formErrors.lokasi ? "input-error" : ""}`}
-                placeholder="Kota / Kabupaten, Provinsi"
-              />
-              {formErrors.lokasi && <p className="field-error">{formErrors.lokasi}</p>}
-            </div>
+            <TextInput
+              label="Lokasi Wilayah"
+              required
+              value={formLokasi}
+              onChange={(e) => onLokasiChange(e.target.value)}
+              disabled={formSubmitting}
+              error={formErrors.lokasi}
+              placeholder="Kota / Kabupaten, Provinsi"
+            />
 
             {/* Nazhir */}
-            <div className="sm:col-span-2">
-              <label className="label">
-                Nazhir / Lembaga Pengelola <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={formNazhir}
-                onChange={(e) => onNazhirChange(e.target.value)}
-                disabled={formSubmitting}
-                className={`input ${formErrors.nazhir ? "input-error" : ""}`}
-              />
-              {formErrors.nazhir && <p className="field-error">{formErrors.nazhir}</p>}
-            </div>
+            <TextInput
+              containerClassName="sm:col-span-2"
+              label="Nazhir / Lembaga Pengelola"
+              required
+              value={formNazhir}
+              onChange={(e) => onNazhirChange(e.target.value)}
+              disabled={formSubmitting}
+              error={formErrors.nazhir}
+            />
           </div>
         </div>
 
@@ -233,19 +213,15 @@ export function AdminProgramCreateModal({
 
           <div className="space-y-4">
             {/* Ringkasan */}
-            <div>
-              <label className="label">
-                Ringkasan Singkat <span className="text-red-500">*</span>
-              </label>
-              <input
-                value={formRingkasan}
-                onChange={(e) => onRingkasanChange(e.target.value)}
-                disabled={formSubmitting}
-                className={`input ${formErrors.ringkasan ? "input-error" : ""}`}
-                placeholder="Ringkasan 1-2 kalimat untuk kartu program..."
-              />
-              {formErrors.ringkasan && <p className="field-error">{formErrors.ringkasan}</p>}
-            </div>
+            <TextInput
+              label="Ringkasan Singkat"
+              required
+              value={formRingkasan}
+              onChange={(e) => onRingkasanChange(e.target.value)}
+              disabled={formSubmitting}
+              error={formErrors.ringkasan}
+              placeholder="Ringkasan 1-2 kalimat untuk kartu program..."
+            />
 
             {/* Deskripsi Lengkap */}
             <div>
@@ -264,21 +240,18 @@ export function AdminProgramCreateModal({
             </div>
 
             {/* Gambar Sampul */}
-            <div>
-              <label className="label">
-                URL Gambar Sampul <span className="text-brand-400 font-normal">(opsional)</span>
-              </label>
-              <input
-                value={formImageUrl}
-                onChange={(e) => onImageUrlChange(e.target.value)}
-                disabled={formSubmitting}
-                className="input"
-                placeholder="https://images.unsplash.com/..."
-              />
-              <p className="mt-1 text-[11px] text-brand-400">
-                Bila dikosongkan, kartu otomatis memakai ilustrasi bawaan sesuai kategori program.
-              </p>
-            </div>
+            <TextInput
+              label={
+                <>
+                  URL Gambar Sampul <span className="text-brand-400 font-normal">(opsional)</span>
+                </>
+              }
+              value={formImageUrl}
+              onChange={(e) => onImageUrlChange(e.target.value)}
+              disabled={formSubmitting}
+              placeholder="https://images.unsplash.com/..."
+              hint="Bila dikosongkan, kartu otomatis memakai ilustrasi bawaan sesuai kategori program."
+            />
           </div>
         </div>
       </form>
