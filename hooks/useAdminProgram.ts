@@ -226,6 +226,45 @@ export function useAdminProgram() {
     }
   }
 
+  // --- Delete Confirmation State ---
+  const [programToDelete, setProgramToDelete] = useState<Program | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  function handleOpenDelete(prog: Program) {
+    setProgramToDelete(prog);
+  }
+
+  function handleCloseDelete() {
+    if (isDeleting) return;
+    setProgramToDelete(null);
+  }
+
+  async function handleConfirmDelete() {
+    if (!programToDelete) return;
+    setIsDeleting(true);
+    try {
+      await api.deleteProgram(programToDelete.id);
+      push({
+        kind: "success",
+        title: "Program Dihapus",
+        desc: `"${programToDelete.nama}" berhasil dihapus dari sistem.`,
+      });
+      setProgramToDelete(null);
+      fetchPrograms();
+    } catch (err) {
+      push({
+        kind: "error",
+        title: "Gagal Menghapus Program",
+        desc:
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan saat menghapus program.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
   return {
     // Filters & Pagination
     searchInput,
@@ -262,6 +301,13 @@ export function useAdminProgram() {
     togglingId,
     handleToggleActive,
     handleCopyLink,
+
+    // Delete Confirmation Modal
+    programToDelete,
+    isDeleting,
+    handleOpenDelete,
+    handleCloseDelete,
+    handleConfirmDelete,
 
     // Create Modal Form
     isCreateOpen,

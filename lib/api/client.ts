@@ -112,6 +112,14 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
+  deleteProgram: (id: string) =>
+    req<{ success: boolean; message: string }>(
+      `/api/programs/${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+      },
+    ),
+
 
   addDisbursement: (
     programId: string,

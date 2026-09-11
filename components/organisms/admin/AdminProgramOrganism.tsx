@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminProgram } from "@/hooks/useAdminProgram";
+import { ConfirmModal } from "@/components/molecules/ConfirmModal";
 import {
   AdminProgramKpiCards,
   AdminProgramFilterBar,
@@ -43,6 +44,13 @@ export function AdminProgramOrganism() {
     togglingId,
     handleToggleActive,
     handleCopyLink,
+
+    // Delete Confirmation Modal
+    programToDelete,
+    isDeleting,
+    handleOpenDelete,
+    handleCloseDelete,
+    handleConfirmDelete,
 
     // Create Modal Form
     isCreateOpen,
@@ -162,6 +170,7 @@ export function AdminProgramOrganism() {
         togglingId={togglingId}
         onToggleActive={handleToggleActive}
         onCopyLink={handleCopyLink}
+        onDelete={handleOpenDelete}
         onPageChange={setPage}
         onLimitChange={setLimit}
         onResetFilters={handleResetFilters}
@@ -197,6 +206,20 @@ export function AdminProgramOrganism() {
         formErrors={formErrors}
         formSubmitting={formSubmitting}
         onSubmit={handleCreateProgram}
+      />
+
+      {/* 6. MODAL KONFIRMASI HAPUS PROGRAM */}
+      <ConfirmModal
+        isOpen={Boolean(programToDelete)}
+        onClose={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
+        title="Hapus Program Wakaf?"
+        description="Apakah Anda yakin ingin menghapus program ini? Data kampanye akan dinonaktifkan dan dihapus dari portal publik Yayasan KBM."
+        itemName={programToDelete?.nama}
+        confirmText="Ya, Hapus Program"
+        cancelText="Batal"
+        loading={isDeleting}
+        variant="danger"
       />
     </div>
   );

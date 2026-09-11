@@ -128,3 +128,47 @@ export async function PUT(
   }
 }
 
+// DELETE /api/programs/:id — soft delete program (admin only)
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } },
+) {
+  try {
+    // 1. Verifikasi role admin via Better Auth session cookie
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || session.user.role !== "admin") {
+      return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
+    }
+
+    // 2. Cek keberadaan program
+    const identifier = decodeURIComponent(params.id);
+    const existing = await db.query.programs.findFirst({
+      where: and(
+        or(eq(programs.id, identifier), eq(programs.slug, identifier)),
+        isNull(programs.deletedAt),
+      ),
+    });
+
+    if (!existing) {
+      return fail("Program tidak ditemukan.", 404);
+    }
+
+    // 3. Soft delete dengan mencatat deletedAt & menonaktifkan program
+    await db
+      .update(programs)
+      .set({
+        deletedAt: new Date(),
+        aktif: false,
+      })
+      .where(eq(programs.id, existing.id));
+
+    return ok({ success: true, message: "Program berhasil dihapus." });
+  } catch (err) {
+    console.error("DELETE /api/programs/[id] error:", err);
+    return fail("Gagal menghapus program.", 500);
+  }
+}
+
