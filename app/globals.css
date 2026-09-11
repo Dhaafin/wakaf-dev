@@ -17,6 +17,37 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
+/* Global Custom Minimalist Scrollbar (Thin & Clean)                  */
+/* ------------------------------------------------------------------ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(20, 99, 51, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 99, 51, 0.2);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 99, 51, 0.4);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------ */
 /* Komponen util                                                       */
 /* ------------------------------------------------------------------ */
 @layer components {
