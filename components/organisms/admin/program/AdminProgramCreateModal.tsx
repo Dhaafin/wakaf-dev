@@ -62,18 +62,6 @@ export function AdminProgramCreateModal({
   formSubmitting,
   onSubmit,
 }: AdminProgramCreateModalProps) {
-  const modalTitle = (
-    <div>
-      <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-bold text-brand-200 uppercase tracking-wider mb-1 ring-1 ring-white/15">
-        <span className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-        <span>Portofolio Program</span>
-      </div>
-      <h3 className="font-serif text-lg sm:text-xl font-bold text-white tracking-tight leading-tight">
-        Tambah Program Baru
-      </h3>
-    </div>
-  );
-
   const modalFooter = (
     <>
       <button
@@ -100,18 +88,18 @@ export function AdminProgramCreateModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={modalTitle}
+      title="Tambah Program Baru"
       description="Lengkapi rincian kampanye berikut untuk menerbitkan program baru ke portal publik Yayasan KBM."
       footer={modalFooter}
       maxWidth="3xl"
       headerVariant="brand"
       preventBackdropClose={formSubmitting}
     >
-      <form id="create-program-form" onSubmit={onSubmit} className="space-y-6">
+      <form id="create-program-form" onSubmit={onSubmit} className="space-y-5">
         {/* =================================================================== */}
         {/* SEKSI 1: IDENTITAS & KLASIFIKASI                                    */}
         {/* =================================================================== */}
-        <div className="rounded-2xl border border-brand-100 bg-brand-50/30 p-4 sm:p-5 space-y-4">
+        <div className="rounded-2xl bg-brand-50/50 p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-700">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-200/70 text-[10px] text-brand-800">
               1
@@ -179,7 +167,7 @@ export function AdminProgramCreateModal({
         {/* =================================================================== */}
         {/* SEKSI 2: TARGET FINANSIAL & LEMBAGA                                  */}
         {/* =================================================================== */}
-        <div className="rounded-2xl border border-brand-100 bg-brand-50/30 p-4 sm:p-5 space-y-4">
+        <div className="rounded-2xl bg-brand-50/50 p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-700">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-200/70 text-[10px] text-brand-800">
               2
@@ -235,7 +223,7 @@ export function AdminProgramCreateModal({
         {/* =================================================================== */}
         {/* SEKSI 3: KONTEN & MEDIA DOKUMENTASI                                 */}
         {/* =================================================================== */}
-        <div className="rounded-2xl border border-brand-100 bg-brand-50/30 p-4 sm:p-5 space-y-4">
+        <div className="rounded-2xl bg-brand-50/50 p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-700">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-200/70 text-[10px] text-brand-800">
               3

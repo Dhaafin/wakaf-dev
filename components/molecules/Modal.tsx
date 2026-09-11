@@ -122,14 +122,14 @@ export function Modal({
               ease: [0.16, 1, 0.3, 1], // Smooth iOS-like spring damping
             }}
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full ${MAX_WIDTH_CLASSES[maxWidth]} rounded-3xl bg-white shadow-2xl shadow-brand-950/30 ring-1 ring-black/10 border border-brand-100/90 overflow-hidden flex flex-col max-h-[88vh] pointer-events-auto z-10 ${className}`}
+            className={`relative w-full ${MAX_WIDTH_CLASSES[maxWidth]} rounded-3xl bg-white shadow-2xl shadow-brand-950/40 overflow-hidden flex flex-col max-h-[88vh] pointer-events-auto z-10 ${className}`}
           >
             {/* Header */}
             {(title || showCloseButton) && (
               <div
                 className={`flex items-start justify-between px-6 py-5 shrink-0 ${
                   isBrandHeader
-                    ? "bg-gradient-to-r from-brand-950 via-brand-900 to-brand-800 text-white border-b border-brand-800/80"
+                    ? "bg-gradient-to-r from-brand-950 via-brand-900 to-brand-800 text-white"
                     : "border-b border-brand-100/90 bg-gradient-to-b from-brand-50/70 to-white text-brand-950"
                 } ${headerClassName}`}
               >
@@ -160,10 +160,10 @@ export function Modal({
                   <button
                     type="button"
                     onClick={onClose}
-                    className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-all shadow-2xs focus:outline-none focus:ring-2 active:scale-95 ${
+                    className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all focus:outline-none focus:ring-2 active:scale-95 ${
                       isBrandHeader
-                        ? "border-white/15 bg-white/10 text-brand-200 hover:bg-white/20 hover:text-white focus:ring-white/20"
-                        : "border-brand-200/60 bg-white text-brand-400 hover:bg-brand-50 hover:text-brand-800 focus:ring-brand-500/20"
+                        ? "bg-white/10 text-brand-200 hover:bg-white/20 hover:text-white focus:ring-white/20"
+                        : "bg-brand-50 text-brand-500 hover:bg-brand-100 hover:text-brand-800 focus:ring-brand-500/20"
                     }`}
                     title="Tutup dialog (Esc)"
                     aria-label="Tutup dialog"
