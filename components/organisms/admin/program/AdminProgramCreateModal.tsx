@@ -8,7 +8,7 @@ import { Modal } from "@/components/molecules/Modal";
 import { Spinner } from "@/components/atoms/Spinner";
 import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { TextInput } from "@/components/molecules/TextInput";
-import { SelectDropdown } from "@/components/molecules/SelectDropdown";
+import { Combobox } from "@/components/molecules/Combobox";
 
 const CATEGORIES = Object.keys(PROGRAM_CATEGORY_LABEL) as ProgramCategory[];
 const TYPES = Object.keys(PROGRAM_TYPE_LABEL) as ProgramType[];
@@ -18,10 +18,10 @@ export interface AdminProgramCreateModalProps {
   onClose: () => void;
   formNama: string;
   onNamaChange: (val: string) => void;
-  formType: ProgramType;
-  onTypeChange: (val: ProgramType) => void;
-  formKategori: ProgramCategory;
-  onKategoriChange: (val: ProgramCategory) => void;
+  formType: string;
+  onTypeChange: (val: string) => void;
+  formKategori: string;
+  onKategoriChange: (val: string) => void;
   formLokasi: string;
   onLokasiChange: (val: string) => void;
   formRingkasan: string;
@@ -123,7 +123,7 @@ export function AdminProgramCreateModal({
             />
 
             {/* Jenis Program */}
-            <SelectDropdown<ProgramType>
+            <Combobox
               label="Jenis Instrumen"
               required
               value={formType}
@@ -133,10 +133,17 @@ export function AdminProgramCreateModal({
                 label: PROGRAM_TYPE_LABEL[t],
               }))}
               disabled={formSubmitting}
+              placeholder="Pilih atau ketik jenis baru..."
+              customItemLabel={(q) => (
+                <>
+                  Gunakan jenis baru:{" "}
+                  <strong className="text-brand-950">“{q}”</strong>
+                </>
+              )}
             />
 
             {/* Kategori */}
-            <SelectDropdown<ProgramCategory>
+            <Combobox
               label="Kategori Peruntukan"
               required
               value={formKategori}
@@ -147,6 +154,13 @@ export function AdminProgramCreateModal({
               }))}
               disabled={formSubmitting}
               error={formErrors.kategori}
+              placeholder="Pilih atau ketik kategori baru..."
+              customItemLabel={(q) => (
+                <>
+                  Gunakan kategori baru:{" "}
+                  <strong className="text-brand-950">“{q}”</strong>
+                </>
+              )}
             />
           </div>
         </div>

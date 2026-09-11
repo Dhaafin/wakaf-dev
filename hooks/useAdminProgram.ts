@@ -36,8 +36,8 @@ export function useAdminProgram() {
   // --- Modal Form State ---
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [formNama, setFormNama] = useState("");
-  const [formType, setFormType] = useState<ProgramType>("wakaf-melalui-uang");
-  const [formKategori, setFormKategori] = useState<ProgramCategory>("masjid");
+  const [formType, setFormType] = useState<string>("wakaf-melalui-uang");
+  const [formKategori, setFormKategori] = useState<string>("masjid");
   const [formLokasi, setFormLokasi] = useState("");
   const [formRingkasan, setFormRingkasan] = useState("");
   const [formDeskripsi, setFormDeskripsi] = useState("");

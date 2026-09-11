@@ -255,7 +255,7 @@ export function AdminProgramTable({
                       <td className="px-4 py-4">
                         <div className="flex flex-col gap-1 items-start">
                           <span className="inline-flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700 ring-1 ring-inset ring-brand-600/20">
-                            {PROGRAM_TYPE_LABEL[p.program_type]}
+                            {(PROGRAM_TYPE_LABEL as Record<string, string>)[p.program_type] || p.program_type}
                           </span>
                           <CategoryBadge kategori={p.kategori} />
                         </div>
@@ -411,7 +411,7 @@ export function AdminProgramTable({
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <span className="badge bg-brand-50 text-brand-700 text-[10px]">
-                            {PROGRAM_TYPE_LABEL[p.program_type]}
+                            {(PROGRAM_TYPE_LABEL as Record<string, string>)[p.program_type] || p.program_type}
                           </span>
                           <CategoryBadge kategori={p.kategori} />
                         </div>

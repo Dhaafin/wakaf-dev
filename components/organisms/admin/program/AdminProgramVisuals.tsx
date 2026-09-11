@@ -5,7 +5,9 @@ export interface CategoryVisual {
   icon: React.ReactNode;
 }
 
-export function getCategoryVisual(kategori: ProgramCategory): CategoryVisual {
+export function getCategoryVisual(
+  kategori: ProgramCategory | string,
+): CategoryVisual {
   switch (kategori) {
     case "masjid":
       return {
