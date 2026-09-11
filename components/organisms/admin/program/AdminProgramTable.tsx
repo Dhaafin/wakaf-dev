@@ -22,6 +22,7 @@ export interface AdminProgramTableProps {
   togglingId: string | null;
   onToggleActive: (prog: Program) => void;
   onCopyLink: (slug: string) => void;
+  onEdit: (prog: Program) => void;
   onDelete: (prog: Program) => void;
   selectedIds: string[];
   isAllSelected: boolean;
@@ -51,6 +52,7 @@ export function AdminProgramTable({
   togglingId,
   onToggleActive,
   onCopyLink,
+  onEdit,
   onDelete,
   selectedIds,
   isAllSelected,
@@ -328,10 +330,23 @@ export function AdminProgramTable({
                       {/* 5. Aksi Cepat */}
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* 1. Lihat Program Publik */}
+                          <Link
+                            href={`/program/${p.slug}`}
+                            target="_blank"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-600 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
+                            title="Lihat halaman program (tab baru)"
+                          >
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                          </Link>
+
+                          {/* 2. Salin Tautan Publik */}
                           <button
                             type="button"
                             onClick={() => onCopyLink(p.slug)}
-                            className="rounded-lg border border-brand-200 bg-white p-2 text-brand-600 hover:bg-brand-50 hover:text-brand-900 transition"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-600 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
                             title="Salin tautan publik"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -339,21 +354,24 @@ export function AdminProgramTable({
                             </svg>
                           </button>
 
-                          <Link
-                            href={`/program/${p.slug}`}
-                            target="_blank"
-                            className="btn-outline py-1.5 px-3 text-xs inline-flex items-center gap-1 text-brand-700 hover:text-brand-900 font-semibold"
+                          {/* 3. Edit Program */}
+                          <button
+                            type="button"
+                            onClick={() => onEdit(p)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-brand-800 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
+                            title="Ubah data program"
                           >
-                            <span>Lihat</span>
-                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            <svg className="h-3.5 w-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                             </svg>
-                          </Link>
+                            <span>Edit</span>
+                          </button>
 
+                          {/* 4. Hapus Program */}
                           <button
                             type="button"
                             onClick={() => onDelete(p)}
-                            className="rounded-lg border border-brand-200 bg-white p-2 text-brand-400 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-400 shadow-2xs hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
                             title="Hapus program"
                           >
                             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -468,26 +486,49 @@ export function AdminProgramTable({
                     <span className="text-xs text-brand-400 truncate max-w-[180px]">
                       📍 {p.lokasi}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onCopyLink(p.slug)}
-                        className="btn-outline py-1.5 px-2.5 text-xs text-brand-600"
-                        title="Salin link"
-                      >
-                        Salin Link
-                      </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* 1. Lihat Program Publik */}
                       <Link
                         href={`/program/${p.slug}`}
                         target="_blank"
-                        className="btn-outline py-1.5 px-3 text-xs inline-flex items-center gap-1 font-semibold text-brand-800"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-600 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
+                        title="Lihat halaman program"
                       >
-                        <span>Lihat ↗</span>
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
                       </Link>
+
+                      {/* 2. Salin Tautan Publik */}
+                      <button
+                        type="button"
+                        onClick={() => onCopyLink(p.slug)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-600 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
+                        title="Salin tautan"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                        </svg>
+                      </button>
+
+                      {/* 3. Edit Program */}
+                      <button
+                        type="button"
+                        onClick={() => onEdit(p)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-white px-2 py-1.5 text-xs font-semibold text-brand-800 shadow-2xs hover:border-brand-300 hover:bg-brand-50 hover:text-brand-950 transition"
+                        title="Ubah data program"
+                      >
+                        <svg className="h-3.5 w-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+
+                      {/* 4. Hapus Program */}
                       <button
                         type="button"
                         onClick={() => onDelete(p)}
-                        className="rounded-xl border border-brand-200 bg-white p-2 text-brand-400 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-400 shadow-2xs hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
                         title="Hapus program"
                       >
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

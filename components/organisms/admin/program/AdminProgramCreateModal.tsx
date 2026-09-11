@@ -16,6 +16,7 @@ const TYPES = Object.keys(PROGRAM_TYPE_LABEL) as ProgramType[];
 export interface AdminProgramCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mode?: "create" | "edit";
   formNama: string;
   onNamaChange: (val: string) => void;
   formType: string;
@@ -42,6 +43,7 @@ export interface AdminProgramCreateModalProps {
 export function AdminProgramCreateModal({
   isOpen,
   onClose,
+  mode = "create",
   formNama,
   onNamaChange,
   formType,
@@ -64,6 +66,8 @@ export function AdminProgramCreateModal({
   formSubmitting,
   onSubmit,
 }: AdminProgramCreateModalProps) {
+  const isEdit = mode === "edit";
+
   const modalFooter = (
     <>
       <button
@@ -81,7 +85,15 @@ export function AdminProgramCreateModal({
         className="btn-primary px-6 py-2.5 text-xs font-bold shadow-md hover:shadow-lg inline-flex items-center gap-2 disabled:opacity-75 active:scale-95 transition-all"
       >
         {formSubmitting && <Spinner className="h-3.5 w-3.5 text-brand-950" />}
-        <span>{formSubmitting ? "Menyimpan ke Sistem..." : "Simpan & Terbitkan"}</span>
+        <span>
+          {formSubmitting
+            ? isEdit
+              ? "Menyimpan Perubahan..."
+              : "Menyimpan ke Sistem..."
+            : isEdit
+              ? "Simpan Perubahan"
+              : "Simpan & Terbitkan"}
+        </span>
       </button>
     </>
   );
@@ -90,8 +102,12 @@ export function AdminProgramCreateModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Tambah Program Baru"
-      description="Lengkapi rincian kampanye berikut untuk menerbitkan program baru ke portal publik Yayasan KBM."
+      title={isEdit ? "Ubah Data Program" : "Tambah Program Baru"}
+      description={
+        isEdit
+          ? "Perbarui rincian kampanye berikut untuk memperbarui informasi program di portal publik."
+          : "Lengkapi rincian kampanye berikut untuk menerbitkan program baru ke portal publik Yayasan KBM."
+      }
       footer={modalFooter}
       maxWidth="3xl"
       headerVariant="brand"
@@ -272,3 +288,6 @@ export function AdminProgramCreateModal({
     </Modal>
   );
 }
+
+export const AdminProgramFormModal = AdminProgramCreateModal;
+export type AdminProgramFormModalProps = AdminProgramCreateModalProps;

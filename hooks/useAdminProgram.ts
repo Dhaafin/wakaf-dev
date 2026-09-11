@@ -33,8 +33,9 @@ export function useAdminProgram() {
   const [error, setError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // --- Modal Form State ---
+  // --- Modal Form State (Create & Edit) ---
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [formNama, setFormNama] = useState("");
   const [formType, setFormType] = useState<string>("wakaf-melalui-uang");
   const [formKategori, setFormKategori] = useState<string>("masjid");
@@ -158,7 +159,7 @@ export function useAdminProgram() {
     }
   }
 
-  // Handle Create Program
+  // Modal Form Handlers (Create & Edit)
   function resetCreateForm() {
     setFormNama("");
     setFormType("wakaf-melalui-uang");
@@ -172,7 +173,34 @@ export function useAdminProgram() {
     setFormErrors({});
   }
 
-  async function handleCreateProgram(e: React.FormEvent) {
+  function handleOpenCreate() {
+    setEditingProgram(null);
+    resetCreateForm();
+    setIsCreateOpen(true);
+  }
+
+  function handleOpenEdit(prog: Program) {
+    setEditingProgram(prog);
+    setFormNama(prog.nama);
+    setFormType(prog.program_type);
+    setFormKategori(prog.kategori);
+    setFormLokasi(prog.lokasi);
+    setFormRingkasan(prog.ringkasan);
+    setFormDeskripsi(prog.deskripsi);
+    setFormImageUrl(prog.imageUrl || "");
+    setFormTarget(prog.target);
+    setFormNazhir(prog.nazhir || "Nazhir Yayasan Khazanah Berkah Mulia");
+    setFormErrors({});
+    setIsCreateOpen(true);
+  }
+
+  function handleCloseForm() {
+    if (formSubmitting) return;
+    setIsCreateOpen(false);
+    setEditingProgram(null);
+  }
+
+  async function handleSubmitProgram(e: React.FormEvent) {
     e.preventDefault();
     const values = {
       nama: formNama,
@@ -191,25 +219,48 @@ export function useAdminProgram() {
 
     setFormSubmitting(true);
     try {
-      const created = await api.createProgram({
-        nama: formNama.trim(),
-        program_type: formType,
-        kategori: formKategori,
-        lokasi: formLokasi.trim(),
-        ringkasan: formRingkasan.trim(),
-        deskripsi: formDeskripsi.trim(),
-        imageUrl: formImageUrl.trim() || undefined,
-        target: Number(formTarget),
-        nazhir: formNazhir.trim(),
-      });
+      if (editingProgram) {
+        // Mode Edit Program
+        const updated = await api.updateProgram(editingProgram.id, {
+          nama: formNama.trim(),
+          program_type: formType,
+          kategori: formKategori,
+          lokasi: formLokasi.trim(),
+          ringkasan: formRingkasan.trim(),
+          deskripsi: formDeskripsi.trim(),
+          imageUrl: formImageUrl.trim() || undefined,
+          target: Number(formTarget),
+          nazhir: formNazhir.trim(),
+        });
 
-      push({
-        kind: "success",
-        title: "Program Baru Dibuat",
-        desc: `"${created.nama}" berhasil didaftarkan ke sistem.`,
-      });
+        push({
+          kind: "success",
+          title: "Perubahan Disimpan",
+          desc: `Program "${updated.nama}" berhasil diperbarui.`,
+        });
+      } else {
+        // Mode Tambah Program Baru
+        const created = await api.createProgram({
+          nama: formNama.trim(),
+          program_type: formType,
+          kategori: formKategori,
+          lokasi: formLokasi.trim(),
+          ringkasan: formRingkasan.trim(),
+          deskripsi: formDeskripsi.trim(),
+          imageUrl: formImageUrl.trim() || undefined,
+          target: Number(formTarget),
+          nazhir: formNazhir.trim(),
+        });
+
+        push({
+          kind: "success",
+          title: "Program Baru Dibuat",
+          desc: `"${created.nama}" berhasil didaftarkan ke sistem.`,
+        });
+      }
 
       resetCreateForm();
+      setEditingProgram(null);
       setIsCreateOpen(false);
       fetchPrograms();
     } catch (err) {
@@ -218,7 +269,7 @@ export function useAdminProgram() {
       }
       push({
         kind: "error",
-        title: "Gagal Membuat Program",
+        title: editingProgram ? "Gagal Memperbarui Program" : "Gagal Membuat Program",
         desc: err instanceof Error ? err.message : "Terjadi kesalahan.",
       });
     } finally {
@@ -394,9 +445,15 @@ export function useAdminProgram() {
     handleCloseBulkDelete,
     handleConfirmBulkDelete,
 
-    // Create Modal Form
+    // Form Modal (Create & Edit)
     isCreateOpen,
     setIsCreateOpen,
+    editingProgram,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseForm,
+    handleSubmitProgram,
+    handleCreateProgram: handleSubmitProgram,
     formNama,
     setFormNama,
     formType,
@@ -418,7 +475,6 @@ export function useAdminProgram() {
     formErrors,
     formSubmitting,
     resetCreateForm,
-    handleCreateProgram,
   };
 }
 

@@ -86,10 +86,14 @@ export function AdminProgramOrganism() {
     setFormTarget,
     formNazhir,
     setFormNazhir,
+    editingProgram,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseForm,
+    handleSubmitProgram,
     formErrors,
     formSubmitting,
     resetCreateForm,
-    handleCreateProgram,
   } = useAdminProgram();
 
   return (
@@ -135,7 +139,7 @@ export function AdminProgramOrganism() {
 
             <button
               type="button"
-              onClick={() => setIsCreateOpen(true)}
+              onClick={handleOpenCreate}
               className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-2.5 text-xs font-bold text-brand-950 shadow-md transition hover:bg-accent-400 hover:shadow-lg active:scale-95"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -183,6 +187,7 @@ export function AdminProgramOrganism() {
         togglingId={togglingId}
         onToggleActive={handleToggleActive}
         onCopyLink={handleCopyLink}
+        onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}
         selectedIds={selectedIds}
         isAllSelected={isAllSelected}
@@ -194,17 +199,15 @@ export function AdminProgramOrganism() {
         onPageChange={setPage}
         onLimitChange={setLimit}
         onResetFilters={handleResetFilters}
-        onOpenCreate={() => setIsCreateOpen(true)}
+        onOpenCreate={handleOpenCreate}
         onReload={refetch}
       />
 
-      {/* 5. MODAL TAMBAH PROGRAM */}
+      {/* 5. MODAL TAMBAH / UBAH PROGRAM */}
       <AdminProgramCreateModal
         isOpen={isCreateOpen}
-        onClose={() => {
-          resetCreateForm();
-          setIsCreateOpen(false);
-        }}
+        onClose={handleCloseForm}
+        mode={editingProgram ? "edit" : "create"}
         formNama={formNama}
         onNamaChange={setFormNama}
         formType={formType}
@@ -225,7 +228,7 @@ export function AdminProgramOrganism() {
         onNazhirChange={setFormNazhir}
         formErrors={formErrors}
         formSubmitting={formSubmitting}
-        onSubmit={handleCreateProgram}
+        onSubmit={handleSubmitProgram}
       />
 
       {/* 6. MODAL KONFIRMASI HAPUS PROGRAM */}
