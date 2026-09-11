@@ -52,6 +52,19 @@ export function AdminProgramOrganism() {
     handleCloseDelete,
     handleConfirmDelete,
 
+    // Multiple Selection & Bulk Delete
+    selectedIds,
+    isAllSelected,
+    isSomeSelected,
+    isBulkDeleteOpen,
+    isBulkDeleting,
+    handleToggleSelect,
+    handleToggleSelectAll,
+    handleClearSelection,
+    handleOpenBulkDelete,
+    handleCloseBulkDelete,
+    handleConfirmBulkDelete,
+
     // Create Modal Form
     isCreateOpen,
     setIsCreateOpen,
@@ -171,6 +184,13 @@ export function AdminProgramOrganism() {
         onToggleActive={handleToggleActive}
         onCopyLink={handleCopyLink}
         onDelete={handleOpenDelete}
+        selectedIds={selectedIds}
+        isAllSelected={isAllSelected}
+        isSomeSelected={isSomeSelected}
+        onToggleSelect={handleToggleSelect}
+        onToggleSelectAll={handleToggleSelectAll}
+        onOpenBulkDelete={handleOpenBulkDelete}
+        onClearSelection={handleClearSelection}
         onPageChange={setPage}
         onLimitChange={setLimit}
         onResetFilters={handleResetFilters}
@@ -219,6 +239,19 @@ export function AdminProgramOrganism() {
         confirmText="Ya, Hapus Program"
         cancelText="Batal"
         loading={isDeleting}
+        variant="danger"
+      />
+
+      {/* 7. MODAL KONFIRMASI HAPUS MASSAL (BULK DELETE) */}
+      <ConfirmModal
+        isOpen={isBulkDeleteOpen}
+        onClose={handleCloseBulkDelete}
+        onConfirm={handleConfirmBulkDelete}
+        title={`Hapus ${selectedIds.length} Program Sekaligus?`}
+        description={`Apakah Anda yakin ingin menghapus ${selectedIds.length} program terpilih? Semua data kampanye ini akan dinonaktifkan dan dihapus dari portal publik.`}
+        confirmText={`Ya, Hapus Semua (${selectedIds.length})`}
+        cancelText="Batal"
+        loading={isBulkDeleting}
         variant="danger"
       />
     </div>

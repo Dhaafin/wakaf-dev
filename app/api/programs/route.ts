@@ -7,7 +7,7 @@ import { ok, fail } from "@/lib/api/server";
 import { validateProgramForm } from "@/lib/validation";
 import { createId, slugify } from "@/lib/id";
 import { serializeProgram } from "@/lib/db/serialize";
-import { and, eq, isNull, ilike, or, desc, asc, sql } from "drizzle-orm";
+import { and, eq, isNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
 import type { PaginatedResult, Program } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -175,6 +175,58 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("POST /api/programs error:", err);
     return fail("Gagal membuat program.", 500);
+  }
+}
+
+// DELETE /api/programs — bulk soft delete programs (admin only)
+export async function DELETE(req: NextRequest) {
+  try {
+    // 1. Verifikasi role admin via Better Auth session cookie
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || session.user.role !== "admin") {
+      return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
+    }
+
+    // 2. Parse body { ids: string[] }
+    let body: { ids?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return fail("Body JSON tidak valid.", 400);
+    }
+
+    if (!Array.isArray(body.ids) || body.ids.length === 0) {
+      return fail("Daftar ID program tidak valid atau kosong.", 400);
+    }
+
+    const validIds = body.ids.filter(
+      (id): id is string => typeof id === "string" && id.trim().length > 0,
+    );
+    if (validIds.length === 0) {
+      return fail("Daftar ID program tidak valid.", 400);
+    }
+
+    // 3. Soft delete dengan mencatat deletedAt & menonaktifkan program
+    const deleted = await db
+      .update(programs)
+      .set({
+        deletedAt: new Date(),
+        aktif: false,
+      })
+      .where(and(inArray(programs.id, validIds), isNull(programs.deletedAt)))
+      .returning({ id: programs.id });
+
+    return ok({
+      success: true,
+      count: deleted.length,
+      message: `${deleted.length} program berhasil dihapus.`,
+    });
+  } catch (err) {
+    console.error("DELETE /api/programs bulk error:", err);
+    return fail("Gagal menghapus program secara massal.", 500);
   }
 }
 

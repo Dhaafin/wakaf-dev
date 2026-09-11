@@ -265,6 +265,78 @@ export function useAdminProgram() {
     }
   }
 
+  // --- Multiple Selection & Bulk Delete State ---
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState<boolean>(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false);
+
+  const isAllSelected = useMemo(() => {
+    return items.length > 0 && items.every((p) => selectedIds.includes(p.id));
+  }, [items, selectedIds]);
+
+  const isSomeSelected = useMemo(() => {
+    return items.some((p) => selectedIds.includes(p.id)) && !isAllSelected;
+  }, [items, selectedIds, isAllSelected]);
+
+  function handleToggleSelect(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
+
+  function handleToggleSelectAll() {
+    const pageIds = items.map((p) => p.id);
+    if (pageIds.length === 0) return;
+
+    if (isAllSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !pageIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...pageIds])));
+    }
+  }
+
+  function handleClearSelection() {
+    setSelectedIds([]);
+  }
+
+  function handleOpenBulkDelete() {
+    if (selectedIds.length > 0) {
+      setIsBulkDeleteOpen(true);
+    }
+  }
+
+  function handleCloseBulkDelete() {
+    if (isBulkDeleting) return;
+    setIsBulkDeleteOpen(false);
+  }
+
+  async function handleConfirmBulkDelete() {
+    if (selectedIds.length === 0) return;
+    setIsBulkDeleting(true);
+    try {
+      const res = await api.deletePrograms(selectedIds);
+      push({
+        kind: "success",
+        title: "Program Berhasil Dihapus",
+        desc: `${res.count} program terpilih telah dihapus dari sistem.`,
+      });
+      setSelectedIds([]);
+      setIsBulkDeleteOpen(false);
+      fetchPrograms();
+    } catch (err) {
+      push({
+        kind: "error",
+        title: "Gagal Menghapus Massal",
+        desc:
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan saat menghapus program terpilih.",
+      });
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  }
+
   return {
     // Filters & Pagination
     searchInput,
@@ -308,6 +380,19 @@ export function useAdminProgram() {
     handleOpenDelete,
     handleCloseDelete,
     handleConfirmDelete,
+
+    // Multiple Selection & Bulk Delete
+    selectedIds,
+    isAllSelected,
+    isSomeSelected,
+    isBulkDeleteOpen,
+    isBulkDeleting,
+    handleToggleSelect,
+    handleToggleSelectAll,
+    handleClearSelection,
+    handleOpenBulkDelete,
+    handleCloseBulkDelete,
+    handleConfirmBulkDelete,
 
     // Create Modal Form
     isCreateOpen,

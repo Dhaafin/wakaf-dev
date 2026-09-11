@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Program } from "@/types";
 import { PROGRAM_TYPE_LABEL } from "@/types";
 import { CategoryBadge } from "@/components/atoms/CategoryBadge";
+import { Checkbox } from "@/components/atoms/Checkbox";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { Spinner } from "@/components/atoms/Spinner";
 import { formatRupiah, persen } from "@/lib/format";
@@ -22,6 +23,13 @@ export interface AdminProgramTableProps {
   onToggleActive: (prog: Program) => void;
   onCopyLink: (slug: string) => void;
   onDelete: (prog: Program) => void;
+  selectedIds: string[];
+  isAllSelected: boolean;
+  isSomeSelected: boolean;
+  onToggleSelect: (id: string) => void;
+  onToggleSelectAll: () => void;
+  onOpenBulkDelete: () => void;
+  onClearSelection: () => void;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
   onResetFilters: () => void;
@@ -44,6 +52,13 @@ export function AdminProgramTable({
   onToggleActive,
   onCopyLink,
   onDelete,
+  selectedIds,
+  isAllSelected,
+  isSomeSelected,
+  onToggleSelect,
+  onToggleSelectAll,
+  onOpenBulkDelete,
+  onClearSelection,
   onPageChange,
   onLimitChange,
   onResetFilters,
@@ -51,7 +66,41 @@ export function AdminProgramTable({
   onReload,
 }: AdminProgramTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-brand-200/90 bg-white shadow-xs">
+    <div className="space-y-3">
+      {/* ELEVATED BULK ACTION BAR */}
+      {selectedIds.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-950 p-3.5 px-4 sm:px-5 text-white shadow-xl shadow-brand-950/20 border border-brand-800 animate-fade-in">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-500 text-xs font-bold text-brand-950">
+              {selectedIds.length}
+            </span>
+            <span className="text-xs font-semibold sm:text-sm">
+              {selectedIds.length} program terpilih
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClearSelection}
+              className="rounded-xl border border-white/20 px-3.5 py-1.5 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white transition cursor-pointer"
+            >
+              Batalkan
+            </button>
+            <button
+              type="button"
+              onClick={onOpenBulkDelete}
+              className="rounded-xl bg-red-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 active:scale-95 transition inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              <span>Hapus Terpilih ({selectedIds.length})</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-2xl border border-brand-200/90 bg-white shadow-xs">
       {loading ? (
         <div className="divide-y divide-brand-100 p-4 sm:p-6 space-y-4">
           {[0, 1, 2, 3].map((i) => (
@@ -113,7 +162,15 @@ export function AdminProgramTable({
             <table className="w-full text-left text-sm text-brand-950">
               <thead className="border-b border-brand-100 bg-brand-50/50 text-[11px] font-bold uppercase tracking-wider text-brand-600">
                 <tr>
-                  <th scope="col" className="px-5 py-3.5">
+                  <th scope="col" className="pl-5 pr-2 py-3.5 w-10">
+                    <Checkbox
+                      checked={isAllSelected}
+                      indeterminate={isSomeSelected}
+                      onChange={onToggleSelectAll}
+                      aria-label="Pilih semua program di halaman ini"
+                    />
+                  </th>
+                  <th scope="col" className="px-4 py-3.5">
                     Program & Lembaga
                   </th>
                   <th scope="col" className="px-4 py-3.5">
@@ -134,15 +191,26 @@ export function AdminProgramTable({
                 {items.map((p) => {
                   const pct = persen(p.terkumpul, p.target);
                   const isToggling = togglingId === p.id;
+                  const isSelected = selectedIds.includes(p.id);
                   const visual = getCategoryVisual(p.kategori);
 
                   return (
                     <tr
                       key={p.id}
-                      className="group transition-colors hover:bg-brand-50/40"
+                      className={`group transition-colors ${
+                        isSelected ? "bg-brand-50/70" : "hover:bg-brand-50/40"
+                      }`}
                     >
+                      <td className="pl-5 pr-2 py-4">
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => onToggleSelect(p.id)}
+                          aria-label={`Pilih program ${p.nama}`}
+                        />
+                      </td>
+
                       {/* 1. Program, Thumbnail & Lokasi */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-4">
                         <div className="flex items-center gap-3.5">
                           {p.imageUrl ? (
                             <img
@@ -310,12 +378,25 @@ export function AdminProgramTable({
             {items.map((p) => {
               const pct = persen(p.terkumpul, p.target);
               const isToggling = togglingId === p.id;
+              const isSelected = selectedIds.includes(p.id);
               const visual = getCategoryVisual(p.kategori);
 
               return (
-                <div key={p.id} className="p-4 space-y-3.5">
+                <div
+                  key={p.id}
+                  className={`p-4 space-y-3.5 transition-colors ${
+                    isSelected ? "bg-brand-50/70" : ""
+                  }`}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
+                      <div className="pt-2 shrink-0">
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => onToggleSelect(p.id)}
+                          aria-label={`Pilih program ${p.nama}`}
+                        />
+                      </div>
                       {p.imageUrl ? (
                         <img
                           src={p.imageUrl}
@@ -499,6 +580,7 @@ export function AdminProgramTable({
           </div>
         </>
       )}
+    </div>
     </div>
   );
 }
