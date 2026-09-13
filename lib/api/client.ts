@@ -7,6 +7,8 @@ import type {
   Certificate,
   GlobalStats,
   DisbursementReport,
+  DisbursementWithProgram,
+  DisbursementStatsSummary,
   PublicDonation,
   PaginatedResult,
 } from "@/types";
@@ -57,6 +59,25 @@ export interface ListProgramsParams {
   kategori?: string;
   status?: "all" | "active" | "inactive";
   sort?: "latest" | "oldest" | "target_asc" | "target_desc";
+}
+
+export interface ListDisbursementsParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  programId?: string;
+  sort?: "latest" | "oldest" | "nominal_desc" | "nominal_asc";
+}
+
+export interface ListDisbursementsResult {
+  items: DisbursementWithProgram[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  statsSummary: DisbursementStatsSummary;
 }
 
 export const api = {
@@ -140,6 +161,36 @@ export const api = {
     req<{ program: Program; disbursement: DisbursementReport }>(
       `/api/programs/${encodeURIComponent(programId)}/disbursements`,
       { method: "POST", body: JSON.stringify(payload) },
+    ),
+
+  listDisbursements: (params?: ListDisbursementsParams) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    if (params?.q) searchParams.set("q", params.q);
+    if (params?.programId) searchParams.set("programId", params.programId);
+    if (params?.sort) searchParams.set("sort", params.sort);
+    const qs = searchParams.toString();
+    return req<ListDisbursementsResult>(`/api/disbursements${qs ? `?${qs}` : ""}`);
+  },
+
+  createDisbursement: (payload: {
+    programId: string;
+    judul: string;
+    deskripsi: string;
+    nominal: number;
+    buktiImageUrl?: string;
+    buktiFileName?: string;
+  }) =>
+    req<DisbursementWithProgram>("/api/disbursements", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  deleteDisbursement: (id: string) =>
+    req<{ success: boolean; message: string }>(
+      `/api/disbursements/${encodeURIComponent(id)}`,
+      { method: "DELETE" },
     ),
 
   // ----------------------------- Transactions ---------------------------

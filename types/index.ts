@@ -132,9 +132,28 @@ export interface DisbursementReport {
   judul: string;
   deskripsi: string;
   nominal: number;
-  /** data URL gambar bukti (mock file upload dengan preview) */
+  /** data URL atau Vercel Blob URL gambar bukti */
   buktiImageUrl?: string;
   buktiFileName?: string;
+}
+
+export interface DisbursementWithProgram extends DisbursementReport {
+  program?: {
+    id: string;
+    nama: string;
+    slug: string;
+    kategori: ProgramCategory;
+    programType: ProgramType;
+    terkumpul: number;
+    target: number;
+  };
+}
+
+export interface DisbursementStatsSummary {
+  totalNominal: number;
+  totalCount: number;
+  programCount: number;
+  avgNominal: number;
 }
 
 export interface Program {
