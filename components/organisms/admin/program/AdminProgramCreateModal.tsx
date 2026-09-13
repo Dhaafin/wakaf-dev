@@ -9,6 +9,7 @@ import { Spinner } from "@/components/atoms/Spinner";
 import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { TextInput } from "@/components/molecules/TextInput";
 import { Combobox } from "@/components/molecules/Combobox";
+import { FileInput } from "@/components/molecules/FileInput";
 
 const CATEGORIES = Object.keys(PROGRAM_CATEGORY_LABEL) as ProgramCategory[];
 const TYPES = Object.keys(PROGRAM_TYPE_LABEL) as ProgramType[];
@@ -269,17 +270,19 @@ export function AdminProgramCreateModal({
               {formErrors.deskripsi && <p className="field-error">{formErrors.deskripsi}</p>}
             </div>
 
-            {/* Gambar Sampul */}
-            <TextInput
+            {/* Foto Sampul Program */}
+            <FileInput
               label={
                 <>
-                  URL Gambar Sampul <span className="text-brand-400 font-normal">(opsional)</span>
+                  Foto Sampul Program{" "}
+                  <span className="text-brand-400 font-normal">(opsional)</span>
                 </>
               }
               value={formImageUrl}
-              onChange={(e) => onImageUrlChange(e.target.value)}
+              onChange={onImageUrlChange}
               disabled={formSubmitting}
-              placeholder="https://images.unsplash.com/..."
+              error={formErrors.imageUrl}
+              maxSizeMb={5}
               hint="Bila dikosongkan, kartu otomatis memakai ilustrasi bawaan sesuai kategori program."
             />
           </div>
