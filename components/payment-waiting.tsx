@@ -99,6 +99,34 @@ export function PaymentWaiting({ txId }: { txId: string }) {
     });
   }
 
+  function handleOpenMidtrans() {
+    if (!tx?.snapToken || typeof window === "undefined" || !window.snap) return;
+    window.snap.pay(tx.snapToken, {
+      onSuccess: () => {
+        push({
+          kind: "success",
+          title: "Pembayaran Berhasil",
+          desc: "Alhamdulillah, wakaf Anda telah berhasil ditunaikan.",
+        });
+        router.replace(`/sukses/${tx.id}`);
+      },
+      onPending: () => {
+        push({
+          kind: "info",
+          title: "Menunggu Pembayaran",
+          desc: "Selesaikan transaksi sesuai metode yang Anda pilih.",
+        });
+      },
+      onError: () => {
+        push({
+          kind: "error",
+          title: "Pembayaran Belum Berhasil",
+          desc: "Silakan periksa kembali metode pembayaran Anda.",
+        });
+      },
+    });
+  }
+
   // ----------------------------- Render ------------------------------
 
   if (loading) {
@@ -250,6 +278,21 @@ export function PaymentWaiting({ txId }: { txId: string }) {
             </dd>
           </div>
         </dl>
+
+        {tx.snapToken && (
+          <div className="mt-5 pt-4 border-t border-brand-100">
+            <button
+              type="button"
+              onClick={handleOpenMidtrans}
+              className="btn-primary w-full py-3 flex items-center justify-center gap-2 shadow-md cursor-pointer text-xs sm:text-sm"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6-10.5h16.5a1.5 1.5 0 011.5 1.5v10.5a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V6.75a1.5 1.5 0 011.5-1.5z" />
+              </svg>
+              <span>Buka Pembayaran Midtrans (QRIS / VA)</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ---------------------------------------------------------------- */}

@@ -89,8 +89,45 @@ export function WakafForm({
       push({
         kind: "success",
         title: `Tagihan ${terms.judulForm.toLowerCase().replace(/^(tunaikan|salurkan) /, "")} dibuat`,
-        desc: `Nomor VA ${tx.vaNumber} telah diterbitkan.`,
+        desc: tx.snapToken
+          ? "Membuka jendela pembayaran Midtrans..."
+          : `Nomor VA ${tx.vaNumber} telah diterbitkan.`,
       });
+
+      // Buka popup pembayaran Midtrans Snap secara instan bila tersedia
+      if (tx.snapToken && typeof window !== "undefined" && window.snap) {
+        window.snap.pay(tx.snapToken, {
+          onSuccess: () => {
+            push({
+              kind: "success",
+              title: "Pembayaran Berhasil",
+              desc: "Alhamdulillah, wakaf Anda telah berhasil ditunaikan.",
+            });
+            window.location.href = `/sukses/${tx.id}`;
+          },
+          onPending: () => {
+            push({
+              kind: "info",
+              title: "Menunggu Pembayaran",
+              desc: "Silakan selesaikan pembayaran sesuai metode yang Anda pilih.",
+            });
+            onCreated(tx.id);
+          },
+          onError: () => {
+            push({
+              kind: "error",
+              title: "Pembayaran Belum Selesai",
+              desc: "Terjadi kendala pada transaksi. Anda dapat mencoba kembali di halaman instruksi.",
+            });
+            onCreated(tx.id);
+          },
+          onClose: () => {
+            onCreated(tx.id);
+          },
+        });
+        return;
+      }
+
       onCreated(tx.id);
     } catch (err) {
       if (err instanceof ApiError && err.fieldErrors) {

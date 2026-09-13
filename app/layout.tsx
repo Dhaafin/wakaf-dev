@@ -25,11 +25,16 @@ export const metadata: Metadata = {
     "Platform wakaf digital: berwakaf mudah, transparan, dan tercatat. Demo interaktif.",
 };
 
+import Script from "next/script";
+import { MIDTRANS_SNAP_URL } from "@/lib/midtrans";
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
+
   return (
     <html lang="id" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
@@ -39,6 +44,13 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </FlashMessageProvider>
+        {clientKey && (
+          <Script
+            src={MIDTRANS_SNAP_URL}
+            data-client-key={clientKey}
+            strategy="lazyOnload"
+          />
+        )}
       </body>
     </html>
   );
