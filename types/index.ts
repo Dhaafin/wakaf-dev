@@ -208,6 +208,8 @@ export interface Transaction {
   paidAt?: string; // ISO
 
   certificateId?: string; // diisi saat status -> paid
+  snapToken?: string;
+  snapRedirectUrl?: string;
 }
 
 export interface Certificate {
@@ -282,5 +284,21 @@ export interface PaginationMeta {
 export interface PaginatedResult<T> {
   items: T[];
   pagination: PaginationMeta;
+}
+
+declare global {
+  interface Window {
+    snap?: {
+      pay: (
+        token: string,
+        options?: {
+          onSuccess?: (result: any) => void;
+          onPending?: (result: any) => void;
+          onError?: (result: any) => void;
+          onClose?: () => void;
+        },
+      ) => void;
+    };
+  }
 }
 

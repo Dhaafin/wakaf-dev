@@ -153,6 +153,8 @@ export const transactions = pgTable(
     expiresAt: timestamp("expires_at").notNull(),
     paidAt: timestamp("paid_at"),
     certificateId: text("certificate_id"),
+    snapToken: text("snap_token"),
+    snapRedirectUrl: text("snap_redirect_url"),
   },
   (table) => [
     index("transactions_program_id_idx").on(table.programId),
