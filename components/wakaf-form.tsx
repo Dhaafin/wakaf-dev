@@ -5,7 +5,7 @@ import { PROGRAM_TYPE_TERMS, type Program } from "@/types";
 import { api, ApiError } from "@/lib/api/client";
 import { validateWakafForm } from "@/lib/validation";
 import { formatRupiah } from "@/lib/format";
-import { NOMINAL_PRESETS, NOMINAL_MIN, BANK_OPTIONS } from "@/lib/config";
+import { NOMINAL_PRESETS, NOMINAL_MIN } from "@/lib/config";
 import { RupiahInput } from "@/components/molecules/RupiahInput";
 import { Spinner } from "@/components/atoms/Spinner";
 import { useSession } from "@/lib/store/session";
@@ -36,7 +36,6 @@ export function WakafForm({
   const [namaAtasNama, setNamaAtasNama] = useState("");
   const [visibilitas, setVisibilitas] = useState<"publik" | "anonim">("publik");
   const [doa, setDoa] = useState("");
-  const [bank, setBank] = useState<string>(BANK_OPTIONS[0]);
 
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -59,7 +58,6 @@ export function WakafForm({
       namaAtasNama,
       visibilitas,
       doa,
-      bank,
     };
     const localErrors = validateWakafForm(values);
     setErrors(localErrors);
@@ -84,7 +82,6 @@ export function WakafForm({
         namaAtasNama: atasNama === "orang-lain" ? namaAtasNama.trim() : undefined,
         visibilitas,
         doa: doa.trim() || undefined,
-        bank,
       });
       push({
         kind: "success",
@@ -330,23 +327,19 @@ export function WakafForm({
         />
       </div>
 
-      {/* Bank VA */}
-      <div className="mt-5">
-        <label htmlFor="bank" className="label">
-          Bank Virtual Account
-        </label>
-        <select
-          id="bank"
-          value={bank}
-          onChange={(e) => setBank(e.target.value)}
-          className="input"
-        >
-          {BANK_OPTIONS.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
+      {/* Metode Pembayaran Otomatis via Midtrans */}
+      <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-brand-200/80 bg-brand-50/50 p-3 text-xs text-brand-700">
+        <div className="flex items-center gap-2">
+          <svg className="h-4 w-4 text-brand-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6-10.5h16.5a1.5 1.5 0 011.5 1.5v10.5a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V6.75a1.5 1.5 0 011.5-1.5z" />
+          </svg>
+          <span className="font-medium text-brand-800">
+            Metode Pembayaran (QRIS, VA Bank, E-Wallet)
+          </span>
+        </div>
+        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md shrink-0">
+          Via Midtrans
+        </span>
       </div>
 
       {/* Ringkasan */}

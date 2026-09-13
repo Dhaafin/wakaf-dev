@@ -78,9 +78,10 @@ export async function POST(req: NextRequest) {
       return fail("Program tidak ditemukan.", 404);
     }
 
-    const bank = (BANK_OPTIONS as readonly string[]).includes(values.bank)
-      ? values.bank
-      : "BSI";
+    const bank =
+      values.bank && (BANK_OPTIONS as readonly string[]).includes(values.bank)
+        ? values.bank
+        : "Midtrans";
 
     // Buat ID transaksi unik, misal: WKF-20260913-XXXXXX
     const now = new Date();

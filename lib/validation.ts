@@ -13,8 +13,8 @@ export interface WakafFormValues {
   atasNama: "sendiri" | "orang-lain";
   namaAtasNama: string;
   visibilitas: "publik" | "anonim";
-  doa: string;
-  bank: string;
+  doa?: string;
+  bank?: string;
 }
 
 export function validateWakafForm(
