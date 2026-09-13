@@ -7,7 +7,7 @@ import { useAsync } from "@/lib/hooks/use-async";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 import { validateDisbursementForm } from "@/lib/validation";
 import { RupiahInput } from "@/components/molecules/RupiahInput";
-import { MockFileInput } from "@/components/mock-file-input";
+import { FileInput } from "@/components/molecules/FileInput";
 import { Spinner } from "@/components/atoms/Spinner";
 import { useToast } from "@/lib/store/toast";
 
@@ -154,21 +154,18 @@ export function DisbursementPanel() {
             {errors.nominal && <p className="field-error">{errors.nominal}</p>}
           </div>
 
-          <div>
-            <label className="label">Bukti penyaluran (gambar)</label>
-            <MockFileInput
-              value={buktiImageUrl}
-              fileName={buktiFileName}
-              invalid={Boolean(errors.buktiImageUrl)}
-              onChange={(url, name) => {
-                setBuktiImageUrl(url);
-                setBuktiFileName(name);
-              }}
-            />
-            {errors.buktiImageUrl && (
-              <p className="field-error">{errors.buktiImageUrl}</p>
-            )}
-          </div>
+          <FileInput
+            label="Bukti penyaluran (gambar)"
+            value={buktiImageUrl}
+            onChange={(url) => {
+              setBuktiImageUrl(url);
+              setBuktiFileName(url ? "bukti-penyaluran.jpg" : "");
+            }}
+            error={errors.buktiImageUrl}
+            folder="disbursements"
+            maxSizeMb={5}
+            hint="Unggah kuitansi, nota, atau dokumentasi serah terima penyaluran."
+          />
 
           <button
             type="submit"
