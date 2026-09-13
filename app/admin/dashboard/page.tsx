@@ -25,6 +25,10 @@ export default function AdminDashboardPage() {
       router.push("/admin/program");
       return;
     }
+    if (newTab === "penyaluran") {
+      router.push("/admin/penyaluran");
+      return;
+    }
     router.replace(`/admin/dashboard?tab=${newTab}`);
   }
 

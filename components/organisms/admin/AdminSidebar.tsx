@@ -42,7 +42,7 @@ const NAV_ITEMS = [
   {
     id: "penyaluran",
     label: "Penyaluran Dana",
-    href: "/admin/dashboard?tab=penyaluran",
+    href: "/admin/penyaluran",
     // Clean SVG icon: Arrows transfer / hand-heart
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -114,6 +114,9 @@ export function AdminSidebar() {
             const isActive =
               item.id === "program"
                 ? pathname.startsWith("/admin/program")
+                : item.id === "penyaluran"
+                ? pathname.startsWith("/admin/penyaluran") ||
+                  (pathname === "/admin/dashboard" && activeTab === "penyaluran")
                 : pathname === "/admin/dashboard" && activeTab === item.id;
             return (
               <Link
