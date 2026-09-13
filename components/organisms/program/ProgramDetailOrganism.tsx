@@ -15,7 +15,7 @@ import { ProgramImage } from "./molecules/ProgramImage";
 import { ProgressBar } from "@/components/atoms/ProgressBar";
 import { CategoryBadge } from "@/components/atoms/CategoryBadge";
 import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
-import { WakafForm } from "@/components/wakaf-form";
+import { WakafForm } from "./molecules/WakafForm";
 import { EmptyState } from "@/components/atoms/EmptyState";
 
 export function ProgramDetailOrganism({ slug }: { slug: string }) {
