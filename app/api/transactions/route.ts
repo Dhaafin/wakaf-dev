@@ -160,6 +160,13 @@ export async function POST(req: NextRequest) {
       return fail("Program tidak ditemukan.", 404);
     }
 
+    if (!prog.aktif) {
+      return fail(
+        "Program ini sedang tidak aktif menerima donasi atau wakaf baru.",
+        400,
+      );
+    }
+
     const bank =
       values.bank && (BANK_OPTIONS as readonly string[]).includes(values.bank)
         ? values.bank

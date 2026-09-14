@@ -1,96 +1,50 @@
 import type { NextRequest } from "next/server";
-import { db } from "@/lib/db/client";
-import { transactions, programs, certificates } from "@/lib/db/schema";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { ok, fail } from "@/lib/api/server";
-import { serializeTransaction, serializeCertificate } from "@/lib/db/serialize";
-import { eq, sql } from "drizzle-orm";
-import { createId } from "@/lib/id";
+import { settleTransaction } from "@/lib/settlement";
 
 export const dynamic = "force-dynamic";
 
 // POST /api/transactions/:id/pay
-// Simulasi pelunasan pembayaran / manual settlement
+// Simulasi pelunasan pembayaran / manual settlement (dibatasi admin / dev mode)
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
   try {
-    const id = decodeURIComponent(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = decodeURIComponent(resolvedParams.id);
 
-    const tx = await db.query.transactions.findFirst({
-      where: eq(transactions.id, id),
-    });
-
-    if (!tx) {
-      return fail("Transaksi tidak ditemukan.", 404);
+    // Proteksi keamanan: hanya izinkan di mode dev/testing atau oleh Admin yang login
+    const isDev = process.env.NODE_ENV !== "production";
+    let isAdmin = false;
+    try {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+      isAdmin = session?.user?.role === "admin";
+    } catch {
+      // abaikan bila session tidak ditemukan
     }
 
-    if (tx.status === "paid") {
-      const existingCert = await db.query.certificates.findFirst({
-        where: eq(certificates.transactionId, tx.id),
-      });
-      return ok({
-        transaction: serializeTransaction(tx),
-        certificate: existingCert ? serializeCertificate(existingCert) : null,
-      });
+    if (!isDev && !isAdmin) {
+      return fail(
+        "Akses ditolak: Simulasi pembayaran hanya diizinkan untuk admin atau dalam lingkungan pengujian.",
+        403,
+      );
     }
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const randomSuffix = createId("cert").slice(-6).toUpperCase();
-    const certId = `SW/${year}/${month}/${randomSuffix}`;
-
-    const namaPihak =
-      tx.atasNama === "orang-lain" && tx.namaAtasNama
-        ? tx.namaAtasNama
-        : tx.namaWakif;
-
-    // 1. Terbitkan sertifikat
-    const [createdCert] = await db
-      .insert(certificates)
-      .values({
-        id: certId,
-        transactionId: tx.id,
-        programId: tx.programId,
-        programNama: tx.programNama,
-        programType: tx.programType,
-        namaPihak,
-        nominal: tx.nominal,
-        tanggal: now,
-        nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
-      })
-      .returning();
-
-    // 2. Update status transaksi
-    await db
-      .update(transactions)
-      .set({
-        status: "paid",
-        paidAt: now,
-        certificateId: certId,
-      })
-      .where(eq(transactions.id, tx.id));
-
-    // 3. Tambah progres dana terkumpul dan wakif program
-    await db
-      .update(programs)
-      .set({
-        terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
-        jumlahWakif: sql`${programs.jumlahWakif} + 1`,
-      })
-      .where(eq(programs.id, tx.programId));
-
-    const updatedTx = await db.query.transactions.findFirst({
-      where: eq(transactions.id, id),
-    });
+    const settlement = await settleTransaction(id);
 
     return ok({
-      transaction: serializeTransaction(updatedTx),
-      certificate: serializeCertificate(createdCert),
+      transaction: settlement.transaction,
+      certificate: settlement.certificate,
     });
   } catch (err) {
     console.error("POST /api/transactions/:id/pay error:", err);
-    return fail("Gagal memperbarui status transaksi.", 500);
+    const msg =
+      err instanceof Error ? err.message : "Gagal memperbarui status transaksi.";
+    return fail(msg, 500);
   }
 }

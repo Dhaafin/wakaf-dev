@@ -1,14 +1,14 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db/client";
-import { transactions, programs, certificates } from "@/lib/db/schema";
+import { transactions } from "@/lib/db/schema";
 import { ok, fail } from "@/lib/api/server";
 import {
   verifyMidtransSignature,
   mapMidtransStatus,
   type MidtransNotificationPayload,
 } from "@/lib/midtrans";
-import { eq, sql } from "drizzle-orm";
-import { createId } from "@/lib/id";
+import { settleTransaction } from "@/lib/settlement";
+import { eq, and } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -63,70 +63,30 @@ export async function POST(req: NextRequest) {
 
     const targetStatus = mapMidtransStatus(transaction_status, fraud_status);
 
-    // 3. Tangani Status: LUNAS (Paid)
+    // 3. Tangani Status: LUNAS (Paid) secara atomic & idempotent
     if (targetStatus === "paid") {
-      // Pengecekan Idempotensi: jika sudah lunas, langsung return 200 OK
-      if (tx.status === "paid") {
-        return ok({ message: "Transaksi sudah berstatus lunas (idempotent)." });
-      }
-
-      // Format nomor sertifikat resmi: mis. SW/2026/09/xxxxxx
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const randomSuffix = createId("cert").slice(-6).toUpperCase();
-      const certId = `SW/${year}/${month}/${randomSuffix}`;
-
-      // Nama pihak penerima sertifikat (atas nama sendiri atau orang lain)
-      const namaPihak =
-        tx.atasNama === "orang-lain" && tx.namaAtasNama
-          ? tx.namaAtasNama
-          : tx.namaWakif;
-
-      // a. Terbitkan sertifikat wakaf digital
-      await db.insert(certificates).values({
-        id: certId,
-        transactionId: tx.id,
-        programId: tx.programId,
-        programNama: tx.programNama,
-        programType: tx.programType,
-        namaPihak,
-        nominal: tx.nominal,
-        tanggal: now,
-        nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
+      const settlement = await settleTransaction(tx.id, {
+        bank: payment_type ? payment_type.toUpperCase() : tx.bank,
       });
 
-      // b. Update status transaksi menjadi 'paid'
-      await db
-        .update(transactions)
-        .set({
-          status: "paid",
-          paidAt: now,
-          certificateId: certId,
-          bank: payment_type ? payment_type.toUpperCase() : tx.bank,
-        })
-        .where(eq(transactions.id, tx.id));
-
-      // c. Akumulasikan dana terkumpul dan jumlah wakif di program
-      await db
-        .update(programs)
-        .set({
-          terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
-          jumlahWakif: sql`${programs.jumlahWakif} + 1`,
-        })
-        .where(eq(programs.id, tx.programId));
-
-      return ok({ status: "OK", transaction_status: "paid", certId });
+      return ok({
+        status: "OK",
+        transaction_status: "paid",
+        certId:
+          settlement.certificate?.id || settlement.transaction.certificateId,
+        alreadyPaid: settlement.alreadyPaid,
+      });
     }
 
-    // 4. Tangani Status: EXPIRED
+    // 4. Tangani Status: EXPIRED (hanya jika transaksi masih berstatus pending)
     if (targetStatus === "expired") {
-      if (tx.status !== "paid") {
-        await db
-          .update(transactions)
-          .set({ status: "expired" })
-          .where(eq(transactions.id, tx.id));
-      }
+      await db
+        .update(transactions)
+        .set({ status: "expired" })
+        .where(
+          and(eq(transactions.id, tx.id), eq(transactions.status, "pending")),
+        );
+
       return ok({ status: "OK", transaction_status: "expired" });
     }
 

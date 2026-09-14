@@ -1,11 +1,11 @@
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db/client";
-import { transactions, programs, certificates } from "@/lib/db/schema";
+import { transactions } from "@/lib/db/schema";
 import { ok, fail } from "@/lib/api/server";
 import { serializeTransaction } from "@/lib/db/serialize";
 import { checkMidtransStatus, mapMidtransStatus } from "@/lib/midtrans";
-import { eq, sql } from "drizzle-orm";
-import { createId } from "@/lib/id";
+import { settleTransaction } from "@/lib/settlement";
+import { eq, and } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,11 @@ export const dynamic = "force-dynamic";
 // Sinkronisasi status transaksi secara real-time langsung ke Midtrans API
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
   try {
-    const id = decodeURIComponent(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = decodeURIComponent(resolvedParams.id);
 
     const tx = await db.query.transactions.findFirst({
       where: eq(transactions.id, id),
@@ -26,7 +27,7 @@ export async function POST(
       return fail("Transaksi tidak ditemukan.", 404);
     }
 
-    // Jika sudah paid, langsung return data transaksi lunas
+    // Jika sudah paid, langsung kembalikan data transaksi lunas
     if (tx.status === "paid") {
       return ok(serializeTransaction(tx));
     }
@@ -40,71 +41,26 @@ export async function POST(
         mtStatus.fraud_status,
       );
 
-      // Tangani status LUNAS
+      // Tangani status LUNAS secara atomic & idempotent
       if (targetStatus === "paid") {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const randomSuffix = createId("cert").slice(-6).toUpperCase();
-        const certId = `SW/${year}/${month}/${randomSuffix}`;
-
-        const namaPihak =
-          tx.atasNama === "orang-lain" && tx.namaAtasNama
-            ? tx.namaAtasNama
-            : tx.namaWakif;
-
-        // a. Terbitkan sertifikat resmi
-        await db.insert(certificates).values({
-          id: certId,
-          transactionId: tx.id,
-          programId: tx.programId,
-          programNama: tx.programNama,
-          programType: tx.programType,
-          namaPihak,
-          nominal: tx.nominal,
-          tanggal: now,
-          nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
+        const settlement = await settleTransaction(tx.id, {
+          bank: mtStatus.payment_type ? mtStatus.payment_type.toUpperCase() : tx.bank,
         });
 
-        // b. Update status transaksi menjadi paid
-        await db
-          .update(transactions)
-          .set({
-            status: "paid",
-            paidAt: now,
-            certificateId: certId,
-            bank: mtStatus.payment_type
-              ? mtStatus.payment_type.toUpperCase()
-              : tx.bank,
-          })
-          .where(eq(transactions.id, tx.id));
-
-        // c. Akumulasikan nominal & jumlah wakif di program
-        await db
-          .update(programs)
-          .set({
-            terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
-            jumlahWakif: sql`${programs.jumlahWakif} + 1`,
-          })
-          .where(eq(programs.id, tx.programId));
-
-        const updated = await db.query.transactions.findFirst({
-          where: eq(transactions.id, tx.id),
-        });
-        return ok(serializeTransaction(updated));
+        return ok(settlement.transaction);
       }
 
-      // Tangani status EXPIRED
-      if (targetStatus === "expired" && tx.status !== "paid") {
+      // Tangani status EXPIRED (hanya jika status saat ini masih pending)
+      if (targetStatus === "expired" && tx.status === "pending") {
         await db
           .update(transactions)
           .set({ status: "expired" })
-          .where(eq(transactions.id, tx.id));
+          .where(and(eq(transactions.id, tx.id), eq(transactions.status, "pending")));
 
         const updated = await db.query.transactions.findFirst({
           where: eq(transactions.id, tx.id),
         });
-        return ok(serializeTransaction(updated));
+        return ok(serializeTransaction(updated || tx));
       }
     }
 

@@ -10,10 +10,12 @@ export const dynamic = "force-dynamic";
 // GET /api/transactions/:id
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
   try {
-    const id = decodeURIComponent(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = decodeURIComponent(resolvedParams.id);
+
     const tx = await db.query.transactions.findFirst({
       where: eq(transactions.id, id),
     });

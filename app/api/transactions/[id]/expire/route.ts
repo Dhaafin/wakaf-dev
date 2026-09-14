@@ -3,17 +3,18 @@ import { db } from "@/lib/db/client";
 import { transactions } from "@/lib/db/schema";
 import { ok, fail } from "@/lib/api/server";
 import { serializeTransaction } from "@/lib/db/serialize";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
 // POST /api/transactions/:id/expire
 export async function POST(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
   try {
-    const id = decodeURIComponent(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = decodeURIComponent(resolvedParams.id);
 
     const tx = await db.query.transactions.findFirst({
       where: eq(transactions.id, id),
@@ -38,14 +39,19 @@ export async function POST(
       return fail("Batas waktu pembayaran belum berakhir.", 400);
     }
 
-    await db
+    // Update status menjadi expired secara atomic (hanya jika saat ini masih pending)
+    const [updated] = await db
       .update(transactions)
       .set({ status: "expired" })
-      .where(eq(transactions.id, id));
+      .where(and(eq(transactions.id, id), eq(transactions.status, "pending")))
+      .returning();
 
-    const updated = await db.query.transactions.findFirst({
-      where: eq(transactions.id, id),
-    });
+    if (!updated) {
+      const current = await db.query.transactions.findFirst({
+        where: eq(transactions.id, id),
+      });
+      return ok(serializeTransaction(current || tx));
+    }
 
     return ok(serializeTransaction(updated));
   } catch (err) {
