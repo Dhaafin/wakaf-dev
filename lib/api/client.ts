@@ -13,6 +13,8 @@ import type {
   PaginatedResult,
   AnnouncementBannerConfig,
   SiteSettings,
+  ListTransactionsParams,
+  ListTransactionsResult,
 } from "@/types";
 
 
@@ -217,12 +219,25 @@ export const api = {
   getTransaction: (id: string) =>
     req<Transaction>(`/api/transactions/${encodeURIComponent(id)}`),
 
-  listTransactions: () => req<Transaction[]>("/api/transactions"),
+  listTransactions: (params?: ListTransactionsParams) => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    if (params?.q) searchParams.set("q", params.q);
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.programId) searchParams.set("programId", params.programId);
+    if (params?.sort) searchParams.set("sort", params.sort);
+    if (params?.email) searchParams.set("email", params.email);
+    const qs = searchParams.toString();
+    return req<ListTransactionsResult>(`/api/transactions${qs ? `?${qs}` : ""}`);
+  },
 
-  listTransactionsByEmail: (email: string) =>
-    req<Transaction[]>(
-      `/api/transactions?email=${encodeURIComponent(email)}`,
-    ),
+  listTransactionsByEmail: async (email: string) => {
+    const res = await req<ListTransactionsResult>(
+      `/api/transactions?email=${encodeURIComponent(email)}&limit=100`,
+    );
+    return res.items;
+  },
 
   /** Wakif terbaru (proyeksi publik) untuk halaman transparansi. */
   listRecentDonations: (limit = 12) =>

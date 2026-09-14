@@ -286,6 +286,30 @@ export interface PaginatedResult<T> {
   pagination: PaginationMeta;
 }
 
+export interface ListTransactionsParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: "all" | TransactionStatus;
+  programId?: string;
+  sort?: "latest" | "oldest" | "nominal_desc" | "nominal_asc";
+  email?: string;
+}
+
+export interface TransactionStatsSummary {
+  totalNominal: number;
+  totalCount: number;
+  paidCount: number;
+  pendingCount: number;
+  expiredCount: number;
+}
+
+export interface ListTransactionsResult {
+  items: Transaction[];
+  pagination: PaginationMeta;
+  statsSummary: TransactionStatsSummary;
+}
+
 // Pengaturan Website & Banner
 export interface AnnouncementBannerConfig {
   enabled: boolean;

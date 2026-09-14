@@ -7,28 +7,110 @@ import { VA_TTL_MS, BANK_OPTIONS } from "@/lib/config";
 import { createId } from "@/lib/id";
 import { createSnapTransaction } from "@/lib/midtrans";
 import { serializeTransaction } from "@/lib/db/serialize";
-import { eq, isNull, and, desc } from "drizzle-orm";
+import { eq, isNull, and, or, desc, asc, ilike, sql } from "drizzle-orm";
+import type { ListTransactionsResult } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/transactions            -> semua transaksi (admin)
-// GET /api/transactions?email=...  -> riwayat transaksi wakif
+// GET /api/transactions — daftar transaksi dengan pagination, dynamic search, status filter, program filter, & sorting
 export async function GET(req: NextRequest) {
   try {
-    const email = req.nextUrl.searchParams.get("email")?.trim().toLowerCase();
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get("email")?.trim().toLowerCase();
+    const q = searchParams.get("q")?.trim();
+    const status = searchParams.get("status")?.trim(); // 'all' | 'pending' | 'paid' | 'expired'
+    const programId = searchParams.get("programId")?.trim();
+    const sort = searchParams.get("sort")?.trim() || "latest";
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
+    const offset = (page - 1) * limit;
 
+    // Filter conditions
     const conditions = [];
+
     if (email) {
       conditions.push(eq(transactions.emailWakif, email));
     }
 
-    const items = await db.query.transactions.findMany({
-      where: conditions.length > 0 ? and(...conditions) : undefined,
-      orderBy: [desc(transactions.createdAt)],
-      limit: 100,
+    if (status && status !== "all" && status !== "semua") {
+      conditions.push(eq(transactions.status, status as "pending" | "paid" | "expired"));
+    }
+
+    if (programId) {
+      conditions.push(eq(transactions.programId, programId));
+    }
+
+    if (q) {
+      const pattern = `%${q}%`;
+      conditions.push(
+        or(
+          ilike(transactions.id, pattern),
+          ilike(transactions.namaWakif, pattern),
+          ilike(transactions.emailWakif, pattern),
+          ilike(transactions.teleponWakif, pattern),
+          ilike(transactions.programNama, pattern),
+        )!,
+      );
+    }
+
+    // Determine deterministic sorting
+    let orderBy = [desc(transactions.createdAt), desc(transactions.id)];
+    if (sort === "oldest") {
+      orderBy = [asc(transactions.createdAt), asc(transactions.id)];
+    } else if (sort === "nominal_desc") {
+      orderBy = [desc(transactions.nominal), desc(transactions.id)];
+    } else if (sort === "nominal_asc") {
+      orderBy = [asc(transactions.nominal), asc(transactions.id)];
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // 1. Total hitungan data yang cocok
+    const [countRow] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(transactions)
+      .where(whereClause);
+    const total = Number(countRow?.count ?? 0);
+
+    // 2. Query items transaksi dengan limit & offset
+    const records = await db.query.transactions.findMany({
+      where: whereClause,
+      orderBy,
+      limit,
+      offset,
     });
 
-    return ok(items.map(serializeTransaction));
+    // 3. Stats summary untuk kartu KPI transaksi admin
+    const [statsRow] = await db
+      .select({
+        totalNominal: sql<number>`coalesce(sum(case when ${transactions.status} = 'paid' then ${transactions.nominal} else 0 end), 0)::bigint`,
+        totalCount: sql<number>`count(*)::int`,
+        paidCount: sql<number>`count(case when ${transactions.status} = 'paid' then 1 end)::int`,
+        pendingCount: sql<number>`count(case when ${transactions.status} = 'pending' then 1 end)::int`,
+        expiredCount: sql<number>`count(case when ${transactions.status} = 'expired' then 1 end)::int`,
+      })
+      .from(transactions);
+
+    const statsSummary = {
+      totalNominal: Number(statsRow?.totalNominal ?? 0),
+      totalCount: Number(statsRow?.totalCount ?? 0),
+      paidCount: Number(statsRow?.paidCount ?? 0),
+      pendingCount: Number(statsRow?.pendingCount ?? 0),
+      expiredCount: Number(statsRow?.expiredCount ?? 0),
+    };
+
+    const result: ListTransactionsResult = {
+      items: records.map(serializeTransaction),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+      statsSummary,
+    };
+
+    return ok(result);
   } catch (err) {
     console.error("GET /api/transactions error:", err);
     return fail("Gagal memuat transaksi.", 500);
