@@ -3,7 +3,6 @@ import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { DemoBanner } from "@/components/layout/DemoBanner";
 import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { FlashMessageProvider } from "@/context/FlashMessageContext";
 
@@ -40,7 +39,6 @@ export default function RootLayout({
     <html lang="id" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
         <FlashMessageProvider>
-          <DemoBanner />
           <AnnouncementBanner />
           <SiteHeader />
           <main className="flex-1">{children}</main>
