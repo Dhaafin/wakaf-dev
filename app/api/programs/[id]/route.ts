@@ -1,12 +1,12 @@
 import { type NextRequest } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/db/client";
-import { programs } from "@/lib/db/schema";
+import { programs, transactions, disbursements } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { ok, fail } from "@/lib/api/server";
 import { validateProgramForm } from "@/lib/validation";
 import { serializeProgram } from "@/lib/db/serialize";
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -128,9 +128,9 @@ export async function PUT(
   }
 }
 
-// DELETE /api/programs/:id — soft delete program (admin only)
+// DELETE /api/programs/:id — soft delete atau permanent delete program (admin only)
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } },
 ) {
   try {
@@ -143,20 +143,55 @@ export async function DELETE(
       return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
     }
 
-    // 2. Cek keberadaan program
+    const { searchParams } = new URL(req.url);
+    const isPermanent = searchParams.get("permanent") === "true";
     const identifier = decodeURIComponent(params.id);
+
+    // 2. Cek keberadaan program
+    // Bila permanent: cari tanpa memedulikan status deletedAt (bisa menghapus program di kotak sampah)
     const existing = await db.query.programs.findFirst({
-      where: and(
-        or(eq(programs.id, identifier), eq(programs.slug, identifier)),
-        isNull(programs.deletedAt),
-      ),
+      where: isPermanent
+        ? or(eq(programs.id, identifier), eq(programs.slug, identifier))
+        : and(
+            or(eq(programs.id, identifier), eq(programs.slug, identifier)),
+            isNull(programs.deletedAt),
+          ),
     });
 
     if (!existing) {
       return fail("Program tidak ditemukan.", 404);
     }
 
-    // 3. Soft delete dengan mencatat deletedAt & menonaktifkan program
+    // 3. Aksi Hapus Permanen
+    if (isPermanent) {
+      // Validasi integritas: Jangan izinkan hapus permanen jika ada transaksi
+      const [txCountRes] = await db
+        .select({ count: sql`count(*)` })
+        .from(transactions)
+        .where(eq(transactions.programId, existing.id));
+
+      if (Number(txCountRes?.count || 0) > 0) {
+        return fail(
+          "Program tidak dapat dihapus permanen karena memiliki riwayat transaksi/keuangan. Silakan tetap gunakan soft-delete.",
+          400,
+        );
+      }
+
+      // Bersihkan penyaluran terkait bila ada
+      await db
+        .delete(disbursements)
+        .where(eq(disbursements.programId, existing.id));
+
+      // Hapus baris program secara permanen
+      await db.delete(programs).where(eq(programs.id, existing.id));
+
+      return ok({
+        success: true,
+        message: "Program berhasil dihapus secara permanen.",
+      });
+    }
+
+    // 4. Aksi Soft Delete standar
     await db
       .update(programs)
       .set({
@@ -165,7 +200,7 @@ export async function DELETE(
       })
       .where(eq(programs.id, existing.id));
 
-    return ok({ success: true, message: "Program berhasil dihapus." });
+    return ok({ success: true, message: "Program berhasil dipindahkan ke kotak sampah." });
   } catch (err) {
     console.error("DELETE /api/programs/[id] error:", err);
     return fail("Gagal menghapus program.", 500);

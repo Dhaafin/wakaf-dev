@@ -12,7 +12,7 @@ import type {
 } from "@/types";
 
 export type AdminProgramSort = "latest" | "oldest" | "target_asc" | "target_desc";
-export type AdminProgramStatusFilter = "all" | "active" | "inactive";
+export type AdminProgramStatusFilter = "all" | "active" | "inactive" | "deleted";
 
 export function useAdminProgram() {
   const { push } = useToast();
@@ -293,19 +293,22 @@ export function useAdminProgram() {
   async function handleConfirmDelete() {
     if (!programToDelete) return;
     setIsDeleting(true);
+    const isPermanent = selectedStatus === "deleted";
     try {
-      await api.deleteProgram(programToDelete.id);
+      await api.deleteProgram(programToDelete.id, { permanent: isPermanent });
       push({
         kind: "success",
-        title: "Program Dihapus",
-        desc: `"${programToDelete.nama}" berhasil dihapus dari sistem.`,
+        title: isPermanent ? "Program Dihapus Permanen" : "Program Dipindahkan ke Sampah",
+        desc: isPermanent
+          ? `"${programToDelete.nama}" berhasil dihapus secara permanen dari database.`
+          : `"${programToDelete.nama}" berhasil dipindahkan ke kotak sampah.`,
       });
       setProgramToDelete(null);
       fetchPrograms();
     } catch (err) {
       push({
         kind: "error",
-        title: "Gagal Menghapus Program",
+        title: isPermanent ? "Gagal Hapus Permanen" : "Gagal Menghapus Program",
         desc:
           err instanceof Error
             ? err.message
@@ -313,6 +316,33 @@ export function useAdminProgram() {
       });
     } finally {
       setIsDeleting(false);
+    }
+  }
+
+  // --- Restore State & Action ---
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+
+  async function handleRestore(prog: Program) {
+    setRestoringId(prog.id);
+    try {
+      await api.restoreProgram(prog.id);
+      push({
+        kind: "success",
+        title: "Program Dipulihkan",
+        desc: `"${prog.nama}" berhasil dipulihkan dari kotak sampah.`,
+      });
+      fetchPrograms();
+    } catch (err) {
+      push({
+        kind: "error",
+        title: "Gagal Memulihkan Program",
+        desc:
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan saat memulihkan program.",
+      });
+    } finally {
+      setRestoringId(null);
     }
   }
 
@@ -424,6 +454,10 @@ export function useAdminProgram() {
     togglingId,
     handleToggleActive,
     handleCopyLink,
+    handleRestore,
+    restoringId,
+    isTrashMode: selectedStatus === "deleted",
+    deletedCount: data?.pagination?.deletedCount ?? 0,
 
     // Delete Confirmation Modal
     programToDelete,

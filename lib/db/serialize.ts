@@ -24,6 +24,7 @@ export function serializeProgram(p: any): Program {
     nazhir: p.nazhir,
     createdAt: p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt),
     aktif: Boolean(p.aktif),
+    deletedAt: p.deletedAt instanceof Date ? p.deletedAt.toISOString() : p.deletedAt ? String(p.deletedAt) : undefined,
     disbursements: (p.disbursements ?? []).map(
       (d: any): DisbursementReport => ({
         id: d.id,

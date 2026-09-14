@@ -7,7 +7,7 @@ import { ok, fail } from "@/lib/api/server";
 import { validateProgramForm } from "@/lib/validation";
 import { createId, slugify } from "@/lib/id";
 import { serializeProgram } from "@/lib/db/serialize";
-import { and, eq, isNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
+import { and, eq, isNull, isNotNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
 import type { PaginatedResult, Program } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -19,20 +19,32 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q")?.trim();
     const type = searchParams.get("type")?.trim();
     const kategori = searchParams.get("kategori")?.trim();
-    const status = searchParams.get("status")?.trim(); // 'all' | 'active' | 'inactive'
+    const status = searchParams.get("status")?.trim(); // 'all' | 'active' | 'inactive' | 'deleted'
     const sort = searchParams.get("sort")?.trim() || "latest";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const offset = (page - 1) * limit;
 
-    // Kondisi filter
-    const conditions = [isNull(programs.deletedAt)];
+    // Hitung total program di tong sampah
+    const [deletedCountRes] = await db
+      .select({ count: sql`count(*)` })
+      .from(programs)
+      .where(isNotNull(programs.deletedAt));
+    const deletedCount = Number(deletedCountRes?.count || 0);
 
-    if (status === "inactive") {
-      conditions.push(eq(programs.aktif, false));
-    } else if (status !== "all") {
-      // Default publik: hanya program aktif
-      conditions.push(eq(programs.aktif, true));
+    // Kondisi filter
+    const conditions = [];
+
+    if (status === "deleted") {
+      conditions.push(isNotNull(programs.deletedAt));
+    } else {
+      conditions.push(isNull(programs.deletedAt));
+      if (status === "inactive") {
+        conditions.push(eq(programs.aktif, false));
+      } else if (status !== "all") {
+        // Default publik: hanya program aktif
+        conditions.push(eq(programs.aktif, true));
+      }
     }
 
     if (type) {
@@ -91,6 +103,7 @@ export async function GET(req: NextRequest) {
         page,
         limit,
         totalPages: Math.ceil(total / limit) || 1,
+        deletedCount,
       },
     };
 

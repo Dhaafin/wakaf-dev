@@ -33,6 +33,7 @@ export interface AdminProgramFilterBarProps {
   onStatusChange: (status: AdminProgramStatusFilter) => void;
   total: number;
   activeCount: number;
+  deletedCount?: number;
   selectedType: string;
   onTypeChange: (val: string) => void;
   selectedKategori: string;
@@ -50,6 +51,7 @@ export function AdminProgramFilterBar({
   onStatusChange,
   total,
   activeCount,
+  deletedCount = 0,
   selectedType,
   onTypeChange,
   selectedKategori,
@@ -59,10 +61,12 @@ export function AdminProgramFilterBar({
   hasActiveFilters,
   onResetFilters,
 }: AdminProgramFilterBarProps) {
+  const isDeletedTab = selectedStatus === "deleted";
   const statusTabs: SegmentTabItem<AdminProgramStatusFilter>[] = [
-    { value: "all", label: "Semua", count: total },
-    { value: "active", label: "Aktif", count: activeCount, dotColor: "bg-emerald-500" },
-    { value: "inactive", label: "Nonaktif", count: Math.max(0, total - activeCount), dotColor: "bg-zinc-400" },
+    { value: "all", label: "Semua", count: isDeletedTab ? undefined : total },
+    { value: "active", label: "Aktif", count: isDeletedTab ? undefined : activeCount, dotColor: "bg-emerald-500" },
+    { value: "inactive", label: "Nonaktif", count: isDeletedTab ? undefined : Math.max(0, total - activeCount), dotColor: "bg-zinc-400" },
+    { value: "deleted", label: "Kotak Sampah", count: deletedCount, dotColor: "bg-rose-500" },
   ];
 
   return (

@@ -44,6 +44,10 @@ export function AdminProgramOrganism() {
     togglingId,
     handleToggleActive,
     handleCopyLink,
+    handleRestore,
+    restoringId,
+    isTrashMode,
+    deletedCount,
 
     // Delete Confirmation Modal
     programToDelete,
@@ -166,6 +170,7 @@ export function AdminProgramOrganism() {
         onStatusChange={setSelectedStatus}
         total={total}
         activeCount={statsSummary.activeCount}
+        deletedCount={deletedCount}
         selectedType={selectedType}
         onTypeChange={setSelectedType}
         selectedKategori={selectedKategori}
@@ -205,6 +210,9 @@ export function AdminProgramOrganism() {
         onResetFilters={handleResetFilters}
         onOpenCreate={handleOpenCreate}
         onReload={refetch}
+        isTrashMode={isTrashMode}
+        onRestore={handleRestore}
+        restoringId={restoringId}
       />
 
       {/* 5. MODAL TAMBAH / UBAH PROGRAM */}
@@ -240,10 +248,18 @@ export function AdminProgramOrganism() {
         isOpen={Boolean(programToDelete)}
         onClose={handleCloseDelete}
         onConfirm={handleConfirmDelete}
-        title="Hapus Program Wakaf?"
-        description="Apakah Anda yakin ingin menghapus program ini? Data kampanye akan dinonaktifkan dan dihapus dari portal publik Yayasan KBM."
+        title={
+          isTrashMode
+            ? "Hapus Program Secara Permanen?"
+            : "Pindahkan Program ke Kotak Sampah?"
+        }
+        description={
+          isTrashMode
+            ? "Peringatan: Program ini akan dihapus secara permanen dari database. Tindakan ini tidak dapat dibatalkan (hanya diperbolehkan jika belum ada transaksi wakaf/keuangan terkait)."
+            : "Apakah Anda yakin ingin menghapus program ini? Program akan disembunyikan dari portal publik dan dipindahkan ke kotak sampah."
+        }
         itemName={programToDelete?.nama}
-        confirmText="Ya, Hapus Program"
+        confirmText={isTrashMode ? "Ya, Hapus Permanen" : "Pindahkan ke Sampah"}
         cancelText="Batal"
         loading={isDeleting}
         variant="danger"

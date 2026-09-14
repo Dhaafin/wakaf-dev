@@ -172,6 +172,7 @@ export interface Program {
   nazhir: string; // pengelola wakaf
   createdAt: string; // ISO
   aktif: boolean;
+  deletedAt?: string; // ISO, diisi saat program dihapus (soft-delete)
   disbursements: DisbursementReport[];
 }
 
@@ -279,6 +280,7 @@ export interface PaginationMeta {
   page: number;
   limit: number;
   totalPages: number;
+  deletedCount?: number;
 }
 
 export interface PaginatedResult<T> {

@@ -62,7 +62,7 @@ export interface ListProgramsParams {
   q?: string;
   type?: string;
   kategori?: string;
-  status?: "all" | "active" | "inactive";
+  status?: "all" | "active" | "inactive" | "deleted";
   sort?: "latest" | "oldest" | "target_asc" | "target_desc";
 }
 
@@ -138,11 +138,21 @@ export const api = {
       body: JSON.stringify(payload),
     }),
 
-  deleteProgram: (id: string) =>
-    req<{ success: boolean; message: string }>(
-      `/api/programs/${encodeURIComponent(id)}`,
+  deleteProgram: (id: string, options?: { permanent?: boolean }) => {
+    const qs = options?.permanent ? "?permanent=true" : "";
+    return req<{ success: boolean; message: string }>(
+      `/api/programs/${encodeURIComponent(id)}${qs}`,
       {
         method: "DELETE",
+      },
+    );
+  },
+
+  restoreProgram: (id: string) =>
+    req<{ success: boolean; message: string }>(
+      `/api/programs/${encodeURIComponent(id)}/restore`,
+      {
+        method: "POST",
       },
     ),
 
