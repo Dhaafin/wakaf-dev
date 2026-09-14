@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   {
     id: "transaksi",
     label: "Transaksi Masuk",
-    href: "/admin/dashboard?tab=transaksi",
+    href: "/admin/transaksi",
     // Clean SVG icon: Credit card / receipt
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -123,7 +123,10 @@ export function AdminSidebar() {
           </p>
           {NAV_ITEMS.map((item) => {
             const isActive =
-              item.id === "program"
+              item.id === "transaksi"
+                ? pathname.startsWith("/admin/transaksi") ||
+                  (pathname === "/admin/dashboard" && activeTab === "transaksi")
+                : item.id === "program"
                 ? pathname.startsWith("/admin/program")
                 : item.id === "penyaluran"
                 ? pathname.startsWith("/admin/penyaluran") ||
