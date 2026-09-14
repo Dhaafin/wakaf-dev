@@ -27,6 +27,17 @@ export async function POST(
       return fail("Transaksi sudah dibayar, tidak dapat kedaluwarsa.", 400);
     }
 
+    if (tx.status === "expired") {
+      return ok(serializeTransaction(tx));
+    }
+
+    // Hanya boleh di-expire bila waktu saat ini memang sudah melewati expiresAt (dengan toleransi 5 detik)
+    const now = new Date();
+    const toleranceMs = 5000;
+    if (now.getTime() + toleranceMs < new Date(tx.expiresAt).getTime()) {
+      return fail("Batas waktu pembayaran belum berakhir.", 400);
+    }
+
     await db
       .update(transactions)
       .set({ status: "expired" })

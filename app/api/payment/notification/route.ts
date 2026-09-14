@@ -50,6 +50,17 @@ export async function POST(req: NextRequest) {
       return fail("Transaksi tidak ditemukan.", 404);
     }
 
+    // Validasi kesesuaian nominal tagihan (mencegah manipulasi underpayment)
+    const payloadAmount = Math.round(Number(payload.gross_amount));
+    if (payloadAmount !== tx.total) {
+      console.warn("Midtrans Webhook: Nominal mismatch detected.", {
+        order_id,
+        payloadAmount,
+        expectedTotal: tx.total,
+      });
+      return fail("Nominal pembayaran tidak cocok dengan tagihan.", 400);
+    }
+
     const targetStatus = mapMidtransStatus(transaction_status, fraud_status);
 
     // 3. Tangani Status: LUNAS (Paid)
