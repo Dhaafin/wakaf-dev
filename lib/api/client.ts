@@ -11,6 +11,8 @@ import type {
   DisbursementStatsSummary,
   PublicDonation,
   PaginatedResult,
+  AnnouncementBannerConfig,
+  SiteSettings,
 } from "@/types";
 
 
@@ -268,6 +270,24 @@ export const api = {
   // -------------------------------- Stats ------------------------------
 
   getStats: () => req<GlobalStats>("/api/stats"),
+
+  // ------------------------------- Settings & Banner --------------------
+
+  getBanner: () => req<AnnouncementBannerConfig>("/api/banner"),
+
+  updateBanner: (config: AnnouncementBannerConfig) =>
+    req<AnnouncementBannerConfig>("/api/banner", {
+      method: "PUT",
+      body: JSON.stringify(config),
+    }),
+
+  getSettings: () => req<SiteSettings>("/api/settings"),
+
+  updateSettings: (settings: Partial<SiteSettings>) =>
+    req<SiteSettings>("/api/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    }),
 
   // ------------------------------- Demo ops ----------------------------
 
