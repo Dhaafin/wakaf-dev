@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api/client";
 import type { AnnouncementBannerConfig } from "@/types";
@@ -14,15 +15,20 @@ interface AnnouncementBannerProps {
 }
 
 export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
+  const pathname = usePathname();
   const [config, setConfig] = useState<AnnouncementBannerConfig | null>(
     previewConfig ?? null,
   );
   const [dismissed, setDismissed] = useState<boolean>(false);
 
-  // Jika tidak ada previewConfig, ambil konfigurasi banner aktif dari API
+  // Jika tidak ada previewConfig, ambil konfigurasi banner aktif dari API (kecuali di admin panel)
   useEffect(() => {
     if (previewConfig) {
       setConfig(previewConfig);
+      return;
+    }
+
+    if (pathname?.startsWith("/admin")) {
       return;
     }
 
@@ -51,7 +57,7 @@ export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
     return () => {
       active = false;
     };
-  }, [previewConfig]);
+  }, [previewConfig, pathname]);
 
   // Update realtime jika prop previewConfig berubah di admin
   useEffect(() => {
@@ -60,6 +66,11 @@ export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
       setDismissed(false);
     }
   }, [previewConfig]);
+
+  // Sembunyikan banner di semua rute admin panel kecuali untuk live preview
+  if (pathname?.startsWith("/admin") && !previewConfig) {
+    return null;
+  }
 
   function handleDismiss() {
     if (previewConfig) return; // Jangan dismiss saat di mode live preview admin
