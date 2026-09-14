@@ -210,7 +210,7 @@ export function ProgramDetailOrganism({ slug }: { slug: string }) {
           <WakafForm
             program={program}
             nominalAwal={nominalAwal}
-            onCreated={(txId) => router.push(`/wakaf/${txId}`)}
+            onCreated={(txId) => router.push(`/wakaf/${txId}?auto=1`)}
           />
         </div>
       </div>
