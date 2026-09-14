@@ -17,6 +17,7 @@ export function usePaymentWaiting(txId: string) {
   const [simulating, setSimulating] = useState<boolean>(false);
   const [expiring, setExpiring] = useState<boolean>(false);
   const redirectedRef = useRef(false);
+  const autoTriggeredRef = useRef(false);
 
   // Initial fetch
   const fetchTransaction = useCallback(
@@ -67,43 +68,6 @@ export function usePaymentWaiting(txId: string) {
     return () => clearInterval(interval);
   }, [tx?.status, txId]);
 
-  // Trigger manual cek status
-  const handleManualCheck = useCallback(async () => {
-    setChecking(true);
-    try {
-      const fresh = await fetchTransaction(true);
-      if (fresh?.status === "paid") {
-        push({
-          kind: "success",
-          title: "Pembayaran Diterima!",
-          desc: "Alhamdulillah, pembayaran Anda telah terkonfirmasi lunas.",
-        });
-        redirectedRef.current = true;
-        router.replace(`/sukses/${fresh.id}`);
-      } else if (fresh?.status === "expired") {
-        push({
-          kind: "info",
-          title: "Transaksi Kedaluwarsa",
-          desc: "Batas waktu pembayaran untuk transaksi ini telah habis.",
-        });
-      } else {
-        push({
-          kind: "info",
-          title: "Menunggu Pembayaran",
-          desc: "Pembayaran belum terdeteksi. Silakan selesaikan transaksi melalui Midtrans.",
-        });
-      }
-    } catch {
-      push({
-        kind: "error",
-        title: "Gagal Memeriksa Status",
-        desc: "Terjadi gangguan jaringan, coba beberapa saat lagi.",
-      });
-    } finally {
-      setChecking(false);
-    }
-  }, [fetchTransaction, push, router]);
-
   // Membuka popup Snap Midtrans
   const handleOpenMidtrans = useCallback(() => {
     if (!tx?.snapToken || typeof window === "undefined" || !window.snap) {
@@ -116,12 +80,21 @@ export function usePaymentWaiting(txId: string) {
     }
 
     window.snap.pay(tx.snapToken, {
-      onSuccess: () => {
+      onSuccess: async () => {
         push({
           kind: "success",
-          title: "Pembayaran Berhasil",
-          desc: "Alhamdulillah, wakaf Anda telah berhasil ditunaikan.",
+          title: "Pembayaran Dikonfirmasi",
+          desc: "Menyinkronkan data pembayaran resmi Anda…",
         });
+        try {
+          // Rekonsiliasi aktif ke Midtrans API server untuk mencegah race condition webhook
+          const synced = await api.syncTransaction(tx.id);
+          if (synced && synced.status === "paid") {
+            setTx(synced);
+          }
+        } catch {
+          /* abaikan error sync, redirect tetap dijalankan */
+        }
         redirectedRef.current = true;
         router.replace(`/sukses/${tx.id}`);
       },
@@ -145,6 +118,71 @@ export function usePaymentWaiting(txId: string) {
       },
     });
   }, [tx, push, router, fetchTransaction]);
+
+  // Auto-buka popup Midtrans Snap jika ada query parameter auto=1
+  useEffect(() => {
+    if (
+      !tx ||
+      tx.status !== "pending" ||
+      !tx.snapToken ||
+      autoTriggeredRef.current
+    ) {
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("auto") === "1" && window.snap) {
+        autoTriggeredRef.current = true;
+        const timer = setTimeout(() => {
+          handleOpenMidtrans();
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [tx, handleOpenMidtrans]);
+
+  // Trigger manual cek status dengan rekonsiliasi Midtrans API
+  const handleManualCheck = useCallback(async () => {
+    setChecking(true);
+    try {
+      // Sinkronkan langsung ke Midtrans API
+      const synced = await api.syncTransaction(txId);
+      const fresh = synced || (await fetchTransaction(true));
+
+      if (fresh?.status === "paid") {
+        setTx(fresh);
+        push({
+          kind: "success",
+          title: "Pembayaran Diterima!",
+          desc: "Alhamdulillah, pembayaran Anda telah terkonfirmasi lunas.",
+        });
+        redirectedRef.current = true;
+        router.replace(`/sukses/${fresh.id}`);
+      } else if (fresh?.status === "expired") {
+        setTx(fresh);
+        push({
+          kind: "info",
+          title: "Transaksi Kedaluwarsa",
+          desc: "Batas waktu pembayaran untuk transaksi ini telah habis.",
+        });
+      } else {
+        push({
+          kind: "info",
+          title: "Menunggu Pembayaran",
+          desc: "Pembayaran belum terdeteksi. Silakan selesaikan transaksi melalui Midtrans.",
+        });
+      }
+    } catch {
+      push({
+        kind: "error",
+        title: "Gagal Memeriksa Status",
+        desc: "Terjadi gangguan jaringan, coba beberapa saat lagi.",
+      });
+    } finally {
+      setChecking(false);
+    }
+  }, [txId, fetchTransaction, push, router]);
 
   // Simulasi demo (khusus pengujian)
   const handleSimulatePayment = useCallback(async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
@@ -9,15 +9,18 @@ import { formatRupiah, formatTanggalWaktu } from "@/lib/format";
 import { Spinner } from "@/components/atoms/Spinner";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { useSession } from "@/lib/store/session";
-import { PROGRAM_TYPE_TERMS } from "@/types";
+import { PROGRAM_TYPE_TERMS, type Transaction } from "@/types";
 
 export function PaymentSuccessOrganism({ txId }: { txId: string }) {
   const router = useRouter();
   const loginWakif = useSession((s) => s.loginWakif);
-  const { data: tx, loading, error } = useAsync(
+  const { data: initialTx, loading, error } = useAsync(
     () => api.getTransaction(txId),
     [txId],
   );
+  const [syncedTx, setSyncedTx] = useState<Transaction | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const tx = syncedTx ?? initialTx;
   const linkedRef = useRef(false);
 
   // Begitu sukses, "kenali" wakif ini supaya riwayat langsung terisi
@@ -28,18 +31,48 @@ export function PaymentSuccessOrganism({ txId }: { txId: string }) {
     }
   }, [tx, loginWakif]);
 
-  // Jika status belum paid (misal buka manual URL sukses), kembalikan ke /wakaf/:id
+  // Jika status di database masih belum "paid" (karena race condition webhook),
+  // lakukan rekonsiliasi aktif ke Midtrans API sebelum memutuskan redirect
   useEffect(() => {
-    if (tx && tx.status !== "paid") {
-      router.replace(`/wakaf/${tx.id}`);
+    if (!initialTx) return;
+    if (initialTx.status === "paid") {
+      setSyncedTx(initialTx);
+      return;
     }
-  }, [tx, router]);
 
-  if (loading) {
+    let active = true;
+    setVerifying(true);
+    api
+      .syncTransaction(initialTx.id)
+      .then((res) => {
+        if (!active) return;
+        if (res && res.status === "paid") {
+          setSyncedTx(res);
+        } else {
+          router.replace(`/wakaf/${initialTx.id}`);
+        }
+      })
+      .catch(() => {
+        if (active) router.replace(`/wakaf/${initialTx.id}`);
+      })
+      .finally(() => {
+        if (active) setVerifying(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [initialTx, router]);
+
+  if (loading || verifying) {
     return (
       <div className="container-app max-w-2xl py-16 text-center">
         <Spinner className="mx-auto h-8 w-8 text-brand-600" />
-        <p className="mt-3 text-sm text-brand-600">Memuat bukti pembayaran…</p>
+        <p className="mt-3 text-sm font-medium text-brand-600">
+          {verifying
+            ? "Memverifikasi konfirmasi pembayaran resmi…"
+            : "Memuat bukti pembayaran…"}
+        </p>
       </div>
     );
   }
