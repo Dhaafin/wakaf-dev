@@ -1,7 +1,7 @@
 import type { DisbursementWithProgram } from "@/types";
 import { CategoryBadge } from "@/components/atoms/CategoryBadge";
 import { EmptyState } from "@/components/atoms/EmptyState";
-import { Spinner } from "@/components/atoms/Spinner";
+import { AdminTableSkeleton } from "@/components/molecules/AdminTableSkeleton";
 import { Pagination } from "@/components/molecules/Pagination";
 import { formatRupiah, formatTanggal } from "@/lib/format";
 
@@ -79,14 +79,7 @@ export function AdminDisbursementTable({
       )}
 
       {/* 2. STATE: LOADING SKELETON */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <Spinner className="h-8 w-8 text-brand-600" />
-          <p className="mt-3 text-xs font-semibold text-brand-700">
-            Memuat data realisasi penyaluran...
-          </p>
-        </div>
-      )}
+      {loading && <AdminTableSkeleton rows={5} cols={6} />}
 
       {/* 3. STATE: EMPTY RESULT */}
       {!loading && !error && items.length === 0 && (

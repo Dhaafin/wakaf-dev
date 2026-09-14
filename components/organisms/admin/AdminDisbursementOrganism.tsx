@@ -138,7 +138,10 @@ export function AdminDisbursementOrganism() {
       </div>
 
       {/* 2. EXECUTIVE KPI SUMMARY CARDS */}
-      <AdminDisbursementKpiCards statsSummary={statsSummary} />
+      <AdminDisbursementKpiCards
+        statsSummary={statsSummary}
+        loading={loading}
+      />
 
       {/* 3. SEARCH & REFINED FILTER CONSOLE */}
       <AdminDisbursementFilterBar

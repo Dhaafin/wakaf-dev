@@ -5,6 +5,7 @@ import { CategoryBadge } from "@/components/atoms/CategoryBadge";
 import { Checkbox } from "@/components/atoms/Checkbox";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { Spinner } from "@/components/atoms/Spinner";
+import { AdminTableSkeleton } from "@/components/molecules/AdminTableSkeleton";
 import { Pagination } from "@/components/molecules/Pagination";
 import { formatRupiah, persen } from "@/lib/format";
 import { getCategoryVisual } from "./AdminProgramVisuals";
@@ -105,18 +106,7 @@ export function AdminProgramTable({
 
       <div className="overflow-hidden rounded-2xl border border-brand-200/90 bg-white shadow-xs">
       {loading ? (
-        <div className="divide-y divide-brand-100 p-4 sm:p-6 space-y-4">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-4 pt-3 first:pt-0">
-              <div className="skeleton h-14 w-14 rounded-2xl shrink-0" />
-              <div className="flex-1 space-y-2">
-                <div className="skeleton h-4 w-1/3 rounded-sm" />
-                <div className="skeleton h-3 w-1/4 rounded-sm" />
-              </div>
-              <div className="skeleton h-8 w-24 rounded-lg shrink-0 hidden sm:block" />
-            </div>
-          ))}
-        </div>
+        <AdminTableSkeleton rows={5} cols={6} />
       ) : error ? (
         <div className="p-8 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">

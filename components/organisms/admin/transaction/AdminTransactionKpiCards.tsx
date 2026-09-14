@@ -1,13 +1,20 @@
 import { formatRupiah } from "@/lib/format";
 import type { TransactionStatsSummary } from "@/types";
+import { AdminKpiSkeleton } from "@/components/molecules/AdminKpiSkeleton";
 
 export interface AdminTransactionKpiCardsProps {
   statsSummary: TransactionStatsSummary;
+  loading?: boolean;
 }
 
 export function AdminTransactionKpiCards({
   statsSummary,
+  loading = false,
 }: AdminTransactionKpiCardsProps) {
+  if (loading) {
+    return <AdminKpiSkeleton count={4} />;
+  }
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {/* Card 1: Total Dana Terkumpul / Sah */}

@@ -88,7 +88,10 @@ export function AdminTransactionOrganism() {
       </div>
 
       {/* 2. KARTU KPI METRIK RINGKASAN EKSEKUTIF */}
-      <AdminTransactionKpiCards statsSummary={statsSummary} />
+      <AdminTransactionKpiCards
+        statsSummary={statsSummary}
+        loading={loading}
+      />
 
       {/* 3. TOOLBAR FILTER & SEARCH */}
       <AdminTransactionFilterBar

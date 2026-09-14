@@ -1,13 +1,20 @@
 import { formatRupiah } from "@/lib/format";
 import type { DisbursementStatsSummary } from "@/types";
+import { AdminKpiSkeleton } from "@/components/molecules/AdminKpiSkeleton";
 
 export interface AdminDisbursementKpiProps {
   statsSummary: DisbursementStatsSummary;
+  loading?: boolean;
 }
 
 export function AdminDisbursementKpiCards({
   statsSummary,
+  loading = false,
 }: AdminDisbursementKpiProps) {
+  if (loading) {
+    return <AdminKpiSkeleton count={4} />;
+  }
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {/* Card 1: Total Dana Disalurkan */}

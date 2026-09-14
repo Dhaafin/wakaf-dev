@@ -152,7 +152,11 @@ export function AdminProgramOrganism() {
       </div>
 
       {/* 2. EXECUTIVE KPI SUMMARY STRIP */}
-      <AdminProgramKpiCards total={total} statsSummary={statsSummary} />
+      <AdminProgramKpiCards
+        total={total}
+        statsSummary={statsSummary}
+        loading={loading}
+      />
 
       {/* 3. SEARCH & REFINED FILTER CONSOLE */}
       <AdminProgramFilterBar
