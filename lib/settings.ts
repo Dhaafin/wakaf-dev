@@ -12,15 +12,17 @@ export const DEFAULT_TOP_BANNER: AnnouncementBannerConfig = {
 
 export async function getTopBannerConfig(): Promise<AnnouncementBannerConfig> {
   try {
-    const row = await db.query.siteSettings.findFirst({
-      where: eq(siteSettings.key, "top_banner"),
-    });
+    const rows = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "top_banner"))
+      .limit(1);
 
-    if (!row) {
+    if (!rows || rows.length === 0) {
       return DEFAULT_TOP_BANNER;
     }
 
-    const parsed = JSON.parse(row.value) as Partial<AnnouncementBannerConfig>;
+    const parsed = JSON.parse(rows[0].value) as Partial<AnnouncementBannerConfig>;
     return {
       enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_TOP_BANNER.enabled,
       text: parsed.text?.trim() || DEFAULT_TOP_BANNER.text,
@@ -43,11 +45,13 @@ export async function saveTopBannerConfig(
     linkUrl: config.linkUrl?.trim() || "",
   });
 
-  const existing = await db.query.siteSettings.findFirst({
-    where: eq(siteSettings.key, "top_banner"),
-  });
+  const rows = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.key, "top_banner"))
+    .limit(1);
 
-  if (existing) {
+  if (rows && rows.length > 0) {
     await db
       .update(siteSettings)
       .set({

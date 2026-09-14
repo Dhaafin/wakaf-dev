@@ -4,6 +4,7 @@ import { getAllSiteSettings, saveTopBannerConfig } from "@/lib/settings";
 import type { SiteSettings } from "@/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // GET /api/settings — Mengambil seluruh konfigurasi situs
 export async function GET() {

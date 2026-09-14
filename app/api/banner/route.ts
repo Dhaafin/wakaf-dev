@@ -4,6 +4,7 @@ import { getTopBannerConfig, saveTopBannerConfig } from "@/lib/settings";
 import type { AnnouncementBannerConfig } from "@/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // GET /api/banner — Publik: Mendapatkan status dan konten banner pengumuman atas
 export async function GET() {
@@ -35,6 +36,6 @@ export async function PUT(req: NextRequest) {
     return ok(updated);
   } catch (err) {
     console.error("PUT /api/banner error:", err);
-    return fail("Gagal memperbarui pengaturan banner.", 500);
+    return fail(err instanceof Error ? err.message : "Gagal memperbarui pengaturan banner.", 500);
   }
 }
