@@ -310,6 +310,77 @@ export interface ListTransactionsResult {
   statsSummary: TransactionStatsSummary;
 }
 
+// ============================================================================
+// Tipe Analitik Dashboard Eksekutif Admin
+// ============================================================================
+export interface MonthlyCashflowItem {
+  monthKey: string; // mis. "2026-09"
+  monthLabel: string; // mis. "Sep 2026"
+  inflow: number; // Dana masuk lunas
+  outflow: number; // Dana tersalurkan
+  transactionCount: number;
+}
+
+export interface InstrumentDistributionItem {
+  type: ProgramType;
+  label: string;
+  totalNominal: number;
+  programCount: number;
+  percentage: number;
+}
+
+export interface PaymentChannelItem {
+  bank: string;
+  count: number;
+  totalNominal: number;
+  percentage: number;
+}
+
+export interface CampaignRadarItem {
+  id: string;
+  nama: string;
+  slug: string;
+  programType: ProgramType;
+  kategori: ProgramCategory;
+  target: number;
+  terkumpul: number;
+  percentage: number;
+  jumlahWakif: number;
+}
+
+export interface RecentDoaItem {
+  id: string;
+  namaWakif: string;
+  visibilitas: Visibilitas;
+  nominal: number;
+  programNama: string;
+  doa: string;
+  createdAt: string;
+}
+
+export interface AdminAnalyticsData {
+  overview: {
+    totalTerkumpul: number;
+    totalDisalurkan: number;
+    saldoMengendap: number;
+    disbursementRatio: number;
+    totalWakif: number;
+    totalTransactions: number;
+    paidTransactions: number;
+    pendingTransactions: number;
+    expiredTransactions: number;
+    conversionRate: number;
+    avgDonation: number;
+    activeProgramCount: number;
+  };
+  monthlyCashflow: MonthlyCashflowItem[];
+  instrumentDistribution: InstrumentDistributionItem[];
+  paymentChannels: PaymentChannelItem[];
+  topCampaigns: CampaignRadarItem[];
+  needHelpCampaigns: CampaignRadarItem[];
+  recentDoa: RecentDoaItem[];
+}
+
 // Pengaturan Website & Banner
 export interface AnnouncementBannerConfig {
   enabled: boolean;

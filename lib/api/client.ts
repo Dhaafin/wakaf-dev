@@ -15,6 +15,7 @@ import type {
   SiteSettings,
   ListTransactionsParams,
   ListTransactionsResult,
+  AdminAnalyticsData,
 } from "@/types";
 
 
@@ -285,6 +286,8 @@ export const api = {
   // -------------------------------- Stats ------------------------------
 
   getStats: () => req<GlobalStats>("/api/stats"),
+
+  getAdminAnalytics: () => req<AdminAnalyticsData>("/api/admin/analytics"),
 
   // ------------------------------- Settings & Banner --------------------
 

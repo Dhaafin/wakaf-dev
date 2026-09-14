@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   {
     id: "ringkasan",
     label: "Ringkasan",
-    href: "/admin/dashboard?tab=ringkasan",
+    href: "/admin/dashboard",
     // Clean SVG icon: Grid / Dashboard
     icon: (
       <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -133,7 +133,8 @@ export function AdminSidebar() {
                   (pathname === "/admin/dashboard" && activeTab === "penyaluran")
                 : item.id === "pengaturan"
                 ? pathname.startsWith("/admin/pengaturan")
-                : pathname === "/admin/dashboard" && activeTab === item.id;
+                : pathname === "/admin/dashboard" &&
+                  (activeTab === "ringkasan" || !searchParams?.has("tab"));
             return (
               <Link
                 key={item.id}
