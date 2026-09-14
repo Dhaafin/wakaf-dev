@@ -136,3 +136,49 @@ export function mapMidtransStatus(
   }
   return "failed";
 }
+
+const MIDTRANS_CORE_API_URL = isProduction
+  ? "https://api.midtrans.com/v2"
+  : "https://api.sandbox.midtrans.com/v2";
+
+/**
+ * Cek status transaksi langsung ke Midtrans Core API (server-side)
+ * GET https://api.sandbox.midtrans.com/v2/{order_id}/status
+ */
+export async function checkMidtransStatus(
+  orderId: string,
+): Promise<MidtransNotificationPayload | null> {
+  const serverKey = process.env.MIDTRANS_SERVER_KEY;
+  if (!serverKey) return null;
+
+  const authString = Buffer.from(`${serverKey}:`).toString("base64");
+  try {
+    const response = await fetch(
+      `${MIDTRANS_CORE_API_URL}/${encodeURIComponent(orderId)}/status`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Basic ${authString}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      console.warn(
+        `Midtrans status check warning (${response.status}) for ${orderId}`,
+      );
+      return null;
+    }
+
+    const data = (await response.json()) as MidtransNotificationPayload;
+    return data;
+  } catch (err) {
+    console.warn(`Failed to check Midtrans status for ${orderId}:`, err);
+    return null;
+  }
+}
+

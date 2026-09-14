@@ -239,6 +239,13 @@ export const api = {
       { method: "POST" },
     ),
 
+  syncTransaction: (id: string) =>
+    req<Transaction>(
+      `/api/transactions/${encodeURIComponent(id)}/sync`,
+      { method: "POST" },
+    ),
+
+
   // ----------------------------- Certificates --------------------------
 
   getCertificate: (id: string) =>
