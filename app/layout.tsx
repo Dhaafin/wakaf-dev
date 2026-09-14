@@ -48,7 +48,7 @@ export default function RootLayout({
           <Script
             src={MIDTRANS_SNAP_URL}
             data-client-key={clientKey}
-            strategy="lazyOnload"
+            strategy="afterInteractive"
           />
         )}
       </body>

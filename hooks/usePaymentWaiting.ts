@@ -65,7 +65,7 @@ export function usePaymentWaiting(txId: string) {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [tx, txId]);
+  }, [tx?.status, txId]);
 
   // Trigger manual cek status
   const handleManualCheck = useCallback(async () => {
