@@ -46,45 +46,40 @@ export async function POST(
         ? tx.namaAtasNama
         : tx.namaWakif;
 
-    let createdCert: any;
+    // 1. Terbitkan sertifikat
+    const [createdCert] = await db
+      .insert(certificates)
+      .values({
+        id: certId,
+        transactionId: tx.id,
+        programId: tx.programId,
+        programNama: tx.programNama,
+        programType: tx.programType,
+        namaPihak,
+        nominal: tx.nominal,
+        tanggal: now,
+        nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
+      })
+      .returning();
 
-    await db.transaction(async (txDb) => {
-      // 1. Terbitkan sertifikat
-      const [cert] = await txDb
-        .insert(certificates)
-        .values({
-          id: certId,
-          transactionId: tx.id,
-          programId: tx.programId,
-          programNama: tx.programNama,
-          programType: tx.programType,
-          namaPihak,
-          nominal: tx.nominal,
-          tanggal: now,
-          nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
-        })
-        .returning();
-      createdCert = cert;
+    // 2. Update status transaksi
+    await db
+      .update(transactions)
+      .set({
+        status: "paid",
+        paidAt: now,
+        certificateId: certId,
+      })
+      .where(eq(transactions.id, tx.id));
 
-      // 2. Update status transaksi
-      await txDb
-        .update(transactions)
-        .set({
-          status: "paid",
-          paidAt: now,
-          certificateId: certId,
-        })
-        .where(eq(transactions.id, tx.id));
-
-      // 3. Tambah progres dana terkumpul dan wakif program
-      await txDb
-        .update(programs)
-        .set({
-          terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
-          jumlahWakif: sql`${programs.jumlahWakif} + 1`,
-        })
-        .where(eq(programs.id, tx.programId));
-    });
+    // 3. Tambah progres dana terkumpul dan wakif program
+    await db
+      .update(programs)
+      .set({
+        terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
+        jumlahWakif: sql`${programs.jumlahWakif} + 1`,
+      })
+      .where(eq(programs.id, tx.programId));
 
     const updatedTx = await db.query.transactions.findFirst({
       where: eq(transactions.id, id),

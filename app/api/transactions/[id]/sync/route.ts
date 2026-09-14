@@ -53,42 +53,40 @@ export async function POST(
             ? tx.namaAtasNama
             : tx.namaWakif;
 
-        await db.transaction(async (txDb) => {
-          // a. Terbitkan sertifikat resmi
-          await txDb.insert(certificates).values({
-            id: certId,
-            transactionId: tx.id,
-            programId: tx.programId,
-            programNama: tx.programNama,
-            programType: tx.programType,
-            namaPihak,
-            nominal: tx.nominal,
-            tanggal: now,
-            nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
-          });
-
-          // b. Update status transaksi menjadi paid
-          await txDb
-            .update(transactions)
-            .set({
-              status: "paid",
-              paidAt: now,
-              certificateId: certId,
-              bank: mtStatus.payment_type
-                ? mtStatus.payment_type.toUpperCase()
-                : tx.bank,
-            })
-            .where(eq(transactions.id, tx.id));
-
-          // c. Akumulasikan nominal & jumlah wakif di program
-          await txDb
-            .update(programs)
-            .set({
-              terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
-              jumlahWakif: sql`${programs.jumlahWakif} + 1`,
-            })
-            .where(eq(programs.id, tx.programId));
+        // a. Terbitkan sertifikat resmi
+        await db.insert(certificates).values({
+          id: certId,
+          transactionId: tx.id,
+          programId: tx.programId,
+          programNama: tx.programNama,
+          programType: tx.programType,
+          namaPihak,
+          nominal: tx.nominal,
+          tanggal: now,
+          nazhir: "Nazhir Yayasan Khazanah Berkah Mulia",
         });
+
+        // b. Update status transaksi menjadi paid
+        await db
+          .update(transactions)
+          .set({
+            status: "paid",
+            paidAt: now,
+            certificateId: certId,
+            bank: mtStatus.payment_type
+              ? mtStatus.payment_type.toUpperCase()
+              : tx.bank,
+          })
+          .where(eq(transactions.id, tx.id));
+
+        // c. Akumulasikan nominal & jumlah wakif di program
+        await db
+          .update(programs)
+          .set({
+            terkumpul: sql`${programs.terkumpul} + ${tx.nominal}`,
+            jumlahWakif: sql`${programs.jumlahWakif} + 1`,
+          })
+          .where(eq(programs.id, tx.programId));
 
         const updated = await db.query.transactions.findFirst({
           where: eq(transactions.id, tx.id),
