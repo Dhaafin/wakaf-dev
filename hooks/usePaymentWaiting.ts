@@ -52,21 +52,25 @@ export function usePaymentWaiting(txId: string) {
     }
   }, [tx?.status, tx?.id, router]);
 
-  // Polling otomatis setiap 5 detik saat transaksi masih berstatus pending
+  // Polling otomatis setiap 5 detik saat transaksi masih berstatus pending dengan rekonsiliasi Midtrans
   useEffect(() => {
     if (!tx || tx.status !== "pending") return;
     const interval = setInterval(async () => {
       try {
-        const fresh = await api.getTransaction(txId);
+        const fresh = await api.syncTransaction(txId);
         if (fresh) {
           setTx(fresh);
+          if (fresh.status === "paid" && !redirectedRef.current) {
+            redirectedRef.current = true;
+            router.replace(`/sukses/${fresh.id}`);
+          }
         }
       } catch {
         /* abaikan error polling di background */
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [tx?.status, txId]);
+  }, [tx?.status, txId, router]);
 
   // Membuka popup Snap Midtrans
   const handleOpenMidtrans = useCallback(() => {
@@ -98,13 +102,18 @@ export function usePaymentWaiting(txId: string) {
         redirectedRef.current = true;
         router.replace(`/sukses/${tx.id}`);
       },
-      onPending: () => {
+      onPending: async () => {
         push({
           kind: "info",
           title: "Menunggu Pembayaran",
           desc: "Silakan selesaikan transaksi sesuai instruksi metode yang dipilih.",
         });
-        fetchTransaction(true);
+        try {
+          const fresh = await api.syncTransaction(tx.id);
+          if (fresh) setTx(fresh);
+        } catch {
+          fetchTransaction(true);
+        }
       },
       onError: () => {
         push({
@@ -113,8 +122,20 @@ export function usePaymentWaiting(txId: string) {
           desc: "Terjadi kendala pada transaksi. Silakan coba kembali.",
         });
       },
-      onClose: () => {
-        fetchTransaction(true);
+      onClose: async () => {
+        // Ketika popup ditutup (misal setelah bayar di tab simulator), cek langsung status pembayaran
+        try {
+          const synced = await api.syncTransaction(tx.id);
+          if (synced && synced.status === "paid") {
+            setTx(synced);
+            redirectedRef.current = true;
+            router.replace(`/sukses/${tx.id}`);
+            return;
+          }
+          if (synced) setTx(synced);
+        } catch {
+          fetchTransaction(true);
+        }
       },
     });
   }, [tx, push, router, fetchTransaction]);
