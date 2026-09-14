@@ -286,6 +286,19 @@ export interface PaginatedResult<T> {
   pagination: PaginationMeta;
 }
 
+// Pengaturan Website & Banner
+export interface AnnouncementBannerConfig {
+  enabled: boolean;
+  text: string;
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface SiteSettings {
+  topBanner: AnnouncementBannerConfig;
+  updatedAt?: string;
+}
+
 declare global {
   interface Window {
     snap?: {

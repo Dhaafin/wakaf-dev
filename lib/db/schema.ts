@@ -228,4 +228,14 @@ export const certificatesRelations = relations(certificates, ({ one }) => ({
   }),
 }));
 
+// Pengaturan Website (Site Settings & Announcement Banner)
+export const siteSettings = pgTable("site_settings", {
+  key: text("key").primaryKey(), // mis. 'top_banner'
+  value: text("value").notNull(), // JSON string: { text, linkText, linkUrl, enabled }
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
 
