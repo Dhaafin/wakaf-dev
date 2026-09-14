@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { DemoBanner } from "@/components/layout/DemoBanner";
+import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { FlashMessageProvider } from "@/context/FlashMessageContext";
 
 const serif = Fraunces({
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col font-sans">
         <FlashMessageProvider>
           <DemoBanner />
+          <AnnouncementBanner />
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
