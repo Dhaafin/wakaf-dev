@@ -16,16 +16,8 @@ Platform ini memfasilitasi penghimpunan dana wakaf uang, wakaf melalui uang, inf
 
 export const apiServers = [
   {
-    url: "http://localhost:8000",
-    description: "Development Server (Port 8000)",
-  },
-  {
-    url: "http://localhost:3000",
-    description: "Development Server (Port 3000)",
-  },
-  {
     url: "/",
-    description: "Current Host / Production Server",
+    description: "Current Server (Relative Host)",
   },
 ];
 
@@ -57,6 +49,10 @@ export const apiTags = [
   {
     name: "Wakif & Donasi Publik",
     description: "Feed donatur publik dan autentikasi riwayat wakif.",
+  },
+  {
+    name: "Pengaturan Website",
+    description: "Konfigurasi umum, bar pengumuman, dan tampilan publik Yayasan KBM.",
   },
   {
     name: "Sistem & Health",

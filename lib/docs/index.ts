@@ -7,6 +7,7 @@ import { certificatesPaths } from "./paths/certificates";
 import { verificationPaths } from "./paths/verification";
 import { disbursementsPaths } from "./paths/disbursements";
 import { wakifPaths } from "./paths/wakif";
+import { settingsPaths } from "./paths/settings";
 import { healthPaths } from "./paths/health";
 
 export const openApiDocument = {
@@ -22,6 +23,7 @@ export const openApiDocument = {
     ...verificationPaths,
     ...disbursementsPaths,
     ...wakifPaths,
+    ...settingsPaths,
     ...healthPaths,
   },
   components: {
