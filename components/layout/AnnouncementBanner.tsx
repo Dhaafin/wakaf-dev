@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api/client";
 import type { AnnouncementBannerConfig } from "@/types";
 
-const STORAGE_KEY = "kbm_announcement_banner_dismissed";
+const STORAGE_KEY = "kbm_announcement_banner_dismissed_text";
 
 interface AnnouncementBannerProps {
   /** Digunakan oleh panel Admin untuk menampilkan live preview sebelum disimpan */
@@ -27,18 +27,21 @@ export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
     }
 
     if (typeof window !== "undefined") {
-      const isDismissed = sessionStorage.getItem(STORAGE_KEY) === "1";
-      if (isDismissed) {
-        setDismissed(true);
-      }
+      // Bersihkan key sesi lama jika ada
+      sessionStorage.removeItem("kbm_announcement_banner_dismissed");
     }
 
     let active = true;
     api
       .getBanner()
       .then((data) => {
-        if (active && data) {
-          setConfig(data);
+        if (!active || !data) return;
+        setConfig(data);
+        if (typeof window !== "undefined") {
+          const dismissedText = localStorage.getItem(STORAGE_KEY);
+          // Jika teks pengumuman yang pernah ditutup sama dengan teks aktif, sembunyikan.
+          // Jika pengumuman diubah oleh admin, banner otomatis muncul kembali.
+          setDismissed(Boolean(dismissedText && dismissedText === data.text));
         }
       })
       .catch(() => {
@@ -61,8 +64,8 @@ export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
   function handleDismiss() {
     if (previewConfig) return; // Jangan dismiss saat di mode live preview admin
     setDismissed(true);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(STORAGE_KEY, "1");
+    if (typeof window !== "undefined" && config?.text) {
+      localStorage.setItem(STORAGE_KEY, config.text);
     }
   }
 
@@ -94,11 +97,6 @@ export function AnnouncementBanner({ previewConfig }: AnnouncementBannerProps) {
             <div className="container-app flex items-center justify-between gap-3 text-xs sm:text-sm">
               {/* Konten Utama Terhias */}
               <div className="flex flex-1 items-center justify-center gap-2.5 text-center sm:text-left flex-wrap sm:flex-nowrap">
-                {/* Badge Ikon Kilau */}
-                <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-400/30">
-                  <span className="mr-1">✨</span> Kabar Kebaikan
-                </span>
-
                 {/* Teks Pesan Pengumuman */}
                 <span className="font-medium text-brand-100 leading-snug">
                   {config.text}
