@@ -105,7 +105,7 @@ export function HeroSection({
       className={`relative flex w-full flex-col items-center justify-center overflow-hidden bg-brand-950 ${
         isCompactPreview
           ? "min-h-[440px] py-12 rounded-lg border border-brand-800"
-          : "min-h-[calc(100vh-110px)] pt-12 pb-24"
+          : "py-16 sm:py-24 lg:py-28"
       }`}
     >
       {/* 1. Structural & Photographic Background */}

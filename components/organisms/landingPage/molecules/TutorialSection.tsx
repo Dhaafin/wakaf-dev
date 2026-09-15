@@ -1,6 +1,6 @@
 export function TutorialSection() {
   return (
-    <section className="container-app py-14">
+    <div className="container-app">
       <div className="text-center mb-10">
         <h2 className="font-serif text-2xl font-bold text-brand-950 sm:text-3xl">
           Empat langkah, selesai
@@ -84,6 +84,6 @@ export function TutorialSection() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

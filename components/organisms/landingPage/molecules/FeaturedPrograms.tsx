@@ -20,7 +20,7 @@ export function FeaturedPrograms() {
     .slice(0, 3);
 
   return (
-    <section className="container-app py-14">
+    <div className="container-app">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h2 className="font-serif text-2xl font-bold text-brand-950 sm:text-3xl">
@@ -67,6 +67,6 @@ export function FeaturedPrograms() {
       >
         Lihat semua program
       </Link>
-    </section>
+    </div>
   );
 }
