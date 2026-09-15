@@ -7,6 +7,8 @@ import { TextInput } from "@/components/molecules/TextInput";
 import { Skeleton } from "@/components/atoms/Skeleton";
 import { Spinner } from "@/components/atoms/Spinner";
 
+import { AdminPageHeader } from "@/components/molecules/AdminPageHeader";
+
 type SettingsTab = "hero" | "banner";
 
 export function AdminSettingsOrganism() {
@@ -27,7 +29,7 @@ export function AdminSettingsOrganism() {
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in pb-12">
-        <Skeleton variant="rect" height={100} className="w-full rounded-xl" />
+        <Skeleton variant="rect" height={140} className="w-full rounded-3xl" />
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           <div className="md:col-span-4 lg:col-span-3">
             <Skeleton variant="rect" height={120} className="w-full rounded-xl" />
@@ -42,24 +44,17 @@ export function AdminSettingsOrganism() {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* 1. CLEAN EXECUTIVE HEADER */}
-      <div className="relative overflow-hidden rounded-xl border border-brand-200/80 bg-gradient-to-r from-brand-950 via-brand-900 to-brand-850 p-6 text-white shadow-xs">
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Pengaturan Website
-            </h1>
-            <p className="mt-1 text-xs sm:text-sm text-brand-200/80">
-              Kelola konten hero section dan banner pengumuman portal.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5 shrink-0">
+      {/* 1. REUSABLE EXECUTIVE HEADER */}
+      <AdminPageHeader
+        title="Pengaturan Website"
+        description="Kelola konten hero section landing page dan bar pengumuman publik secara terpusat."
+        actions={
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={handleReset}
               disabled={!hasChanges || saving}
-              className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               Batal
             </button>
@@ -68,7 +63,7 @@ export function AdminSettingsOrganism() {
               type="button"
               onClick={handleSave}
               disabled={!hasChanges || saving}
-              className="inline-flex items-center gap-2 rounded-lg bg-accent-500 px-5 py-2 text-xs font-bold text-brand-950 shadow-xs transition hover:bg-accent-400 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-2.5 text-xs font-bold text-brand-950 shadow-md transition hover:bg-accent-400 hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {saving ? (
                 <>
@@ -80,52 +75,69 @@ export function AdminSettingsOrganism() {
               )}
             </button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* 2. 2-WAY LAYOUT */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* KOLOM KIRI: TABS */}
+        {/* KOLOM KIRI: TABS WITH GROWING UNDERLINE */}
         <div className="md:col-span-4 lg:col-span-3">
-          <div className="card rounded-xl border border-brand-200/80 bg-white p-1.5 shadow-xs space-y-1">
+          <div className="card rounded-xl border border-brand-200/80 bg-white p-2 shadow-xs flex flex-row md:flex-col gap-1 overflow-x-auto">
             <button
               type="button"
               onClick={() => setActiveTab("hero")}
-              className={`w-full text-left px-3.5 py-3 rounded-lg transition-all flex items-center justify-between select-none ${
+              className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
                 activeTab === "hero"
-                  ? "bg-brand-950 text-white font-semibold shadow-xs"
-                  : "text-brand-800 hover:bg-brand-50 font-medium"
+                  ? "text-brand-950 font-bold bg-brand-50/70"
+                  : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <svg className="h-4 w-4 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
                 <span className="text-xs truncate">Hero Section</span>
               </div>
+
+              {activeTab === "hero" && (
+                <motion.div
+                  layoutId="activeSettingsTabUnderline"
+                  className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab("banner")}
-              className={`w-full text-left px-3.5 py-3 rounded-lg transition-all flex items-center justify-between select-none ${
+              className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
                 activeTab === "banner"
-                  ? "bg-brand-950 text-white font-semibold shadow-xs"
-                  : "text-brand-800 hover:bg-brand-50 font-medium"
+                  ? "text-brand-950 font-bold bg-brand-50/70"
+                  : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <svg className="h-4 w-4 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
                   <line x1="4" y1="22" x2="4" y2="15" />
                 </svg>
                 <span className="text-xs truncate">Bar Pengumuman</span>
               </div>
+
               <span
                 className={`h-2 w-2 rounded-full shrink-0 ${
-                  topBanner.enabled ? "bg-emerald-400" : "bg-brand-300"
+                  topBanner.enabled ? "bg-emerald-500" : "bg-brand-300"
                 }`}
               />
+
+              {activeTab === "banner" && (
+                <motion.div
+                  layoutId="activeSettingsTabUnderline"
+                  className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
             </button>
           </div>
         </div>
