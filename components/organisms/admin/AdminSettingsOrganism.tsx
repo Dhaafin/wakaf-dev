@@ -196,22 +196,24 @@ export function AdminSettingsOrganism() {
                           <span className="text-[11px] font-medium text-brand-600">
                             {hero.showSecondaryCta ? "Aktif" : "Nonaktif"}
                           </span>
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={hero.showSecondaryCta ?? true}
-                            onChange={(e) => updateHeroField("showSecondaryCta", e.target.checked)}
-                          />
-                          <div
-                            className={`block h-4 w-8 rounded-full transition-colors ${
-                              hero.showSecondaryCta ? "bg-emerald-600" : "bg-brand-200"
-                            }`}
-                          />
-                          <div
-                            className={`dot absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-white transition-transform ${
-                              hero.showSecondaryCta ? "translate-x-4" : ""
-                            }`}
-                          />
+                          <div className="relative inline-block h-5 w-9">
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={hero.showSecondaryCta ?? true}
+                              onChange={(e) => updateHeroField("showSecondaryCta", e.target.checked)}
+                            />
+                            <div
+                              className={`block h-5 w-9 rounded-full transition-colors ${
+                                hero.showSecondaryCta ? "bg-emerald-600" : "bg-brand-200"
+                              }`}
+                            />
+                            <div
+                              className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-xs transition-transform ${
+                                hero.showSecondaryCta ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </div>
                         </label>
                       </div>
                       <TextInput
@@ -276,22 +278,24 @@ export function AdminSettingsOrganism() {
                     <span className="text-xs font-medium text-brand-700">
                       {topBanner.enabled ? "Aktif" : "Nonaktif"}
                     </span>
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={topBanner.enabled}
-                      onChange={(e) => updateBannerField("enabled", e.target.checked)}
-                    />
-                    <div
-                      className={`block h-5 w-9 rounded-full transition-colors ${
-                        topBanner.enabled ? "bg-emerald-600" : "bg-brand-200"
-                      }`}
-                    />
-                    <div
-                      className={`dot absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                        topBanner.enabled ? "translate-x-4" : ""
-                      }`}
-                    />
+                    <div className="relative inline-block h-5 w-9">
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={topBanner.enabled}
+                        onChange={(e) => updateBannerField("enabled", e.target.checked)}
+                      />
+                      <div
+                        className={`block h-5 w-9 rounded-full transition-colors ${
+                          topBanner.enabled ? "bg-emerald-600" : "bg-brand-200"
+                        }`}
+                      />
+                      <div
+                        className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-xs transition-transform ${
+                          topBanner.enabled ? "translate-x-4" : "translate-x-0"
+                        }`}
+                      />
+                    </div>
                   </label>
                 </div>
 
