@@ -48,34 +48,6 @@ export function AdminSettingsOrganism() {
       <AdminPageHeader
         title="Pengaturan Website"
         description="Kelola konten hero section landing page dan bar pengumuman publik secara terpusat."
-        actions={
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={!hasChanges || saving}
-              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              Batal
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!hasChanges || saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-2.5 text-xs font-bold text-brand-950 shadow-md transition hover:bg-accent-400 hover:shadow-lg active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {saving ? (
-                <>
-                  <Spinner className="h-3.5 w-3.5 text-brand-950" />
-                  <span>Menyimpan…</span>
-                </>
-              ) : (
-                <span>Simpan Perubahan</span>
-              )}
-            </button>
-          </div>
-        }
       />
 
       {/* 2. 2-WAY LAYOUT */}
