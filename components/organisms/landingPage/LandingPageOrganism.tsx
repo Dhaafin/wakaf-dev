@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HomeStats } from "./molecules/HomeStats";
+import { HeroSection } from "./molecules/HeroSection";
 import { FeaturedPrograms } from "./molecules/FeaturedPrograms";
 import {
   PROGRAM_TYPE_ORDER,
@@ -13,47 +13,7 @@ export function LandingPageOrganism() {
   return (
     <>
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-brand-950 text-white">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              "radial-gradient(600px circle at 15% 20%, #1e9a4c 0, transparent 45%), radial-gradient(500px circle at 85% 10%, #44b06a 0, transparent 40%)",
-          }}
-        />
-        <div className="container-app relative py-12 sm:py-24">
-          <div className="max-w-2xl animate-fade-in">
-            <span className="badge bg-white/10 text-brand-100">
-              Wakaf uang &amp; aset · tercatat &amp; transparan
-            </span>
-            <h1 className="mt-4 font-serif text-[1.9rem] font-bold leading-[1.15] sm:text-5xl">
-              Wakaf yang manfaatnya{" "}
-              <span className="text-brand-300">terus mengalir</span>.
-            </h1>
-            <p className="mt-4 text-base text-brand-100/90 sm:text-lg">
-              Wakaf, infaq, shadaqah, dan zakat dalam satu kanal. Mulai dari
-              Rp10.000, dikelola nazhir &amp; amil profesional, progresnya bisa
-              Anda pantau, dan Anda menerima bukti resmi.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/program" className="btn-primary">
-                Mulai Berwakaf
-              </Link>
-              <Link
-                href="/transparansi"
-                className="btn border border-white/25 text-white hover:bg-white/10"
-              >
-                Lihat Transparansi
-              </Link>
-            </div>
-          </div>
-
-          <div className="relative mt-10 sm:mt-14">
-            <HomeStats />
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* JENIS PROGRAM */}
       <section className="container-app py-14">
