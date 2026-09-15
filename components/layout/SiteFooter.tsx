@@ -93,14 +93,11 @@ export function SiteFooter() {
             <br />
             SK Kemenkumham AHU-0002841.AH.01.04/2021
           </p>
-          <p className="mt-3 text-xs text-brand-400">
-            Situs ini adalah demo. Tidak ada transaksi keuangan nyata.
-          </p>
         </div>
       </div>
       <div className="border-t border-brand-100 py-5">
-        <p className="container-app text-center text-xs text-brand-400">
-          © {new Date().getFullYear()} Yayasan Khazanah Berkah Mulia — Demo Wakaf Digital.
+        <p className="container-app text-center text-xs text-brand-500">
+          © {new Date().getFullYear()} Yayasan Khazanah Berkah Mulia. Seluruh hak cipta dilindungi.
         </p>
       </div>
     </footer>
