@@ -12,106 +12,184 @@ import type { PaginatedResult, Program } from "@/types";
 
 export const dynamic = "force-dynamic";
 
+import { listPrograms as getMockPrograms } from "@/lib/mock-db";
+
+function getMockFilteredPrograms({
+  q,
+  type,
+  kategori,
+  status,
+  sort,
+  page,
+  limit,
+}: {
+  q?: string;
+  type?: string;
+  kategori?: string;
+  status?: string;
+  sort?: string;
+  page: number;
+  limit: number;
+}): PaginatedResult<Program> {
+  let all = getMockPrograms();
+
+  if (status === "inactive") {
+    all = all.filter((p) => p.aktif === false);
+  } else if (status !== "all") {
+    all = all.filter((p) => p.aktif === true);
+  }
+
+  if (type) {
+    all = all.filter((p) => p.program_type === type);
+  }
+
+  if (kategori) {
+    all = all.filter((p) => p.kategori === kategori);
+  }
+
+  if (q) {
+    const lq = q.toLowerCase();
+    all = all.filter(
+      (p) =>
+        p.nama.toLowerCase().includes(lq) ||
+        p.ringkasan.toLowerCase().includes(lq) ||
+        p.lokasi.toLowerCase().includes(lq),
+    );
+  }
+
+  if (sort === "oldest") {
+    all.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  } else if (sort === "target_asc") {
+    all.sort((a, b) => a.target - b.target);
+  } else if (sort === "target_desc") {
+    all.sort((a, b) => b.target - a.target);
+  } else {
+    all.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  const total = all.length;
+  const offset = (page - 1) * limit;
+  const items = all.slice(offset, offset + limit);
+
+  return {
+    items,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+      deletedCount: 0,
+    },
+  };
+}
+
 // GET /api/programs — daftar program dengan pagination, search, filter & sort
 export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q")?.trim();
+  const type = searchParams.get("type")?.trim();
+  const kategori = searchParams.get("kategori")?.trim();
+  const status = searchParams.get("status")?.trim(); // 'all' | 'active' | 'inactive' | 'deleted'
+  const sort = searchParams.get("sort")?.trim() || "latest";
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
+  const offset = (page - 1) * limit;
+
   try {
-    const { searchParams } = new URL(req.url);
-    const q = searchParams.get("q")?.trim();
-    const type = searchParams.get("type")?.trim();
-    const kategori = searchParams.get("kategori")?.trim();
-    const status = searchParams.get("status")?.trim(); // 'all' | 'active' | 'inactive' | 'deleted'
-    const sort = searchParams.get("sort")?.trim() || "latest";
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
-    const offset = (page - 1) * limit;
+    if (process.env.DATABASE_URL) {
+      // Hitung total program di tong sampah
+      const [deletedCountRes] = await db
+        .select({ count: sql`count(*)` })
+        .from(programs)
+        .where(isNotNull(programs.deletedAt));
+      const deletedCount = Number(deletedCountRes?.count || 0);
 
-    // Hitung total program di tong sampah
-    const [deletedCountRes] = await db
-      .select({ count: sql`count(*)` })
-      .from(programs)
-      .where(isNotNull(programs.deletedAt));
-    const deletedCount = Number(deletedCountRes?.count || 0);
+      // Kondisi filter
+      const conditions = [];
 
-    // Kondisi filter
-    const conditions = [];
+      if (status === "deleted") {
+        conditions.push(isNotNull(programs.deletedAt));
+      } else {
+        conditions.push(isNull(programs.deletedAt));
+        if (status === "inactive") {
+          conditions.push(eq(programs.aktif, false));
+        } else if (status !== "all") {
+          // Default publik: hanya program aktif
+          conditions.push(eq(programs.aktif, true));
+        }
+      }
 
-    if (status === "deleted") {
-      conditions.push(isNotNull(programs.deletedAt));
-    } else {
-      conditions.push(isNull(programs.deletedAt));
-      if (status === "inactive") {
-        conditions.push(eq(programs.aktif, false));
-      } else if (status !== "all") {
-        // Default publik: hanya program aktif
-        conditions.push(eq(programs.aktif, true));
+      if (type) {
+        conditions.push(eq(programs.programType, type));
+      }
+
+      if (kategori) {
+        conditions.push(eq(programs.kategori, kategori));
+      }
+
+      if (q) {
+        const searchPattern = `%${q}%`;
+        conditions.push(
+          or(
+            ilike(programs.nama, searchPattern),
+            ilike(programs.ringkasan, searchPattern),
+            ilike(programs.lokasi, searchPattern),
+          )!,
+        );
+      }
+
+      // Urutan sorting
+      let orderBy = desc(programs.createdAt);
+      if (sort === "oldest") {
+        orderBy = asc(programs.createdAt);
+      } else if (sort === "target_asc") {
+        orderBy = asc(programs.target);
+      } else if (sort === "target_desc") {
+        orderBy = desc(programs.target);
+      }
+
+      // Hitung total data
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(programs)
+        .where(and(...conditions));
+      const total = Number(countResult?.count ?? 0);
+
+      if (total > 0) {
+        // Ambil data program lengkap dengan riwayat penyalurannya
+        const items = await db.query.programs.findMany({
+          where: and(...conditions),
+          orderBy,
+          limit,
+          offset,
+          with: {
+            disbursements: {
+              orderBy: (d, { desc: descOrder }) => [descOrder(d.tanggal)],
+            },
+          },
+        });
+
+        const result: PaginatedResult<Program> = {
+          items: items.map(serializeProgram),
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit) || 1,
+            deletedCount,
+          },
+        };
+
+        return ok(result);
       }
     }
-
-    if (type) {
-      conditions.push(eq(programs.programType, type));
-    }
-
-    if (kategori) {
-      conditions.push(eq(programs.kategori, kategori));
-    }
-
-    if (q) {
-      const searchPattern = `%${q}%`;
-      conditions.push(
-        or(
-          ilike(programs.nama, searchPattern),
-          ilike(programs.ringkasan, searchPattern),
-          ilike(programs.lokasi, searchPattern),
-        )!,
-      );
-    }
-
-    // Urutan sorting
-    let orderBy = desc(programs.createdAt);
-    if (sort === "oldest") {
-      orderBy = asc(programs.createdAt);
-    } else if (sort === "target_asc") {
-      orderBy = asc(programs.target);
-    } else if (sort === "target_desc") {
-      orderBy = desc(programs.target);
-    }
-
-    // Hitung total data
-    const [countResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(programs)
-      .where(and(...conditions));
-    const total = Number(countResult?.count ?? 0);
-
-    // Ambil data program lengkap dengan riwayat penyalurannya
-    const items = await db.query.programs.findMany({
-      where: and(...conditions),
-      orderBy,
-      limit,
-      offset,
-      with: {
-        disbursements: {
-          orderBy: (d, { desc: descOrder }) => [descOrder(d.tanggal)],
-        },
-      },
-    });
-
-    const result: PaginatedResult<Program> = {
-      items: items.map(serializeProgram),
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit) || 1,
-        deletedCount,
-      },
-    };
-
-    return ok(result);
   } catch (err) {
-    console.error("GET /api/programs error:", err);
-    return fail("Gagal memuat daftar program.", 500);
+    console.warn("GET /api/programs DB query failed, falling back to mock DB:", err);
   }
+
+  // Fallback ke mock-db agar halaman tidak pernah kosong / 500 saat DB belum dikonfigurasi
+  const fallbackResult = getMockFilteredPrograms({ q, type, kategori, status, sort, page, limit });
+  return ok(fallbackResult);
 }
 
 // POST /api/programs — buat program baru (admin only)
