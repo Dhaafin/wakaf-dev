@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/db/client";
-import { programs } from "@/lib/db/schema";
+import { programs, transactions, disbursements } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { ok, fail } from "@/lib/api/server";
 import { validateProgramForm } from "@/lib/validation";
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/programs — bulk soft delete programs (admin only)
+// DELETE /api/programs — bulk soft delete atau permanent delete programs (admin only)
 export async function DELETE(req: NextRequest) {
   try {
     // 1. Verifikasi role admin via Better Auth session cookie
@@ -202,6 +202,9 @@ export async function DELETE(req: NextRequest) {
     if (!session || session.user.role !== "admin") {
       return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
     }
+
+    const { searchParams } = new URL(req.url);
+    const isPermanent = searchParams.get("permanent") === "true";
 
     // 2. Parse body { ids: string[] }
     let body: { ids?: unknown };
@@ -222,7 +225,51 @@ export async function DELETE(req: NextRequest) {
       return fail("Daftar ID program tidak valid.", 400);
     }
 
-    // 3. Soft delete dengan mencatat deletedAt & menonaktifkan program
+    // 3. Aksi Hapus Permanen Massal
+    if (isPermanent) {
+      // Periksa apakah ada program yang memiliki riwayat transaksi
+      const txPrograms = await db
+        .select({ programId: transactions.programId })
+        .from(transactions)
+        .where(inArray(transactions.programId, validIds));
+
+      const idsWithTx = new Set(txPrograms.map((t) => t.programId));
+      const safeToDeleteIds = validIds.filter((id) => !idsWithTx.has(id));
+
+      if (safeToDeleteIds.length === 0) {
+        return fail(
+          "Semua program terpilih tidak dapat dihapus permanen karena memiliki riwayat transaksi/keuangan.",
+          400,
+        );
+      }
+
+      // Bersihkan penyaluran terkait bila ada
+      await db
+        .delete(disbursements)
+        .where(inArray(disbursements.programId, safeToDeleteIds));
+
+      // Hapus baris program secara permanen
+      const deleted = await db
+        .delete(programs)
+        .where(inArray(programs.id, safeToDeleteIds))
+        .returning({ id: programs.id });
+
+      const count = deleted.length;
+      const skippedCount = validIds.length - safeToDeleteIds.length;
+
+      const message =
+        skippedCount > 0
+          ? `${count} program berhasil dihapus permanen. ${skippedCount} program dilewati karena memiliki riwayat transaksi.`
+          : `${count} program berhasil dihapus secara permanen.`;
+
+      return ok({
+        success: true,
+        count,
+        message,
+      });
+    }
+
+    // 4. Soft delete dengan mencatat deletedAt & menonaktifkan program
     const deleted = await db
       .update(programs)
       .set({
@@ -235,7 +282,7 @@ export async function DELETE(req: NextRequest) {
     return ok({
       success: true,
       count: deleted.length,
-      message: `${deleted.length} program berhasil dihapus.`,
+      message: `${deleted.length} program berhasil dipindahkan ke kotak sampah.`,
     });
   } catch (err) {
     console.error("DELETE /api/programs bulk error:", err);

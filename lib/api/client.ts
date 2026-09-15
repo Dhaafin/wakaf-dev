@@ -156,11 +156,16 @@ export const api = {
       },
     ),
 
-  deletePrograms: (ids: string[]) =>
-    req<{ success: boolean; count: number; message: string }>("/api/programs", {
-      method: "DELETE",
-      body: JSON.stringify({ ids }),
-    }),
+  deletePrograms: (ids: string[], options?: { permanent?: boolean }) => {
+    const qs = options?.permanent ? "?permanent=true" : "";
+    return req<{ success: boolean; count: number; message: string }>(
+      `/api/programs${qs}`,
+      {
+        method: "DELETE",
+        body: JSON.stringify({ ids }),
+      },
+    );
+  },
 
 
   addDisbursement: (

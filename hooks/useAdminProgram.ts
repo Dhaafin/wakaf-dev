@@ -351,6 +351,11 @@ export function useAdminProgram() {
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState<boolean>(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState<boolean>(false);
 
+  // Bersihkan seleksi saat ganti status/tab atau halaman
+  useEffect(() => {
+    setSelectedIds([]);
+  }, [selectedStatus, page]);
+
   const isAllSelected = useMemo(() => {
     return items.length > 0 && items.every((p) => selectedIds.includes(p.id));
   }, [items, selectedIds]);
@@ -394,12 +399,17 @@ export function useAdminProgram() {
   async function handleConfirmBulkDelete() {
     if (selectedIds.length === 0) return;
     setIsBulkDeleting(true);
+    const isPermanent = selectedStatus === "deleted";
     try {
-      const res = await api.deletePrograms(selectedIds);
+      const res = await api.deletePrograms(selectedIds, { permanent: isPermanent });
       push({
         kind: "success",
-        title: "Program Berhasil Dihapus",
-        desc: `${res.count} program terpilih telah dihapus dari sistem.`,
+        title: isPermanent ? "Program Dihapus Permanen" : "Program Berhasil Dihapus",
+        desc:
+          res.message ||
+          (isPermanent
+            ? `${res.count} program terpilih berhasil dihapus permanen dari database.`
+            : `${res.count} program terpilih telah dipindahkan ke kotak sampah.`),
       });
       setSelectedIds([]);
       setIsBulkDeleteOpen(false);
@@ -407,7 +417,7 @@ export function useAdminProgram() {
     } catch (err) {
       push({
         kind: "error",
-        title: "Gagal Menghapus Massal",
+        title: isPermanent ? "Gagal Hapus Permanen Massal" : "Gagal Menghapus Massal",
         desc:
           err instanceof Error
             ? err.message

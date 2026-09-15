@@ -270,9 +270,21 @@ export function AdminProgramOrganism() {
         isOpen={isBulkDeleteOpen}
         onClose={handleCloseBulkDelete}
         onConfirm={handleConfirmBulkDelete}
-        title={`Hapus ${selectedIds.length} Program Sekaligus?`}
-        description={`Apakah Anda yakin ingin menghapus ${selectedIds.length} program terpilih? Semua data kampanye ini akan dinonaktifkan dan dihapus dari portal publik.`}
-        confirmText={`Ya, Hapus Semua (${selectedIds.length})`}
+        title={
+          isTrashMode
+            ? `Hapus Permanen ${selectedIds.length} Program Sekaligus?`
+            : `Hapus ${selectedIds.length} Program Sekaligus?`
+        }
+        description={
+          isTrashMode
+            ? `Peringatan: ${selectedIds.length} program terpilih akan dihapus secara permanen dari database. Tindakan ini tidak dapat dibatalkan (hanya diperbolehkan jika belum ada transaksi wakaf/keuangan terkait).`
+            : `Apakah Anda yakin ingin menghapus ${selectedIds.length} program terpilih? Semua data kampanye ini akan dinonaktifkan dan dipindahkan ke kotak sampah.`
+        }
+        confirmText={
+          isTrashMode
+            ? `Ya, Hapus Permanen (${selectedIds.length})`
+            : `Ya, Hapus Semua (${selectedIds.length})`
+        }
         cancelText="Batal"
         loading={isBulkDeleting}
         variant="danger"
