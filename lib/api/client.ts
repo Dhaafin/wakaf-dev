@@ -12,6 +12,7 @@ import type {
   PublicDonation,
   PaginatedResult,
   AnnouncementBannerConfig,
+  HeroSectionConfig,
   SiteSettings,
   ListTransactionsParams,
   ListTransactionsResult,
@@ -310,6 +311,14 @@ export const api = {
 
   updateBanner: (config: AnnouncementBannerConfig) =>
     req<AnnouncementBannerConfig>("/api/banner", {
+      method: "PUT",
+      body: JSON.stringify(config),
+    }),
+
+  getHero: () => req<HeroSectionConfig>("/api/hero"),
+
+  updateHero: (config: HeroSectionConfig) =>
+    req<HeroSectionConfig>("/api/hero", {
       method: "PUT",
       body: JSON.stringify(config),
     }),

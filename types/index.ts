@@ -391,8 +391,21 @@ export interface AnnouncementBannerConfig {
   linkUrl?: string;
 }
 
+export interface HeroSectionConfig {
+  badge: string;
+  title: string;
+  titleHighlight: string;
+  description: string;
+  primaryCtaText: string;
+  primaryCtaUrl: string;
+  secondaryCtaText?: string;
+  secondaryCtaUrl?: string;
+  showSecondaryCta?: boolean;
+}
+
 export interface SiteSettings {
   topBanner: AnnouncementBannerConfig;
+  hero: HeroSectionConfig;
   updatedAt?: string;
 }
 

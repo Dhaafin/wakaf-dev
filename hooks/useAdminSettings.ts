@@ -3,13 +3,26 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
-import type { AnnouncementBannerConfig } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig } from "@/types";
 
 const INITIAL_BANNER_CONFIG: AnnouncementBannerConfig = {
   enabled: true,
   text: "",
   linkText: "",
   linkUrl: "",
+};
+
+const INITIAL_HERO_CONFIG: HeroSectionConfig = {
+  badge: "Inovasi Wakaf Digital",
+  title: "Kebaikan abadi yang",
+  titleHighlight: "terus mengalir.",
+  description:
+    "Kendalikan penuh amal jariyah Anda dengan platform terpadu untuk berdonasi, memantau transparansi, dan melihat perkembangan wakaf secara nyata.",
+  primaryCtaText: "Mulai Berwakaf",
+  primaryCtaUrl: "/program",
+  secondaryCtaText: "Kalkulator Zakat",
+  secondaryCtaUrl: "/zakat",
+  showSecondaryCta: true,
 };
 
 export function useAdminSettings() {
@@ -25,14 +38,25 @@ export function useAdminSettings() {
   const [initialLoadedBanner, setInitialLoadedBanner] =
     useState<AnnouncementBannerConfig>(INITIAL_BANNER_CONFIG);
 
+  // Form State Hero Section
+  const [hero, setHero] = useState<HeroSectionConfig>(INITIAL_HERO_CONFIG);
+  const [initialLoadedHero, setInitialLoadedHero] =
+    useState<HeroSectionConfig>(INITIAL_HERO_CONFIG);
+
   // Fetch settings saat pertama kali render
   const fetchSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const bannerData = await api.getBanner();
-      if (bannerData) {
-        setTopBanner(bannerData);
-        setInitialLoadedBanner(bannerData);
+      const settings = await api.getSettings();
+      if (settings) {
+        if (settings.topBanner) {
+          setTopBanner(settings.topBanner);
+          setInitialLoadedBanner(settings.topBanner);
+        }
+        if (settings.hero) {
+          setHero(settings.hero);
+          setInitialLoadedHero(settings.hero);
+        }
       }
     } catch {
       push({
@@ -63,26 +87,61 @@ export function useAdminSettings() {
     [],
   );
 
+  // Handler update field hero section
+  const updateHeroField = useCallback(
+    <K extends keyof HeroSectionConfig>(
+      field: K,
+      value: HeroSectionConfig[K],
+    ) => {
+      setHero((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
+
   // Deteksi apakah ada perubahan yang belum disimpan
   const hasChanges =
-    JSON.stringify(topBanner) !== JSON.stringify(initialLoadedBanner);
+    JSON.stringify(topBanner) !== JSON.stringify(initialLoadedBanner) ||
+    JSON.stringify(hero) !== JSON.stringify(initialLoadedHero);
 
   // Simpan perubahan ke server
   const handleSave = useCallback(async () => {
-    if (!topBanner.text.trim()) {
+    if (topBanner.enabled && !topBanner.text.trim()) {
       push({
         kind: "error",
         title: "Teks Pengumuman Wajib Diisi",
-        desc: "Silakan masukkan pesan pengumuman sebelum menyimpan.",
+        desc: "Silakan masukkan pesan pengumuman sebelum mengaktifkan banner.",
+      });
+      return;
+    }
+
+    if (!hero.title.trim() || !hero.primaryCtaText.trim() || !hero.primaryCtaUrl.trim()) {
+      push({
+        kind: "error",
+        title: "Bidang Hero Section Belum Lengkap",
+        desc: "Judul hero, teks tombol utama, dan URL tombol utama wajib diisi.",
       });
       return;
     }
 
     setSaving(true);
     try {
-      const updated = await api.updateBanner(topBanner);
-      setTopBanner(updated);
-      setInitialLoadedBanner(updated);
+      const updated = await api.updateSettings({
+        topBanner,
+        hero,
+      });
+
+      if (updated.topBanner) {
+        setTopBanner(updated.topBanner);
+        setInitialLoadedBanner(updated.topBanner);
+      }
+      if (updated.hero) {
+        setHero(updated.hero);
+        setInitialLoadedHero(updated.hero);
+      }
+
       push({
         kind: "success",
         title: "Pengaturan Tersimpan",
@@ -97,19 +156,22 @@ export function useAdminSettings() {
     } finally {
       setSaving(false);
     }
-  }, [topBanner, push]);
+  }, [topBanner, hero, push]);
 
   // Reset form ke data server terakhir
   const handleReset = useCallback(() => {
     setTopBanner(initialLoadedBanner);
-  }, [initialLoadedBanner]);
+    setHero(initialLoadedHero);
+  }, [initialLoadedBanner, initialLoadedHero]);
 
   return {
     loading,
     saving,
     topBanner,
+    hero,
     hasChanges,
     updateBannerField,
+    updateHeroField,
     handleSave,
     handleReset,
     refetch: fetchSettings,

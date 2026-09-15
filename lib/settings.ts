@@ -1,13 +1,26 @@
 import { db } from "@/lib/db/client";
 import { siteSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import type { AnnouncementBannerConfig, SiteSettings } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig, SiteSettings } from "@/types";
 
 export const DEFAULT_TOP_BANNER: AnnouncementBannerConfig = {
   enabled: true,
   text: "🌙 Raih keberkahan jariyah: Salurkan wakaf dan sedekah terbaik Anda bersama Yayasan KBM",
   linkText: "Tunaikan Sekarang →",
   linkUrl: "/program",
+};
+
+export const DEFAULT_HERO_SECTION: HeroSectionConfig = {
+  badge: "Inovasi Wakaf Digital",
+  title: "Kebaikan abadi yang",
+  titleHighlight: "terus mengalir.",
+  description:
+    "Kendalikan penuh amal jariyah Anda dengan platform terpadu untuk berdonasi, memantau transparansi, dan melihat perkembangan wakaf secara nyata.",
+  primaryCtaText: "Mulai Berwakaf",
+  primaryCtaUrl: "/program",
+  secondaryCtaText: "Kalkulator Zakat",
+  secondaryCtaUrl: "/zakat",
+  showSecondaryCta: true,
 };
 
 export async function getTopBannerConfig(): Promise<AnnouncementBannerConfig> {
@@ -70,9 +83,93 @@ export async function saveTopBannerConfig(
   return config;
 }
 
+export async function getHeroConfig(): Promise<HeroSectionConfig> {
+  try {
+    const rows = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "hero_section"))
+      .limit(1);
+
+    if (!rows || rows.length === 0) {
+      return DEFAULT_HERO_SECTION;
+    }
+
+    const parsed = JSON.parse(rows[0].value) as Partial<HeroSectionConfig>;
+    return {
+      badge: parsed.badge?.trim() || DEFAULT_HERO_SECTION.badge,
+      title: parsed.title?.trim() || DEFAULT_HERO_SECTION.title,
+      titleHighlight: parsed.titleHighlight?.trim() || DEFAULT_HERO_SECTION.titleHighlight,
+      description: parsed.description?.trim() || DEFAULT_HERO_SECTION.description,
+      primaryCtaText: parsed.primaryCtaText?.trim() || DEFAULT_HERO_SECTION.primaryCtaText,
+      primaryCtaUrl: parsed.primaryCtaUrl?.trim() || DEFAULT_HERO_SECTION.primaryCtaUrl,
+      secondaryCtaText:
+        parsed.secondaryCtaText !== undefined
+          ? parsed.secondaryCtaText.trim()
+          : DEFAULT_HERO_SECTION.secondaryCtaText,
+      secondaryCtaUrl:
+        parsed.secondaryCtaUrl !== undefined
+          ? parsed.secondaryCtaUrl.trim()
+          : DEFAULT_HERO_SECTION.secondaryCtaUrl,
+      showSecondaryCta:
+        typeof parsed.showSecondaryCta === "boolean"
+          ? parsed.showSecondaryCta
+          : DEFAULT_HERO_SECTION.showSecondaryCta,
+    };
+  } catch (err) {
+    console.error("Error reading hero_section setting:", err);
+    return DEFAULT_HERO_SECTION;
+  }
+}
+
+export async function saveHeroConfig(
+  config: HeroSectionConfig,
+): Promise<HeroSectionConfig> {
+  const valueJson = JSON.stringify({
+    badge: config.badge?.trim() || DEFAULT_HERO_SECTION.badge,
+    title: config.title?.trim() || DEFAULT_HERO_SECTION.title,
+    titleHighlight: config.titleHighlight?.trim() || DEFAULT_HERO_SECTION.titleHighlight,
+    description: config.description?.trim() || DEFAULT_HERO_SECTION.description,
+    primaryCtaText: config.primaryCtaText?.trim() || DEFAULT_HERO_SECTION.primaryCtaText,
+    primaryCtaUrl: config.primaryCtaUrl?.trim() || DEFAULT_HERO_SECTION.primaryCtaUrl,
+    secondaryCtaText: config.secondaryCtaText?.trim() || "",
+    secondaryCtaUrl: config.secondaryCtaUrl?.trim() || "",
+    showSecondaryCta: Boolean(config.showSecondaryCta),
+  });
+
+  const rows = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.key, "hero_section"))
+    .limit(1);
+
+  if (rows && rows.length > 0) {
+    await db
+      .update(siteSettings)
+      .set({
+        value: valueJson,
+        updatedAt: new Date(),
+      })
+      .where(eq(siteSettings.key, "hero_section"));
+  } else {
+    await db.insert(siteSettings).values({
+      key: "hero_section",
+      value: valueJson,
+      updatedAt: new Date(),
+    });
+  }
+
+  return config;
+}
+
 export async function getAllSiteSettings(): Promise<SiteSettings> {
-  const topBanner = await getTopBannerConfig();
+  const [topBanner, hero] = await Promise.all([
+    getTopBannerConfig(),
+    getHeroConfig(),
+  ]);
+
   return {
     topBanner,
+    hero,
   };
 }

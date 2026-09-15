@@ -61,21 +61,128 @@ export const settingsPaths = {
       },
     },
   },
+  "/api/hero": {
+    get: {
+      tags: ["Pengaturan Website"],
+      summary: "Data Hero Section Beranda",
+      description: "Mengambil kustomisasi tajuk, highlight aksen, deskripsi, dan tombol CTA Hero Section halaman utama.",
+      responses: {
+        200: {
+          description: "Konfigurasi Hero Section berhasil diambil.",
+          content: {
+            "application/json": {
+              schema: {
+                allOf: [
+                  { $ref: "#/components/schemas/ApiSuccessResponse" },
+                  {
+                    type: "object",
+                    properties: {
+                      data: {
+                        type: "object",
+                        properties: {
+                          badge: { type: "string", example: "Inovasi Wakaf Digital" },
+                          title: { type: "string", example: "Kebaikan abadi yang" },
+                          titleHighlight: { type: "string", example: "terus mengalir." },
+                          description: { type: "string", example: "Kendalikan penuh amal jariyah Anda dengan platform terpadu untuk berdonasi..." },
+                          primaryCtaText: { type: "string", example: "Mulai Berwakaf" },
+                          primaryCtaUrl: { type: "string", example: "/program" },
+                          secondaryCtaText: { type: "string", example: "Kalkulator Zakat" },
+                          secondaryCtaUrl: { type: "string", example: "/zakat" },
+                          showSecondaryCta: { type: "boolean", example: true },
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    put: {
+      tags: ["Pengaturan Website"],
+      summary: "Perbarui Hero Section Beranda",
+      description: "Memperbarui tajuk, deskripsi, tombol CTA, dan aksen Hero Section (khusus Admin).",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                badge: { type: "string", example: "Inovasi Wakaf Digital" },
+                title: { type: "string", example: "Kebaikan abadi yang" },
+                titleHighlight: { type: "string", example: "terus mengalir." },
+                description: { type: "string", example: "Kendalikan penuh amal jariyah Anda..." },
+                primaryCtaText: { type: "string", example: "Mulai Berwakaf" },
+                primaryCtaUrl: { type: "string", example: "/program" },
+                secondaryCtaText: { type: "string", example: "Kalkulator Zakat" },
+                secondaryCtaUrl: { type: "string", example: "/zakat" },
+                showSecondaryCta: { type: "boolean", example: true },
+              },
+              required: ["title", "primaryCtaText", "primaryCtaUrl"],
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Konfigurasi Hero Section berhasil disimpan.",
+        },
+      },
+    },
+  },
   "/api/settings": {
     get: {
       tags: ["Pengaturan Website"],
       summary: "Semua Pengaturan Website",
-      description: "Mengambil seluruh konfigurasi umum dan banner situs.",
+      description: "Mengambil seluruh konfigurasi umum, banner pengumuman, dan Hero Section situs.",
       responses: {
         200: {
           description: "Konfigurasi berhasil diambil.",
+          content: {
+            "application/json": {
+              schema: {
+                allOf: [
+                  { $ref: "#/components/schemas/ApiSuccessResponse" },
+                  {
+                    type: "object",
+                    properties: {
+                      data: {
+                        type: "object",
+                        properties: {
+                          topBanner: { type: "object" },
+                          hero: { type: "object" },
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
         },
       },
     },
     put: {
       tags: ["Pengaturan Website"],
       summary: "Perbarui Pengaturan Website",
-      description: "Memperbarui konfigurasi situs secara agregat.",
+      description: "Memperbarui konfigurasi situs secara agregat (banner & hero).",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                topBanner: { type: "object" },
+                hero: { type: "object" },
+              },
+            },
+          },
+        },
+      },
       responses: {
         200: {
           description: "Pengaturan berhasil diperbarui.",

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/server";
-import { getAllSiteSettings, saveTopBannerConfig } from "@/lib/settings";
+import { getAllSiteSettings, saveTopBannerConfig, saveHeroConfig } from "@/lib/settings";
 import type { SiteSettings } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,10 @@ export async function PUT(req: NextRequest) {
 
     if (body.topBanner) {
       await saveTopBannerConfig(body.topBanner);
+    }
+
+    if (body.hero) {
+      await saveHeroConfig(body.hero);
     }
 
     const updated = await getAllSiteSettings();

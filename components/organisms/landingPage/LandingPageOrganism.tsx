@@ -5,15 +5,20 @@ import {
   PROGRAM_TYPE_ORDER,
   PROGRAM_TYPE_LABEL,
   PROGRAM_TYPE_DESC,
+  type HeroSectionConfig,
 } from "@/types";
 
 import { CtaTrustBanner } from "@/components/molecules/CtaTrustBanner";
 
-export function LandingPageOrganism() {
+interface LandingPageOrganismProps {
+  heroConfig?: HeroSectionConfig;
+}
+
+export function LandingPageOrganism({ heroConfig }: LandingPageOrganismProps = {}) {
   return (
     <>
       {/* HERO SECTION */}
-      <HeroSection />
+      <HeroSection initialConfig={heroConfig} />
 
       {/* JENIS PROGRAM */}
       <section className="container-app py-14">
