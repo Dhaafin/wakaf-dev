@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HeroSection } from "./molecules/HeroSection";
+import { TutorialSection } from "./molecules/TutorialSection";
 import { FeaturedPrograms } from "./molecules/FeaturedPrograms";
 import {
   PROGRAM_TYPE_ORDER,
@@ -54,44 +55,8 @@ export function LandingPageOrganism({ heroConfig }: LandingPageOrganismProps = {
         </div>
       </section>
 
-      {/* CARA KERJA */}
-      <section className="container-app py-14">
-        <h2 className="text-center font-serif text-2xl font-bold text-brand-950 sm:text-3xl">
-          Empat langkah, selesai
-        </h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              n: "01",
-              t: "Pilih jenis & program",
-              d: "Wakaf uang, wakaf melalui uang, infaq & shadaqah, atau zakat.",
-            },
-            {
-              n: "02",
-              t: "Isi & konfirmasi",
-              d: "Nominal, atas nama sendiri/orang lain, publik atau anonim.",
-            },
-            {
-              n: "03",
-              t: "Bayar via Virtual Account",
-              d: "Nomor VA terbit otomatis. Bayar sebelum waktu habis.",
-            },
-            {
-              n: "04",
-              t: "Terima bukti resmi",
-              d: "Sertifikat wakaf / bukti donasi / bukti setor zakat, bernomor unik & bisa diverifikasi.",
-            },
-          ].map((s) => (
-            <div key={s.n} className="card p-6">
-              <p className="font-serif text-3xl font-bold text-brand-200">
-                {s.n}
-              </p>
-              <h3 className="mt-2 font-semibold text-brand-950">{s.t}</h3>
-              <p className="mt-1 text-sm text-brand-600">{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* CARA KERJA (TUTORIAL) */}
+      <TutorialSection />
 
       {/* FEATURED PROGRAMS SECTION */}
       <FeaturedPrograms />
