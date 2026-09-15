@@ -26,97 +26,89 @@ export function AdminSettingsOrganism() {
 
   const [activeTab, setActiveTab] = useState<SettingsTab>("hero");
 
-  if (loading) {
-    return (
-      <div className="space-y-6 animate-fade-in pb-12">
-        <Skeleton variant="rect" height={140} className="w-full rounded-3xl" />
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-          <div className="md:col-span-4 lg:col-span-3">
-            <Skeleton variant="rect" height={120} className="w-full rounded-xl" />
-          </div>
-          <div className="md:col-span-8 lg:col-span-9">
-            <Skeleton variant="rect" height={400} className="w-full rounded-xl" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       {/* 1. REUSABLE EXECUTIVE HEADER */}
       <AdminPageHeader
         title="Pengaturan Website"
         description="Kelola konten hero section landing page dan bar pengumuman publik secara terpusat."
+        refreshing={loading}
       />
 
       {/* 2. 2-WAY LAYOUT */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* KOLOM KIRI: TABS WITH GROWING UNDERLINE */}
         <div className="md:col-span-4 lg:col-span-3">
-          <div className="card rounded-xl border border-brand-200/80 bg-white p-2 shadow-xs flex flex-row md:flex-col gap-1 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab("hero")}
-              className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
-                activeTab === "hero"
-                  ? "text-brand-950 font-bold bg-brand-50/70"
-                  : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
-              }`}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-                <span className="text-xs truncate">Hero Section</span>
-              </div>
-
-              {activeTab === "hero" && (
-                <motion.div
-                  layoutId="activeSettingsTabUnderline"
-                  className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("banner")}
-              className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
-                activeTab === "banner"
-                  ? "text-brand-950 font-bold bg-brand-50/70"
-                  : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
-              }`}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                  <line x1="4" y1="22" x2="4" y2="15" />
-                </svg>
-                <span className="text-xs truncate">Bar Pengumuman</span>
-              </div>
-
-              <span
-                className={`h-2 w-2 rounded-full shrink-0 ${
-                  topBanner.enabled ? "bg-emerald-500" : "bg-brand-300"
+          {loading ? (
+            <Skeleton variant="rect" height={120} className="w-full rounded-xl" />
+          ) : (
+            <div className="card rounded-xl border border-brand-200/80 bg-white p-2 shadow-xs flex flex-row md:flex-col gap-1 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setActiveTab("hero")}
+                className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
+                  activeTab === "hero"
+                    ? "text-brand-950 font-bold bg-brand-50/70"
+                    : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
                 }`}
-              />
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  <span className="text-xs truncate">Hero Section</span>
+                </div>
 
-              {activeTab === "banner" && (
-                <motion.div
-                  layoutId="activeSettingsTabUnderline"
-                  className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                {activeTab === "hero" && (
+                  <motion.div
+                    layoutId="activeSettingsTabUnderline"
+                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("banner")}
+                className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
+                  activeTab === "banner"
+                    ? "text-brand-950 font-bold bg-brand-50/70"
+                    : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                    <line x1="4" y1="22" x2="4" y2="15" />
+                  </svg>
+                  <span className="text-xs truncate">Bar Pengumuman</span>
+                </div>
+
+                <span
+                  className={`h-2 w-2 rounded-full shrink-0 ${
+                    topBanner.enabled ? "bg-emerald-500" : "bg-brand-300"
+                  }`}
                 />
-              )}
-            </button>
-          </div>
+
+                {activeTab === "banner" && (
+                  <motion.div
+                    layoutId="activeSettingsTabUnderline"
+                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* KOLOM KANAN: FORM CONTENT */}
         <div className="md:col-span-8 lg:col-span-9">
-          <AnimatePresence mode="wait">
+          {loading ? (
+            <Skeleton variant="rect" height={400} className="w-full rounded-xl" />
+          ) : (
+            <AnimatePresence mode="wait">
             {activeTab === "hero" ? (
               <motion.div
                 key="tab-hero"
@@ -357,6 +349,7 @@ export function AdminSettingsOrganism() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </div>
       </div>
     </div>
