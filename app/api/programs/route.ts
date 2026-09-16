@@ -9,7 +9,7 @@ import { createId, slugify } from "@/lib/id";
 import { serializeProgram } from "@/lib/db/serialize";
 import { and, eq, isNull, isNotNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
 import type { PaginatedResult, Program, CategoryMeta } from "@/types";
-import { PROGRAM_CATEGORY_LABEL } from "@/types";
+import { PROGRAM_CATEGORY_LABEL, PROGRAM_TYPE_LABEL } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -40,11 +40,38 @@ function getMockFilteredPrograms({
     all = all.filter((p) => p.aktif === true);
   }
 
-  if (type) {
+  // 1. Terapkan filter pencarian (q) terlebih dahulu
+  if (q) {
+    const lq = q.toLowerCase();
+    all = all.filter(
+      (p) =>
+        p.nama.toLowerCase().includes(lq) ||
+        p.ringkasan.toLowerCase().includes(lq) ||
+        p.lokasi.toLowerCase().includes(lq),
+    );
+  }
+
+  // 2. Hitung metadata Tipe Program (sebelum filter type diterapkan)
+  const typeCounts: Record<string, number> = {};
+  all.forEach((p) => {
+    typeCounts[p.program_type] = (typeCounts[p.program_type] || 0) + 1;
+  });
+
+  const types: CategoryMeta[] = [
+    { key: "semua", label: "Semua Program", count: all.length },
+    ...Object.entries(PROGRAM_TYPE_LABEL).map(([key, label]) => ({
+      key,
+      label,
+      count: typeCounts[key] || 0,
+    })),
+  ];
+
+  // 3. Terapkan filter type
+  if (type && type !== "semua") {
     all = all.filter((p) => p.program_type === type);
   }
 
-  // Hitung jumlah program aktif per kategori secara dinamis
+  // 4. Hitung metadata Kategori Program (setelah filter type, sebelum filter kategori)
   const categoryCounts: Record<string, number> = {};
   all.forEach((p) => {
     categoryCounts[p.kategori] = (categoryCounts[p.kategori] || 0) + 1;
@@ -59,20 +86,12 @@ function getMockFilteredPrograms({
     })),
   ];
 
+  // 5. Terapkan filter kategori
   if (kategori && kategori !== "semua") {
     all = all.filter((p) => p.kategori === kategori);
   }
 
-  if (q) {
-    const lq = q.toLowerCase();
-    all = all.filter(
-      (p) =>
-        p.nama.toLowerCase().includes(lq) ||
-        p.ringkasan.toLowerCase().includes(lq) ||
-        p.lokasi.toLowerCase().includes(lq),
-    );
-  }
-
+  // 6. Sorting
   if (sort === "popular") {
     all.sort((a, b) => b.jumlahWakif - a.jumlahWakif || b.terkumpul - a.terkumpul);
   } else if (sort === "urgent") {
@@ -103,6 +122,7 @@ function getMockFilteredPrograms({
       deletedCount: 0,
     },
     categories,
+    types,
   };
 }
 
@@ -197,7 +217,7 @@ export async function GET(req: NextRequest) {
           },
         });
 
-        const fallbackCategories = getMockFilteredPrograms({ q, type, status, page: 1, limit: 100 }).categories;
+        const fallbackData = getMockFilteredPrograms({ q, type, status, page: 1, limit: 100 });
 
         const result: PaginatedResult<Program> = {
           items: items.map(serializeProgram),
@@ -208,7 +228,8 @@ export async function GET(req: NextRequest) {
             totalPages: Math.ceil(total / limit) || 1,
             deletedCount,
           },
-          categories: fallbackCategories,
+          categories: fallbackData.categories,
+          types: fallbackData.types,
         };
 
         return ok(result);

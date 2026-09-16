@@ -35,6 +35,7 @@ export function useProgramBrowser() {
 
   const [programs, setPrograms] = useState<Program[]>([]);
   const [categories, setCategories] = useState<CategoryMeta[]>([]);
+  const [types, setTypes] = useState<CategoryMeta[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,6 +97,10 @@ export function useProgramBrowser() {
 
         if (res.categories && res.categories.length > 0) {
           setCategories(res.categories);
+        }
+        
+        if (res.types && res.types.length > 0) {
+          setTypes(res.types);
         }
 
         const currentTotal = res.pagination?.total ?? 0;
@@ -169,6 +174,7 @@ export function useProgramBrowser() {
     selectedSort,
     programs,
     categories,
+    types,
     total,
     hasMore,
     loading,

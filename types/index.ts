@@ -293,6 +293,7 @@ export interface PaginatedResult<T> {
   items: T[];
   pagination: PaginationMeta;
   categories?: CategoryMeta[];
+  types?: CategoryMeta[];
 }
 
 export interface ListTransactionsParams {

@@ -53,6 +53,7 @@ export function ProgramBrowserOrganism() {
     selectedSort,
     programs,
     categories,
+    types,
     total,
     hasMore,
     loading,
@@ -183,20 +184,20 @@ export function ProgramBrowserOrganism() {
         <div className="container-app space-y-2">
           {/* Row 1: Underline Program Type Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-brand-100/70 pb-1.5">
-            {TYPE_TABS.map((t) => {
-              const isActive = selectedType === t.value;
+            {(types.length > 0 ? types : TYPE_TABS.map(t => ({ key: t.value, label: t.label, count: 0 }))).map((t) => {
+              const isActive = selectedType === t.key;
               return (
                 <button
-                  key={t.value}
+                  key={t.key}
                   type="button"
-                  onClick={() => handleTypeChange(t.value)}
+                  onClick={() => handleTypeChange(t.key)}
                   className={`px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 border-b-2 cursor-pointer ${
                     isActive
                       ? "border-brand-600 text-brand-950 font-bold"
                       : "border-transparent text-brand-600 hover:text-brand-950 hover:border-brand-300"
                   }`}
                 >
-                  {t.label}
+                  {t.label} {t.count > 0 && <span className="text-[10px] ml-1 opacity-70">({t.count})</span>}
                 </button>
               );
             })}
