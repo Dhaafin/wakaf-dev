@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useProgramBrowser, type PublicCatalogSort } from "@/hooks/useProgramBrowser";
 import { ProgramCard } from "@/components/molecules/ProgramCard";
 import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton";
+import { CategoryExtraModal } from "@/components/molecules/CategoryExtraModal";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { Spinner } from "@/components/atoms/Spinner";
 import { PROGRAM_TYPE_LABEL, type ProgramType } from "@/types";
@@ -67,6 +69,13 @@ export function ProgramBrowserOrganism() {
     handleLoadMore,
     handleResetFilters,
   } = useProgramBrowser();
+
+  const [isExtraModalOpen, setIsExtraModalOpen] = useState(false);
+
+  const MAX_VISIBLE_PILLS = 5;
+  const visibleCategories = categories.slice(0, MAX_VISIBLE_PILLS);
+  const extraCategories = categories.slice(MAX_VISIBLE_PILLS);
+  const selectedExtraCategory = extraCategories.find((c) => c.key === selectedKategori);
 
   return (
     <div className="bg-white text-brand-950 min-h-screen">
@@ -203,13 +212,13 @@ export function ProgramBrowserOrganism() {
             })}
           </div>
 
-          {/* Row 2: Dynamic API Category Pills */}
+          {/* Row 2: Dynamic API Category Pills (Maksimal 5 Pil Tampil + Extra Modal) */}
           {categories.length > 0 && (
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5 pb-0.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-brand-500 shrink-0 mr-1">
                 Kategori:
               </span>
-              {categories.map((c) => {
+              {visibleCategories.map((c) => {
                 const isActive = selectedKategori === c.key;
                 return (
                   <button
@@ -233,6 +242,31 @@ export function ProgramBrowserOrganism() {
                   </button>
                 );
               })}
+
+              {/* Tombol Extra Filter jika kategori > 5 */}
+              {extraCategories.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsExtraModalOpen(true)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shrink-0 transition-all duration-200 cursor-pointer border ${
+                    selectedExtraCategory
+                      ? "bg-brand-700 text-white font-bold border-brand-800 shadow-xs"
+                      : "bg-brand-100/90 border-brand-200 text-brand-800 hover:bg-brand-200/80 hover:text-brand-950"
+                  }`}
+                >
+                  <span>
+                    {selectedExtraCategory ? selectedExtraCategory.label : `+${extraCategories.length} Lainnya`}
+                  </span>
+                  {selectedExtraCategory && (
+                    <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[10px]">
+                      {selectedExtraCategory.count}
+                    </span>
+                  )}
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -332,6 +366,14 @@ export function ProgramBrowserOrganism() {
           )}
         </div>
       </section>
+
+      <CategoryExtraModal
+        isOpen={isExtraModalOpen}
+        onClose={() => setIsExtraModalOpen(false)}
+        categories={categories}
+        selectedKategori={selectedKategori}
+        onSelectKategori={handleKategoriChange}
+      />
     </div>
   );
 }
