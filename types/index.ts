@@ -132,9 +132,28 @@ export interface DisbursementReport {
   judul: string;
   deskripsi: string;
   nominal: number;
-  /** data URL gambar bukti (mock file upload dengan preview) */
+  /** data URL atau Vercel Blob URL gambar bukti */
   buktiImageUrl?: string;
   buktiFileName?: string;
+}
+
+export interface DisbursementWithProgram extends DisbursementReport {
+  program?: {
+    id: string;
+    nama: string;
+    slug: string;
+    kategori: ProgramCategory;
+    programType: ProgramType;
+    terkumpul: number;
+    target: number;
+  };
+}
+
+export interface DisbursementStatsSummary {
+  totalNominal: number;
+  totalCount: number;
+  programCount: number;
+  avgNominal: number;
 }
 
 export interface Program {
@@ -153,6 +172,7 @@ export interface Program {
   nazhir: string; // pengelola wakaf
   createdAt: string; // ISO
   aktif: boolean;
+  deletedAt?: string; // ISO, diisi saat program dihapus (soft-delete)
   disbursements: DisbursementReport[];
 }
 
@@ -189,6 +209,8 @@ export interface Transaction {
   paidAt?: string; // ISO
 
   certificateId?: string; // diisi saat status -> paid
+  snapToken?: string;
+  snapRedirectUrl?: string;
 }
 
 export interface Certificate {
@@ -251,3 +273,174 @@ export interface ApiErr {
   fieldErrors?: Record<string, string>;
 }
 export type ApiResponse<T> = ApiOk<T> | ApiErr;
+
+// Tipe Pagination
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  deletedCount?: number;
+}
+
+export interface CategoryMeta {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export interface ProgramStatsSummary {
+  activeCount: number;
+  inactiveCount: number;
+  deletedCount: number;
+  totalTarget: number;
+  totalTerkumpul: number;
+  totalWakif: number;
+  avgPct: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: PaginationMeta;
+  categories?: CategoryMeta[];
+  types?: CategoryMeta[];
+  statsSummary?: ProgramStatsSummary;
+}
+
+export interface ListTransactionsParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: "all" | TransactionStatus;
+  programId?: string;
+  sort?: "latest" | "oldest" | "nominal_desc" | "nominal_asc";
+  email?: string;
+}
+
+export interface TransactionStatsSummary {
+  totalNominal: number;
+  totalCount: number;
+  paidCount: number;
+  pendingCount: number;
+  expiredCount: number;
+}
+
+export interface ListTransactionsResult {
+  items: Transaction[];
+  pagination: PaginationMeta;
+  statsSummary: TransactionStatsSummary;
+}
+
+// ============================================================================
+// Tipe Analitik Dashboard Eksekutif Admin
+// ============================================================================
+export interface MonthlyCashflowItem {
+  monthKey: string; // mis. "2026-09"
+  monthLabel: string; // mis. "Sep 2026"
+  inflow: number; // Dana masuk lunas
+  outflow: number; // Dana tersalurkan
+  transactionCount: number;
+}
+
+export interface InstrumentDistributionItem {
+  type: ProgramType;
+  label: string;
+  totalNominal: number;
+  programCount: number;
+  percentage: number;
+}
+
+export interface PaymentChannelItem {
+  bank: string;
+  count: number;
+  totalNominal: number;
+  percentage: number;
+}
+
+export interface CampaignRadarItem {
+  id: string;
+  nama: string;
+  slug: string;
+  programType: ProgramType;
+  kategori: ProgramCategory;
+  target: number;
+  terkumpul: number;
+  percentage: number;
+  jumlahWakif: number;
+}
+
+export interface RecentDoaItem {
+  id: string;
+  namaWakif: string;
+  visibilitas: Visibilitas;
+  nominal: number;
+  programNama: string;
+  doa: string;
+  createdAt: string;
+}
+
+export interface AdminAnalyticsData {
+  overview: {
+    totalTerkumpul: number;
+    totalDisalurkan: number;
+    saldoMengendap: number;
+    disbursementRatio: number;
+    totalWakif: number;
+    totalTransactions: number;
+    paidTransactions: number;
+    pendingTransactions: number;
+    expiredTransactions: number;
+    conversionRate: number;
+    avgDonation: number;
+    activeProgramCount: number;
+  };
+  monthlyCashflow: MonthlyCashflowItem[];
+  instrumentDistribution: InstrumentDistributionItem[];
+  paymentChannels: PaymentChannelItem[];
+  topCampaigns: CampaignRadarItem[];
+  needHelpCampaigns: CampaignRadarItem[];
+  recentDoa: RecentDoaItem[];
+}
+
+// Pengaturan Website & Banner
+export interface AnnouncementBannerConfig {
+  enabled: boolean;
+  text: string;
+  linkText?: string;
+  linkUrl?: string;
+}
+
+export interface HeroSectionConfig {
+  badge: string;
+  title: string;
+  titleHighlight: string;
+  description: string;
+  primaryCtaText: string;
+  primaryCtaUrl: string;
+  secondaryCtaText?: string;
+  secondaryCtaUrl?: string;
+  showSecondaryCta?: boolean;
+}
+
+export interface SiteSettings {
+  topBanner: AnnouncementBannerConfig;
+  hero: HeroSectionConfig;
+  updatedAt?: string;
+}
+
+declare global {
+  interface Window {
+    snap?: {
+      pay: (
+        token: string,
+        options?: {
+          onSuccess?: (result: any) => void;
+          onPending?: (result: any) => void;
+          onError?: (result: any) => void;
+          onClose?: () => void;
+        },
+      ) => void;
+    };
+  }
+}
+

@@ -2,7 +2,9 @@ import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/server";
 import { DEMO_OTP } from "@/lib/config";
 import { EMAIL_RE } from "@/lib/validation";
-import { listTransactionsByEmail } from "@/lib/mock-db";
+import { db } from "@/lib/db/client";
+import { transactions } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +32,20 @@ export async function POST(req: NextRequest) {
   if (Object.keys(fieldErrors).length > 0)
     return fail("Login gagal.", 401, fieldErrors);
 
-  // Ambil nama dari transaksi terakhir wakif (kalau ada), agar terasa personal.
-  const riwayat = listTransactionsByEmail(email);
-  const nama = riwayat[0]?.namaWakif ?? email.split("@")[0];
+  // Ambil nama dari transaksi terakhir wakif di database agar personal
+  let nama = email.split("@")[0];
+  try {
+    const latestTx = await db.query.transactions.findFirst({
+      where: eq(transactions.emailWakif, email),
+      orderBy: [desc(transactions.createdAt)],
+    });
+    if (latestTx?.namaWakif) {
+      nama = latestTx.namaWakif;
+    }
+  } catch (err) {
+    console.warn("Gagal mengambil nama profil wakif:", err);
+  }
 
   return ok({ email, nama });
 }
+

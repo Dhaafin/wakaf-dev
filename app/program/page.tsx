@@ -2,32 +2,23 @@ import { Suspense } from "react";
 import { ProgramBrowserOrganism } from "@/components/organisms/program/ProgramBrowserOrganism";
 import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton";
 
-export const metadata = { title: "Program — KBM" };
+export const metadata = {
+  title: "Program Kebaikan & Wakaf — Yayasan Khazanah Berkah Mulia",
+  description: "Jelajahi dan tunaikan donasi serta wakaf untuk berbagai program keagamaan, pendidikan, dan pemberdayaan masyarakat.",
+};
 
 export default function ProgramListPage() {
   return (
-    <div className="container-app py-10">
-      <header className="max-w-2xl">
-        <h1 className="font-serif text-3xl font-bold text-brand-950 sm:text-4xl">
-          Program
-        </h1>
-        <p className="mt-2 text-brand-600">
-          Program dikelompokkan menurut jenisnya: wakaf uang, wakaf melalui
-          uang, infaq &amp; shadaqah, dan zakat. Progres tiap program diperbarui
-          otomatis setiap ada dana baru yang masuk.
-        </p>
-      </header>
-
+    <main className="min-h-screen pb-16 bg-sand-50/50">
       <Suspense
         fallback={
-          <div className="mt-8">
+          <div className="container-app py-10">
             <ProgramGridSkeleton />
           </div>
         }
       >
         <ProgramBrowserOrganism />
       </Suspense>
-    </div>
+    </main>
   );
 }
-

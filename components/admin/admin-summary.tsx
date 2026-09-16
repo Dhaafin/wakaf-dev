@@ -10,10 +10,10 @@ export function AdminSummary() {
     [],
   );
   const stats = data?.[0];
-  const txs = data?.[1] ?? [];
+  const txResult = data?.[1];
 
-  const pending = txs.filter((t) => t.status === "pending").length;
-  const expired = txs.filter((t) => t.status === "expired").length;
+  const pending = txResult?.statsSummary?.pendingCount ?? 0;
+  const expired = txResult?.statsSummary?.expiredCount ?? 0;
 
   const cards = [
     { label: "Dana terkumpul", value: stats ? formatRupiah(stats.totalTerkumpul) : "—" },

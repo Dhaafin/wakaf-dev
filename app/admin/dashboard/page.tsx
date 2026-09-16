@@ -1,60 +1,26 @@
-"use client";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { AdminDashboardOrganism } from "@/components/organisms/admin/AdminDashboardOrganism";
 
-import { useState } from "react";
-import { useSession } from "@/lib/store/session";
-import { AdminSummary } from "@/components/admin/admin-summary";
-import { TransactionsPanel } from "@/components/admin/transactions-panel";
-import { ProgramsPanel } from "@/components/admin/programs-panel";
-import { DisbursementPanel } from "@/components/admin/disbursement-panel";
+export const metadata: Metadata = {
+  title: "Dashboard Eksekutif | Admin Yayasan KBM",
+  description:
+    "Ikhtisar eksekutif, analitik keuangan, arus kas, dan kinerja program Yayasan Khazanah Berkah Mulia.",
+};
 
-const TABS = [
-  { id: "ringkasan", label: "Ringkasan" },
-  { id: "transaksi", label: "Transaksi masuk" },
-  { id: "program", label: "Kelola program" },
-  { id: "penyaluran", label: "Penyaluran dana" },
-] as const;
+interface AdminDashboardPageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
 
-type TabId = (typeof TABS)[number]["id"];
+export default async function AdminDashboardPage({
+  searchParams,
+}: AdminDashboardPageProps) {
+  const { tab } = await searchParams;
 
-export default function AdminDashboardPage() {
-  const admin = useSession((s) => s.admin);
-  const [tab, setTab] = useState<TabId>("ringkasan");
+  if (tab === "transaksi") redirect("/admin/transaksi");
+  if (tab === "program") redirect("/admin/program");
+  if (tab === "penyaluran") redirect("/admin/penyaluran");
+  if (tab === "pengaturan") redirect("/admin/pengaturan");
 
-  // Guard tambahan (layout juga sudah redirect). Hindari flash konten.
-  if (!admin) return null;
-
-  return (
-    <div>
-      <h1 className="font-serif text-2xl font-bold text-brand-950">
-        Dashboard
-      </h1>
-      <p className="mt-1 text-sm text-brand-600">
-        Semua data di bawah dibaca langsung dari mock-db yang sama dengan situs
-        publik — perubahan di sini tampak seketika di halaman publik.
-      </p>
-
-      <div className="mt-6 flex gap-1 overflow-x-auto border-b border-brand-200">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${
-              tab === t.id
-                ? "border-brand-600 text-brand-900"
-                : "border-transparent text-brand-500 hover:text-brand-800"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6">
-        {tab === "ringkasan" && <AdminSummary />}
-        {tab === "transaksi" && <TransactionsPanel />}
-        {tab === "program" && <ProgramsPanel />}
-        {tab === "penyaluran" && <DisbursementPanel />}
-      </div>
-    </div>
-  );
+  return <AdminDashboardOrganism />;
 }

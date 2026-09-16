@@ -1,17 +1,61 @@
-import { markTransactionExpired } from "@/lib/mock-db";
+import type { NextRequest } from "next/server";
+import { db } from "@/lib/db/client";
+import { transactions } from "@/lib/db/schema";
 import { ok, fail } from "@/lib/api/server";
+import { serializeTransaction } from "@/lib/db/serialize";
+import { eq, and } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
 // POST /api/transactions/:id/expire
-// Dipanggil halaman "menunggu pembayaran" saat countdown benar-benar habis.
-// Di produksi, status kedaluwarsa biasanya di-set oleh job terjadwal di sisi
-// server / callback gateway, bukan oleh browser.
 export async function POST(
-  _req: Request,
-  { params }: { params: { id: string } },
+  _req: NextRequest,
+  { params }: { params: { id: string } | Promise<{ id: string }> },
 ) {
-  const result = markTransactionExpired(decodeURIComponent(params.id));
-  if ("error" in result) return fail(result.error, 409);
-  return ok(result);
+  try {
+    const resolvedParams = await Promise.resolve(params);
+    const id = decodeURIComponent(resolvedParams.id);
+
+    const tx = await db.query.transactions.findFirst({
+      where: eq(transactions.id, id),
+    });
+
+    if (!tx) {
+      return fail("Transaksi tidak ditemukan.", 404);
+    }
+
+    if (tx.status === "paid") {
+      return fail("Transaksi sudah dibayar, tidak dapat kedaluwarsa.", 400);
+    }
+
+    if (tx.status === "expired") {
+      return ok(serializeTransaction(tx));
+    }
+
+    // Hanya boleh di-expire bila waktu saat ini memang sudah melewati expiresAt (dengan toleransi 5 detik)
+    const now = new Date();
+    const toleranceMs = 5000;
+    if (now.getTime() + toleranceMs < new Date(tx.expiresAt).getTime()) {
+      return fail("Batas waktu pembayaran belum berakhir.", 400);
+    }
+
+    // Update status menjadi expired secara atomic (hanya jika saat ini masih pending)
+    const [updated] = await db
+      .update(transactions)
+      .set({ status: "expired" })
+      .where(and(eq(transactions.id, id), eq(transactions.status, "pending")))
+      .returning();
+
+    if (!updated) {
+      const current = await db.query.transactions.findFirst({
+        where: eq(transactions.id, id),
+      });
+      return ok(serializeTransaction(current || tx));
+    }
+
+    return ok(serializeTransaction(updated));
+  } catch (err) {
+    console.error("POST /api/transactions/:id/expire error:", err);
+    return fail("Gagal memperbarui status transaksi.", 500);
+  }
 }

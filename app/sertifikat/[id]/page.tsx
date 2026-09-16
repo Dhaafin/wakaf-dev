@@ -1,9 +1,10 @@
-import { CertificatePage } from "@/components/certificate-page";
+import { CertificateOrganism } from "@/components/organisms/certificate/CertificateOrganism";
 
 export default function SertifikatPage({
   params,
 }: {
   params: { id: string };
 }) {
-  return <CertificatePage certId={params.id} />;
+  return <CertificateOrganism certId={params.id} />;
 }
+

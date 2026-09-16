@@ -1,54 +1,366 @@
-import type { NextRequest } from "next/server";
-import { listPrograms, createProgram } from "@/lib/mock-db";
+import { type NextRequest } from "next/server";
+import { headers } from "next/headers";
+import { db } from "@/lib/db/client";
+import { programs, transactions, disbursements } from "@/lib/db/schema";
+import { auth } from "@/lib/auth";
 import { ok, fail } from "@/lib/api/server";
 import { validateProgramForm } from "@/lib/validation";
-import type { ProgramCategory, ProgramType } from "@/types";
+import { createId, slugify } from "@/lib/id";
+import { serializeProgram } from "@/lib/db/serialize";
+import { and, eq, isNull, isNotNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
+import type { PaginatedResult, Program, CategoryMeta } from "@/types";
+import { PROGRAM_CATEGORY_LABEL, PROGRAM_TYPE_LABEL } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-// GET /api/programs — daftar semua program (publik).
-export async function GET() {
-  return ok(listPrograms());
-}
+// GET /api/programs — daftar program dengan pagination, search, filter & sort
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q")?.trim();
+  const type = searchParams.get("type")?.trim();
+  const kategori = searchParams.get("kategori")?.trim();
+  const status = searchParams.get("status")?.trim(); // 'all' | 'active' | 'inactive' | 'deleted'
+  const sort = searchParams.get("sort")?.trim() || "latest";
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
+  const offset = (page - 1) * limit;
 
-// POST /api/programs — buat program baru (dipakai admin panel).
-// Modular: `program_type` menentukan pengelompokan di halaman publik
-// (wakaf-uang / wakaf-melalui-uang / infaq-shadaqah / zakat).
-export async function POST(req: NextRequest) {
-  let body: Record<string, unknown>;
   try {
-    body = await req.json();
-  } catch {
-    return fail("Body tidak valid.", 400);
+    // Hitung total program di tong sampah
+    const [deletedCountRes] = await db
+      .select({ count: sql`count(*)` })
+      .from(programs)
+      .where(isNotNull(programs.deletedAt));
+    const deletedCount = Number(deletedCountRes?.count || 0);
+
+    // 1. Base conditions (status + q) untuk menghitung metadata
+    const baseConditions = [];
+
+    if (status === "deleted") {
+      baseConditions.push(isNotNull(programs.deletedAt));
+    } else {
+      baseConditions.push(isNull(programs.deletedAt));
+      if (status === "inactive") {
+        baseConditions.push(eq(programs.aktif, false));
+      } else if (status !== "all") {
+        // Default publik: hanya program aktif
+        baseConditions.push(eq(programs.aktif, true));
+      }
+    }
+
+    if (q) {
+      const searchPattern = `%${q}%`;
+      baseConditions.push(
+        or(
+          ilike(programs.nama, searchPattern),
+          ilike(programs.ringkasan, searchPattern),
+          ilike(programs.lokasi, searchPattern),
+        )!,
+      );
+    }
+
+    // Ambil semua data minimalis untuk hitung metadata dinamis
+    const allMatching = await db.query.programs.findMany({
+      where: and(...baseConditions),
+      columns: { programType: true, kategori: true },
+    });
+
+    const typeCounts: Record<string, number> = {};
+    const categoryCounts: Record<string, number> = {};
+
+    allMatching.forEach(p => {
+      typeCounts[p.programType] = (typeCounts[p.programType] || 0) + 1;
+      if (!type || type === "semua" || p.programType === type) {
+        categoryCounts[p.kategori] = (categoryCounts[p.kategori] || 0) + 1;
+      }
+    });
+
+    const categories: CategoryMeta[] = [
+      { key: "semua", label: "Semua Kategori", count: Object.values(categoryCounts).reduce((a, b) => a + b, 0) },
+      ...Object.entries(PROGRAM_CATEGORY_LABEL).map(([key, label]) => ({
+        key,
+        label,
+        count: categoryCounts[key] || 0,
+      })),
+    ];
+
+    const types: CategoryMeta[] = [
+      { key: "semua", label: "Semua Program", count: allMatching.length },
+      ...Object.entries(PROGRAM_TYPE_LABEL).map(([key, label]) => ({
+        key,
+        label,
+        count: typeCounts[key] || 0,
+      })),
+    ];
+
+    // 2. Tambahkan kondisi filter spesifik (type & kategori) untuk query utama
+    const mainConditions = [...baseConditions];
+    
+    if (type && type !== "semua") {
+      mainConditions.push(eq(programs.programType, type));
+    }
+
+    if (kategori && kategori !== "semua") {
+      mainConditions.push(eq(programs.kategori, kategori));
+    }
+
+    // 3. Urutan sorting
+    let orderBy = desc(programs.createdAt);
+    if (sort === "popular") {
+      orderBy = desc(programs.jumlahWakif);
+    } else if (sort === "urgent") {
+      orderBy = asc(programs.terkumpul);
+    } else if (sort === "near_goal") {
+      orderBy = desc(programs.terkumpul);
+    } else if (sort === "oldest") {
+      orderBy = asc(programs.createdAt);
+    } else if (sort === "target_asc") {
+      orderBy = asc(programs.target);
+    } else if (sort === "target_desc") {
+      orderBy = desc(programs.target);
+    }
+
+    // 4. Hitung total data final
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(programs)
+      .where(and(...mainConditions));
+    const total = Number(countResult?.count ?? 0);
+
+    let items: Program[] = [];
+    if (total > 0) {
+      const dbItems = await db.query.programs.findMany({
+        where: and(...mainConditions),
+        orderBy,
+        limit,
+        offset,
+        with: {
+          disbursements: {
+            orderBy: (d, { desc: descOrder }) => [descOrder(d.tanggal)],
+          },
+        },
+      });
+      items = dbItems.map(serializeProgram);
+    }
+
+    // 5. Agregasi KPI global eksekutif dari seluruh database
+    const [statsRow] = await db
+      .select({
+        activeCount: sql<number>`count(case when ${programs.aktif} = true and ${programs.deletedAt} is null then 1 end)::int`,
+        inactiveCount: sql<number>`count(case when ${programs.aktif} = false and ${programs.deletedAt} is null then 1 end)::int`,
+        totalTarget: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.target} else 0 end), 0)::bigint`,
+        totalTerkumpul: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.terkumpul} else 0 end), 0)::bigint`,
+        totalWakif: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.jumlahWakif} else 0 end), 0)::int`,
+      })
+      .from(programs);
+
+    const totalTarget = Number(statsRow?.totalTarget ?? 0);
+    const totalTerkumpul = Number(statsRow?.totalTerkumpul ?? 0);
+    const statsSummary = {
+      activeCount: Number(statsRow?.activeCount ?? 0),
+      inactiveCount: Number(statsRow?.inactiveCount ?? 0),
+      deletedCount,
+      totalTarget,
+      totalTerkumpul,
+      totalWakif: Number(statsRow?.totalWakif ?? 0),
+      avgPct: totalTarget > 0 ? Math.round((totalTerkumpul / totalTarget) * 100) : 0,
+    };
+
+    const result: PaginatedResult<Program> = {
+      items,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+        deletedCount,
+      },
+      categories,
+      types,
+      statsSummary,
+    };
+
+    return ok(result);
+  } catch (err) {
+    console.error("GET /api/programs DB query failed:", err);
+    return fail("Gagal memuat program.", 500);
   }
-
-  const values = {
-    nama: String(body.nama ?? ""),
-    kategori: String(body.kategori ?? ""),
-    lokasi: String(body.lokasi ?? ""),
-    ringkasan: String(body.ringkasan ?? ""),
-    deskripsi: String(body.deskripsi ?? ""),
-    imageUrl: String(body.imageUrl ?? ""),
-    target: Number(body.target ?? 0),
-    nazhir: String(body.nazhir ?? ""),
-  };
-
-  const fieldErrors = validateProgramForm(values);
-  if (Object.keys(fieldErrors).length > 0) {
-    return fail("Periksa kembali isian form.", 422, fieldErrors);
-  }
-
-  const prog = createProgram({
-    nama: values.nama.trim(),
-    kategori: values.kategori as ProgramCategory,
-    program_type: (body.program_type as ProgramType) ?? "wakaf-melalui-uang",
-    lokasi: values.lokasi.trim(),
-    ringkasan: values.ringkasan.trim(),
-    deskripsi: values.deskripsi.trim(),
-    imageUrl: values.imageUrl.trim(),
-    target: values.target,
-    nazhir: values.nazhir.trim(),
-  });
-
-  return ok(prog, 201);
 }
+
+// POST /api/programs — buat program baru (admin only)
+export async function POST(req: NextRequest) {
+  try {
+    // 1. Verifikasi role admin via Better Auth session cookie
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || session.user.role !== "admin") {
+      return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
+    }
+
+    // 2. Parse & validasi body
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return fail("Body tidak valid.", 400);
+    }
+
+    const values = {
+      nama: String(body.nama ?? ""),
+      kategori: String(body.kategori ?? ""),
+      lokasi: String(body.lokasi ?? ""),
+      ringkasan: String(body.ringkasan ?? ""),
+      deskripsi: String(body.deskripsi ?? ""),
+      imageUrl: String(body.imageUrl ?? ""),
+      target: Number(body.target ?? 0),
+      nazhir: String(body.nazhir ?? ""),
+    };
+
+    const fieldErrors = validateProgramForm(values);
+    if (Object.keys(fieldErrors).length > 0) {
+      return fail("Periksa kembali isian form.", 422, fieldErrors);
+    }
+
+    // 3. Generate slug & cegah duplikasi
+    let baseSlug = slugify(values.nama);
+    if (!baseSlug) baseSlug = createId("prg", 8);
+
+    let finalSlug = baseSlug;
+    const existingSlug = await db.query.programs.findFirst({
+      where: eq(programs.slug, finalSlug),
+    });
+    if (existingSlug) {
+      finalSlug = `${baseSlug}-${createId("prg", 4)}`;
+    }
+
+    // 4. Simpan ke database Neon PostgreSQL
+    const newId = createId("prg");
+    const [created] = await db
+      .insert(programs)
+      .values({
+        id: newId,
+        nama: values.nama.trim(),
+        slug: finalSlug,
+        programType: String(body.program_type ?? "wakaf-melalui-uang"),
+        kategori: values.kategori.trim(),
+        lokasi: values.lokasi.trim(),
+        ringkasan: values.ringkasan.trim(),
+        deskripsi: values.deskripsi.trim(),
+        imageUrl: values.imageUrl.trim() || null,
+        target: values.target,
+        terkumpul: 0,
+        jumlahWakif: 0,
+        nazhir: values.nazhir.trim() || "Nazhir Yayasan Khazanah Berkah Mulia",
+        aktif: true,
+      })
+      .returning();
+
+    return ok(serializeProgram(created), 201);
+  } catch (err) {
+    console.error("POST /api/programs error:", err);
+    return fail("Gagal membuat program.", 500);
+  }
+}
+
+// DELETE /api/programs — bulk soft delete atau permanent delete programs (admin only)
+export async function DELETE(req: NextRequest) {
+  try {
+    // 1. Verifikasi role admin via Better Auth session cookie
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session || session.user.role !== "admin") {
+      return fail("Akses ditolak: Hanya admin yang diizinkan.", 403);
+    }
+
+    const { searchParams } = new URL(req.url);
+    const isPermanent = searchParams.get("permanent") === "true";
+
+    // 2. Parse body { ids: string[] }
+    let body: { ids?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return fail("Body JSON tidak valid.", 400);
+    }
+
+    if (!Array.isArray(body.ids) || body.ids.length === 0) {
+      return fail("Daftar ID program tidak valid atau kosong.", 400);
+    }
+
+    const validIds = body.ids.filter(
+      (id): id is string => typeof id === "string" && id.trim().length > 0,
+    );
+    if (validIds.length === 0) {
+      return fail("Daftar ID program tidak valid.", 400);
+    }
+
+    // 3. Aksi Hapus Permanen Massal
+    if (isPermanent) {
+      // Periksa apakah ada program yang memiliki riwayat transaksi
+      const txPrograms = await db
+        .select({ programId: transactions.programId })
+        .from(transactions)
+        .where(inArray(transactions.programId, validIds));
+
+      const idsWithTx = new Set(txPrograms.map((t) => t.programId));
+      const safeToDeleteIds = validIds.filter((id) => !idsWithTx.has(id));
+
+      if (safeToDeleteIds.length === 0) {
+        return fail(
+          "Semua program terpilih tidak dapat dihapus permanen karena memiliki riwayat transaksi/keuangan.",
+          400,
+        );
+      }
+
+      // Bersihkan penyaluran terkait bila ada
+      await db
+        .delete(disbursements)
+        .where(inArray(disbursements.programId, safeToDeleteIds));
+
+      // Hapus baris program secara permanen
+      const deleted = await db
+        .delete(programs)
+        .where(inArray(programs.id, safeToDeleteIds))
+        .returning({ id: programs.id });
+
+      const count = deleted.length;
+      const skippedCount = validIds.length - safeToDeleteIds.length;
+
+      const message =
+        skippedCount > 0
+          ? `${count} program berhasil dihapus permanen. ${skippedCount} program dilewati karena memiliki riwayat transaksi.`
+          : `${count} program berhasil dihapus secara permanen.`;
+
+      return ok({
+        success: true,
+        count,
+        message,
+      });
+    }
+
+    // 4. Soft delete dengan mencatat deletedAt & menonaktifkan program
+    const deleted = await db
+      .update(programs)
+      .set({
+        deletedAt: new Date(),
+        aktif: false,
+      })
+      .where(and(inArray(programs.id, validIds), isNull(programs.deletedAt)))
+      .returning({ id: programs.id });
+
+    return ok({
+      success: true,
+      count: deleted.length,
+      message: `${deleted.length} program berhasil dipindahkan ke kotak sampah.`,
+    });
+  } catch (err) {
+    console.error("DELETE /api/programs bulk error:", err);
+    return fail("Gagal menghapus program secara massal.", 500);
+  }
+}
+
+

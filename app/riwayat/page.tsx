@@ -13,11 +13,33 @@ import { Spinner } from "@/components/atoms/Spinner";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
+import { useSession as useBetterAuthSession, signOut } from "@/lib/auth-client";
+
 export default function RiwayatPage() {
+  const { data: authSession, isPending } = useBetterAuthSession();
   const wakif = useSession((s) => s.wakif);
   const logoutWakif = useSession((s) => s.logoutWakif);
 
-  if (!wakif) return <WakifLogin />;
+  if (isPending) {
+    return (
+      <div className="container-app flex max-w-3xl items-center justify-center py-20">
+        <Spinner className="h-8 w-8 text-brand-600" />
+      </div>
+    );
+  }
+
+  const currentUser = authSession?.user
+    ? { email: authSession.user.email, nama: authSession.user.name || authSession.user.email }
+    : wakif;
+
+  async function handleLogout() {
+    if (authSession) {
+      await signOut();
+    }
+    logoutWakif();
+  }
+
+  if (!currentUser) return <WakifLogin />;
 
   return (
     <div className="container-app max-w-3xl py-10">
@@ -28,15 +50,15 @@ export default function RiwayatPage() {
           </h1>
           <p className="mt-1 text-sm text-brand-600">
             Masuk sebagai{" "}
-            <span className="font-medium text-brand-800">{wakif.email}</span>
+            <span className="font-medium text-brand-800">{currentUser.email}</span>
           </p>
         </div>
-        <button onClick={logoutWakif} className="btn-ghost text-xs">
+        <button onClick={handleLogout} className="btn-ghost text-xs">
           Keluar
         </button>
       </div>
 
-      <RiwayatList email={wakif.email} />
+      <RiwayatList email={currentUser.email} />
     </div>
   );
 }
