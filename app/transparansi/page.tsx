@@ -15,9 +15,9 @@ import { CategoryBadge } from "@/components/atoms/CategoryBadge";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { RecentDonations } from "@/components/recent-donations";
 
-// Halaman transparansi. SELURUH data di sini dibaca dari mock-db yang sama
-// dengan yang diisi lewat Admin Panel (POST /api/programs/:id/disbursements).
-// Jadi begitu admin menambah laporan penyaluran, halaman ini ikut berubah.
+// Halaman transparansi. SELURUH data di sini dibaca langsung dari database
+// melalui endpoint API. Begitu admin menambah laporan penyaluran di panel, 
+// halaman ini otomatis ter-update secara real-time.
 export default function TransparansiPage() {
   const { data: programs, loading, error } = useAsync(
     () => api.listPrograms(),

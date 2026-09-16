@@ -10,8 +10,6 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-import { getProgram as getMockProgram } from "@/lib/mock-db";
-
 // GET /api/programs/:id — id boleh berupa id unik (prg_...) atau slug publik
 export async function GET(
   _req: Request,
@@ -20,28 +18,22 @@ export async function GET(
   const identifier = decodeURIComponent(params.id);
 
   try {
-    if (process.env.DATABASE_URL) {
-      const prog = await db.query.programs.findFirst({
-        where: and(
-          or(eq(programs.id, identifier), eq(programs.slug, identifier)),
-          isNull(programs.deletedAt),
-        ),
-        with: {
-          disbursements: {
-            orderBy: (d, { desc }) => [desc(d.tanggal)],
-          },
+    const prog = await db.query.programs.findFirst({
+      where: and(
+        or(eq(programs.id, identifier), eq(programs.slug, identifier)),
+        isNull(programs.deletedAt),
+      ),
+      with: {
+        disbursements: {
+          orderBy: (d, { desc }) => [desc(d.tanggal)],
         },
-      });
+      },
+    });
 
-      if (prog) return ok(serializeProgram(prog));
-    }
+    if (prog) return ok(serializeProgram(prog));
   } catch (err) {
-    console.warn("GET /api/programs/[id] DB error, falling back to mock DB:", err);
-  }
-
-  const mock = getMockProgram(identifier);
-  if (mock) {
-    return ok(mock);
+    console.error("GET /api/programs/[id] DB error:", err);
+    return fail("Terjadi kesalahan pada server.", 500);
   }
 
   return fail("Program tidak ditemukan.", 404);

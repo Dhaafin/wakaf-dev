@@ -7,7 +7,7 @@ import type { WakifSession, AdminSession } from "@/types";
 // ============================================================================
 // State sesi login (wakif & admin) — Zustand + persist ke localStorage.
 // CATATAN: yang disimpan di browser hanya IDENTITAS sesi (siapa yang login).
-// Seluruh DATA transaksi/program tetap di mock-db server-side.
+// Seluruh DATA transaksi/program tetap di database utama.
 // ============================================================================
 
 interface SessionState {

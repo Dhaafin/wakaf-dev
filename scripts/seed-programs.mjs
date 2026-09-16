@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from '../lib/db/schema.ts';
-import { SEED_PROGRAMS } from '../lib/mock-db/seed.ts';
+import { SEED_PROGRAMS } from '../lib/db/seed-data.ts';
 import { sql } from 'drizzle-orm';
 
 const connectionString = process.env.DATABASE_URL;
