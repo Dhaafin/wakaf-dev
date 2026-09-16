@@ -14,13 +14,11 @@ const client = neon(connectionString);
 const db = drizzle(client, { schema });
 
 async function seed() {
-  console.log('Seeding programs to Neon PostgreSQL...');
+  console.log('Seeding 20 realistic programs to Neon PostgreSQL...');
 
-  const [{ count }] = await db.select({ count: sql`count(*)` }).from(schema.programs);
-  if (Number(count) > 0) {
-    console.log(`Database already has ${count} programs. Skipping seed.`);
-    return;
-  }
+  // Hapus data lama agar seeding bersih & fresh (onConflict/clean seed)
+  await db.delete(schema.disbursements);
+  await db.delete(schema.programs);
 
   for (const p of SEED_PROGRAMS) {
     console.log(`- Inserting program: ${p.nama} (${p.id})`);
