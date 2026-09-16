@@ -289,11 +289,22 @@ export interface CategoryMeta {
   count: number;
 }
 
+export interface ProgramStatsSummary {
+  activeCount: number;
+  inactiveCount: number;
+  deletedCount: number;
+  totalTarget: number;
+  totalTerkumpul: number;
+  totalWakif: number;
+  avgPct: number;
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   pagination: PaginationMeta;
   categories?: CategoryMeta[];
   types?: CategoryMeta[];
+  statsSummary?: ProgramStatsSummary;
 }
 
 export interface ListTransactionsParams {

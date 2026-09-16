@@ -139,6 +139,7 @@ export function AdminProgramOrganism() {
         onStatusChange={setSelectedStatus}
         total={total}
         activeCount={statsSummary.activeCount}
+        inactiveCount={statsSummary.inactiveCount}
         deletedCount={deletedCount}
         selectedType={selectedType}
         onTypeChange={setSelectedType}

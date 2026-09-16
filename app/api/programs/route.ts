@@ -143,6 +143,29 @@ export async function GET(req: NextRequest) {
       items = dbItems.map(serializeProgram);
     }
 
+    // 5. Agregasi KPI global eksekutif dari seluruh database
+    const [statsRow] = await db
+      .select({
+        activeCount: sql<number>`count(case when ${programs.aktif} = true and ${programs.deletedAt} is null then 1 end)::int`,
+        inactiveCount: sql<number>`count(case when ${programs.aktif} = false and ${programs.deletedAt} is null then 1 end)::int`,
+        totalTarget: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.target} else 0 end), 0)::bigint`,
+        totalTerkumpul: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.terkumpul} else 0 end), 0)::bigint`,
+        totalWakif: sql<number>`coalesce(sum(case when ${programs.deletedAt} is null then ${programs.jumlahWakif} else 0 end), 0)::int`,
+      })
+      .from(programs);
+
+    const totalTarget = Number(statsRow?.totalTarget ?? 0);
+    const totalTerkumpul = Number(statsRow?.totalTerkumpul ?? 0);
+    const statsSummary = {
+      activeCount: Number(statsRow?.activeCount ?? 0),
+      inactiveCount: Number(statsRow?.inactiveCount ?? 0),
+      deletedCount,
+      totalTarget,
+      totalTerkumpul,
+      totalWakif: Number(statsRow?.totalWakif ?? 0),
+      avgPct: totalTarget > 0 ? Math.round((totalTerkumpul / totalTarget) * 100) : 0,
+    };
+
     const result: PaginatedResult<Program> = {
       items,
       pagination: {
@@ -154,6 +177,7 @@ export async function GET(req: NextRequest) {
       },
       categories,
       types,
+      statsSummary,
     };
 
     return ok(result);

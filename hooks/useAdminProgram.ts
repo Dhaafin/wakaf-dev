@@ -91,16 +91,18 @@ export function useAdminProgram() {
   const endItem = Math.min(page * limit, total);
 
   const statsSummary = useMemo(() => {
-    if (!items || items.length === 0) {
-      return { activeCount: 0, totalTarget: 0, totalTerkumpul: 0, totalWakif: 0, avgPct: 0 };
-    }
-    const activeCount = items.filter((p) => p.aktif).length;
-    const totalTarget = items.reduce((acc, p) => acc + (p.target || 0), 0);
-    const totalTerkumpul = items.reduce((acc, p) => acc + (p.terkumpul || 0), 0);
-    const totalWakif = items.reduce((acc, p) => acc + (p.jumlahWakif || 0), 0);
-    const avgPct = totalTarget > 0 ? Math.round((totalTerkumpul / totalTarget) * 100) : 0;
-    return { activeCount, totalTarget, totalTerkumpul, totalWakif, avgPct };
-  }, [items]);
+    return (
+      data?.statsSummary ?? {
+        activeCount: 0,
+        inactiveCount: 0,
+        deletedCount: 0,
+        totalTarget: 0,
+        totalTerkumpul: 0,
+        totalWakif: 0,
+        avgPct: 0,
+      }
+    );
+  }, [data?.statsSummary]);
 
   // Cek apakah ada filter yang sedang aktif
   const hasActiveFilters = Boolean(
