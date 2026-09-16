@@ -8,7 +8,8 @@ import { validateProgramForm } from "@/lib/validation";
 import { createId, slugify } from "@/lib/id";
 import { serializeProgram } from "@/lib/db/serialize";
 import { and, eq, isNull, isNotNull, ilike, or, desc, asc, sql, inArray } from "drizzle-orm";
-import type { PaginatedResult, Program } from "@/types";
+import type { PaginatedResult, Program, CategoryMeta } from "@/types";
+import { PROGRAM_CATEGORY_LABEL } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,22 @@ function getMockFilteredPrograms({
     all = all.filter((p) => p.program_type === type);
   }
 
-  if (kategori) {
+  // Hitung jumlah program aktif per kategori secara dinamis
+  const categoryCounts: Record<string, number> = {};
+  all.forEach((p) => {
+    categoryCounts[p.kategori] = (categoryCounts[p.kategori] || 0) + 1;
+  });
+
+  const categories: CategoryMeta[] = [
+    { key: "semua", label: "Semua Kategori", count: all.length },
+    ...Object.entries(PROGRAM_CATEGORY_LABEL).map(([key, label]) => ({
+      key,
+      label,
+      count: categoryCounts[key] || 0,
+    })),
+  ];
+
+  if (kategori && kategori !== "semua") {
     all = all.filter((p) => p.kategori === kategori);
   }
 
@@ -57,7 +73,13 @@ function getMockFilteredPrograms({
     );
   }
 
-  if (sort === "oldest") {
+  if (sort === "popular") {
+    all.sort((a, b) => b.jumlahWakif - a.jumlahWakif || b.terkumpul - a.terkumpul);
+  } else if (sort === "urgent") {
+    all.sort((a, b) => (a.target > 0 ? a.terkumpul / a.target : 0) - (b.target > 0 ? b.terkumpul / b.target : 0));
+  } else if (sort === "near_goal") {
+    all.sort((a, b) => (b.target > 0 ? b.terkumpul / b.target : 0) - (a.target > 0 ? a.terkumpul / a.target : 0));
+  } else if (sort === "oldest") {
     all.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   } else if (sort === "target_asc") {
     all.sort((a, b) => a.target - b.target);
@@ -80,6 +102,7 @@ function getMockFilteredPrograms({
       totalPages: Math.ceil(total / limit) || 1,
       deletedCount: 0,
     },
+    categories,
   };
 }
 
@@ -123,7 +146,7 @@ export async function GET(req: NextRequest) {
         conditions.push(eq(programs.programType, type));
       }
 
-      if (kategori) {
+      if (kategori && kategori !== "semua") {
         conditions.push(eq(programs.kategori, kategori));
       }
 
@@ -140,7 +163,13 @@ export async function GET(req: NextRequest) {
 
       // Urutan sorting
       let orderBy = desc(programs.createdAt);
-      if (sort === "oldest") {
+      if (sort === "popular") {
+        orderBy = desc(programs.jumlahWakif);
+      } else if (sort === "urgent") {
+        orderBy = asc(programs.terkumpul);
+      } else if (sort === "near_goal") {
+        orderBy = desc(programs.terkumpul);
+      } else if (sort === "oldest") {
         orderBy = asc(programs.createdAt);
       } else if (sort === "target_asc") {
         orderBy = asc(programs.target);
@@ -156,7 +185,6 @@ export async function GET(req: NextRequest) {
       const total = Number(countResult?.count ?? 0);
 
       if (total > 0) {
-        // Ambil data program lengkap dengan riwayat penyalurannya
         const items = await db.query.programs.findMany({
           where: and(...conditions),
           orderBy,
@@ -169,6 +197,8 @@ export async function GET(req: NextRequest) {
           },
         });
 
+        const fallbackCategories = getMockFilteredPrograms({ q, type, status, page: 1, limit: 100 }).categories;
+
         const result: PaginatedResult<Program> = {
           items: items.map(serializeProgram),
           pagination: {
@@ -178,6 +208,7 @@ export async function GET(req: NextRequest) {
             totalPages: Math.ceil(total / limit) || 1,
             deletedCount,
           },
+          categories: fallbackCategories,
         };
 
         return ok(result);

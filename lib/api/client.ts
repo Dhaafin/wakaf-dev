@@ -64,7 +64,7 @@ export interface ListProgramsParams {
   type?: string;
   kategori?: string;
   status?: "all" | "active" | "inactive" | "deleted";
-  sort?: "latest" | "oldest" | "target_asc" | "target_desc";
+  sort?: "popular" | "urgent" | "near_goal" | "latest" | "oldest" | "target_asc" | "target_desc" | string;
 }
 
 export interface ListDisbursementsParams {

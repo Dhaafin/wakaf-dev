@@ -283,9 +283,16 @@ export interface PaginationMeta {
   deletedCount?: number;
 }
 
+export interface CategoryMeta {
+  key: string;
+  label: string;
+  count: number;
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   pagination: PaginationMeta;
+  categories?: CategoryMeta[];
 }
 
 export interface ListTransactionsParams {
