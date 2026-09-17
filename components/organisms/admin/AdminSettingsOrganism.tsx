@@ -9,8 +9,10 @@ import { Spinner } from "@/components/atoms/Spinner";
 
 import { AdminPageHeader } from "@/components/molecules/AdminPageHeader";
 import { SelectDropdown, type SelectOption } from "@/components/molecules/SelectDropdown";
+import { FileInput } from "@/components/molecules/FileInput";
+import type { TutorialIconKey } from "@/types";
 
-type SettingsTab = "hero" | "banner" | "payment";
+type SettingsTab = "hero" | "banner" | "payment" | "tutorial";
 
 const SETTINGS_TABS: {
   id: SettingsTab;
@@ -46,6 +48,16 @@ const SETTINGS_TABS: {
       </svg>
     ),
   },
+  {
+    id: "tutorial",
+    label: "Langkah Wakaf",
+    icon: (
+      <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 11l3 3L22 4" />
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+      </svg>
+    ),
+  },
 ];
 
 const EXPIRY_UNIT_OPTIONS: readonly SelectOption<"minutes" | "hours" | "days">[] = [
@@ -54,17 +66,29 @@ const EXPIRY_UNIT_OPTIONS: readonly SelectOption<"minutes" | "hours" | "days">[]
   { value: "days", label: "Hari" },
 ];
 
+const TUTORIAL_ICON_OPTIONS: readonly SelectOption<TutorialIconKey>[] = [
+  { value: "search", label: "🔍 Pencarian (Search)" },
+  { value: "edit", label: "✍️ Formulir (Edit/Form)" },
+  { value: "payment", label: "💳 Pembayaran (Virtual Account)" },
+  { value: "check", label: "📜 Bukti Resmi (Certificate/Check)" },
+  { value: "heart", label: "❤️ Amal Jariyah (Heart)" },
+  { value: "shield", label: "🛡️ Amanah Terpercaya (Shield)" },
+];
+
 export function AdminSettingsOrganism() {
   const {
     loading,
     saving,
     topBanner,
     hero,
+    payment,
+    tutorial,
     hasChanges,
     updateBannerField,
     updateHeroField,
-    payment,
     updatePaymentField,
+    updateTutorialField,
+    updateTutorialStep,
     handleSave,
     handleReset,
   } = useAdminSettings();
@@ -421,6 +445,141 @@ export function AdminSettingsOrganism() {
                         onChange={(val) => updatePaymentField("expiryUnit", val)}
                         options={EXPIRY_UNIT_OPTIONS}
                       />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-100 bg-brand-50/40 p-4 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={!hasChanges || saving}
+                    className="btn-outline px-4 py-1.5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!hasChanges || saving}
+                    className="btn-primary px-5 py-1.5 text-xs font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <Spinner className="h-3.5 w-3.5 text-white" />
+                        <span>Menyimpan…</span>
+                      </>
+                    ) : (
+                      <span>Simpan</span>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "tutorial" && (
+              <motion.div
+                key="tab-tutorial"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="card rounded-xl overflow-hidden border border-brand-200/80 bg-white shadow-xs"
+              >
+                <div className="border-b border-brand-100 bg-brand-50/40 px-5 py-4">
+                  <h2 className="font-serif text-base font-bold text-brand-950">
+                    Pengaturan Langkah Wakaf (Tutorial Beranda)
+                  </h2>
+                  <p className="text-xs text-brand-500 mt-0.5">
+                    Atur teks tajuk serta 4 kartu langkah kemudahan berdonasi dan berwakaf di halaman utama.
+                  </p>
+                </div>
+
+                <div className="p-5 space-y-6">
+                  {/* Judul & Subjudul Section */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextInput
+                      label="Judul Section"
+                      required
+                      placeholder="Empat langkah, selesai"
+                      value={tutorial.title}
+                      onChange={(e) => updateTutorialField("title", e.target.value)}
+                    />
+                    <TextInput
+                      label="Subjudul Section"
+                      placeholder="Berwakaf dan berdonasi kini lebih mudah..."
+                      value={tutorial.subtitle}
+                      onChange={(e) => updateTutorialField("subtitle", e.target.value)}
+                    />
+                  </div>
+
+                  {/* 4 Kartu Langkah */}
+                  <div className="space-y-4 pt-2">
+                    <div className="text-xs font-bold text-brand-900 uppercase tracking-wider">
+                      Daftar Langkah Tutorial ({tutorial.steps.length} Langkah)
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      {tutorial.steps.map((step, idx) => (
+                        <div
+                          key={step.stepNumber || idx}
+                          className="rounded-xl border border-brand-200 bg-brand-50/20 p-4 space-y-3.5 relative"
+                        >
+                          <div className="flex items-center justify-between pb-2 border-b border-brand-100">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                              Langkah {step.stepNumber || `0${idx + 1}`}
+                            </span>
+                            <span className="text-[11px] font-medium text-brand-400">
+                              Kartu {idx + 1} dari {tutorial.steps.length}
+                            </span>
+                          </div>
+
+                          <TextInput
+                            label="Judul Langkah"
+                            required
+                            placeholder="Contoh: Pilih jenis & program"
+                            value={step.title}
+                            onChange={(e) =>
+                              updateTutorialStep(idx, "title", e.target.value)
+                            }
+                          />
+
+                          <div>
+                            <label className="label">
+                              Deskripsi Langkah <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                              rows={2}
+                              placeholder="Penjelasan ringkas langkah..."
+                              value={step.description}
+                              onChange={(e) =>
+                                updateTutorialStep(idx, "description", e.target.value)
+                              }
+                              className="input resize-none text-xs"
+                            />
+                          </div>
+
+                          <SelectDropdown<TutorialIconKey>
+                            label="Ikon Langkah"
+                            value={step.icon || "check"}
+                            onChange={(val) =>
+                              updateTutorialStep(idx, "icon", val)
+                            }
+                            options={TUTORIAL_ICON_OPTIONS}
+                          />
+
+                          <FileInput
+                            label="Gambar Ilustrasi Langkah"
+                            value={step.imageUrl || ""}
+                            onChange={(url) =>
+                              updateTutorialStep(idx, "imageUrl", url)
+                            }
+                            folder="tutorial"
+                            hint="Unggah langsung ke Vercel Blob atau masukkan tautan URL gambar ilustrasi."
+                            allowManualUrl
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -427,10 +427,33 @@ export interface PaymentConfig {
   expiryUnit: "minutes" | "hours" | "days"; // unit durasi midtrans
 }
 
+export type TutorialIconKey =
+  | "search"
+  | "edit"
+  | "payment"
+  | "check"
+  | "heart"
+  | "shield";
+
+export interface TutorialStep {
+  stepNumber: string; // "01", "02", "03", "04"
+  title: string;
+  description: string;
+  icon?: TutorialIconKey;
+  imageUrl?: string;
+}
+
+export interface TutorialSectionConfig {
+  title: string;
+  subtitle: string;
+  steps: TutorialStep[];
+}
+
 export interface SiteSettings {
   topBanner: AnnouncementBannerConfig;
   hero: HeroSectionConfig;
   payment: PaymentConfig;
+  tutorial?: TutorialSectionConfig;
   updatedAt?: string;
 }
 

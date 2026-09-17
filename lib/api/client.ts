@@ -13,6 +13,7 @@ import type {
   PaginatedResult,
   AnnouncementBannerConfig,
   HeroSectionConfig,
+  TutorialSectionConfig,
   SiteSettings,
   ListTransactionsParams,
   ListTransactionsResult,
@@ -319,6 +320,14 @@ export const api = {
 
   updateHero: (config: HeroSectionConfig) =>
     req<HeroSectionConfig>("/api/hero", {
+      method: "PUT",
+      body: JSON.stringify(config),
+    }),
+
+  getTutorial: () => req<TutorialSectionConfig>("/api/tutorial"),
+
+  updateTutorial: (config: TutorialSectionConfig) =>
+    req<TutorialSectionConfig>("/api/tutorial", {
       method: "PUT",
       body: JSON.stringify(config),
     }),

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/server";
-import { getAllSiteSettings, saveTopBannerConfig, saveHeroConfig } from "@/lib/settings";
+import { getAllSiteSettings, saveTopBannerConfig, saveHeroConfig, saveTutorialConfig } from "@/lib/settings";
 import type { SiteSettings } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +33,10 @@ export async function PUT(req: NextRequest) {
     if (body.payment) {
       const { savePaymentConfig } = await import("@/lib/settings");
       await savePaymentConfig(body.payment);
+    }
+
+    if (body.tutorial) {
+      await saveTutorialConfig(body.tutorial);
     }
 
     const updated = await getAllSiteSettings();

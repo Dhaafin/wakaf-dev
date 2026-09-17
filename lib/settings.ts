@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { siteSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import type { AnnouncementBannerConfig, HeroSectionConfig, PaymentConfig, SiteSettings } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig, PaymentConfig, SiteSettings, TutorialSectionConfig } from "@/types";
 
 export const DEFAULT_TOP_BANNER: AnnouncementBannerConfig = {
   enabled: true,
@@ -227,16 +227,129 @@ export async function savePaymentConfig(
   return config;
 }
 
+export const DEFAULT_TUTORIAL_SECTION: TutorialSectionConfig = {
+  title: "Empat langkah, selesai",
+  subtitle: "Berwakaf dan berdonasi kini lebih mudah, cepat, dan transparan.",
+  steps: [
+    {
+      stepNumber: "01",
+      title: "Pilih jenis & program",
+      description: "Wakaf uang, wakaf melalui uang, infaq & shadaqah, atau zakat.",
+      icon: "search",
+      imageUrl: "/images/tutorial/step-1.jpg",
+    },
+    {
+      stepNumber: "02",
+      title: "Isi & konfirmasi",
+      description: "Nominal, atas nama sendiri/orang lain, publik atau anonim.",
+      icon: "edit",
+      imageUrl: "/images/tutorial/step-2.jpg",
+    },
+    {
+      stepNumber: "03",
+      title: "Bayar via Virtual Account",
+      description: "Nomor VA terbit otomatis. Bayar sebelum waktu habis.",
+      icon: "payment",
+      imageUrl: "/images/tutorial/step-3.jpg",
+    },
+    {
+      stepNumber: "04",
+      title: "Terima bukti resmi",
+      description: "Sertifikat wakaf / bukti donasi / bukti setor zakat, bernomor unik & bisa diverifikasi.",
+      icon: "check",
+      imageUrl: "/images/tutorial/step-4.jpg",
+    },
+  ],
+};
+
+export async function getTutorialConfig(): Promise<TutorialSectionConfig> {
+  try {
+    const rows = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "tutorial_section"))
+      .limit(1);
+
+    if (!rows || rows.length === 0) {
+      return DEFAULT_TUTORIAL_SECTION;
+    }
+
+    const parsed = JSON.parse(rows[0].value) as Partial<TutorialSectionConfig>;
+    return {
+      title: parsed.title?.trim() || DEFAULT_TUTORIAL_SECTION.title,
+      subtitle: parsed.subtitle?.trim() || DEFAULT_TUTORIAL_SECTION.subtitle,
+      steps:
+        Array.isArray(parsed.steps) && parsed.steps.length > 0
+          ? parsed.steps.map((s, idx) => ({
+              stepNumber: s.stepNumber?.trim() || String(idx + 1).padStart(2, "0"),
+              title: s.title?.trim() || `Langkah ${idx + 1}`,
+              description: s.description?.trim() || "",
+              icon: s.icon || DEFAULT_TUTORIAL_SECTION.steps[idx]?.icon || "check",
+              imageUrl:
+                s.imageUrl !== undefined
+                  ? s.imageUrl.trim()
+                  : DEFAULT_TUTORIAL_SECTION.steps[idx]?.imageUrl || "",
+            }))
+          : DEFAULT_TUTORIAL_SECTION.steps,
+    };
+  } catch (err) {
+    console.error("Error reading tutorial_section setting:", err);
+    return DEFAULT_TUTORIAL_SECTION;
+  }
+}
+
+export async function saveTutorialConfig(
+  config: TutorialSectionConfig,
+): Promise<TutorialSectionConfig> {
+  const valueJson = JSON.stringify({
+    title: config.title?.trim() || DEFAULT_TUTORIAL_SECTION.title,
+    subtitle: config.subtitle?.trim() || DEFAULT_TUTORIAL_SECTION.subtitle,
+    steps: config.steps.map((s, idx) => ({
+      stepNumber: s.stepNumber?.trim() || String(idx + 1).padStart(2, "0"),
+      title: s.title.trim(),
+      description: s.description.trim(),
+      icon: s.icon || "check",
+      imageUrl: s.imageUrl?.trim() || "",
+    })),
+  });
+
+  const rows = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.key, "tutorial_section"))
+    .limit(1);
+
+  if (rows && rows.length > 0) {
+    await db
+      .update(siteSettings)
+      .set({
+        value: valueJson,
+        updatedAt: new Date(),
+      })
+      .where(eq(siteSettings.key, "tutorial_section"));
+  } else {
+    await db.insert(siteSettings).values({
+      key: "tutorial_section",
+      value: valueJson,
+      updatedAt: new Date(),
+    });
+  }
+
+  return config;
+}
+
 export async function getAllSiteSettings(): Promise<SiteSettings> {
-  const [topBanner, hero, payment] = await Promise.all([
+  const [topBanner, hero, payment, tutorial] = await Promise.all([
     getTopBannerConfig(),
     getHeroConfig(),
     getPaymentConfig(),
+    getTutorialConfig(),
   ]);
 
   return {
     topBanner,
     hero,
     payment,
+    tutorial,
   };
 }

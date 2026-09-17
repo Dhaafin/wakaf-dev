@@ -2,14 +2,15 @@ import { HeroSection } from "./molecules/HeroSection";
 import { HomeStatsSection } from "./molecules/HomeStatsSection";
 import { TutorialSection } from "./molecules/TutorialSection";
 import { FeaturedPrograms } from "./molecules/FeaturedPrograms";
-import type { HeroSectionConfig } from "@/types";
+import type { HeroSectionConfig, TutorialSectionConfig } from "@/types";
 import { CtaTrustBanner } from "@/components/molecules/CtaTrustBanner";
 
 interface LandingPageOrganismProps {
   heroConfig?: HeroSectionConfig;
+  tutorialConfig?: TutorialSectionConfig;
 }
 
-export function LandingPageOrganism({ heroConfig }: LandingPageOrganismProps = {}) {
+export function LandingPageOrganism({ heroConfig, tutorialConfig }: LandingPageOrganismProps = {}) {
   return (
     <>
       {/* 1. HERO SECTION */}
@@ -20,7 +21,7 @@ export function LandingPageOrganism({ heroConfig }: LandingPageOrganismProps = {
 
       {/* 3. CARA KERJA (TUTORIAL) */}
       <section className="bg-brand-50/50 border-y border-brand-100/60 py-16 sm:py-20 lg:py-24">
-        <TutorialSection />
+        <TutorialSection initialConfig={tutorialConfig} />
       </section>
 
       {/* 4. FEATURED PROGRAMS SECTION */}
