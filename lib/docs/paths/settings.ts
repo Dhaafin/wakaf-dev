@@ -154,6 +154,7 @@ export const settingsPaths = {
                         properties: {
                           topBanner: { type: "object" },
                           hero: { type: "object" },
+                          payment: { type: "object" },
                         },
                       },
                     },
@@ -178,6 +179,13 @@ export const settingsPaths = {
               properties: {
                 topBanner: { type: "object" },
                 hero: { type: "object" },
+                payment: {
+                  type: "object",
+                  properties: {
+                    expiryDuration: { type: "number", example: 24 },
+                    expiryUnit: { type: "string", enum: ["minutes", "hours", "days"], example: "hours" },
+                  },
+                },
               },
             },
           },
