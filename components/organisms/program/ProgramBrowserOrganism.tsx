@@ -6,6 +6,7 @@ import { useProgramBrowser, type PublicCatalogSort } from "@/hooks/useProgramBro
 import { ProgramCard } from "@/components/molecules/ProgramCard";
 import { ProgramGridSkeleton } from "@/components/molecules/ProgramCardSkeleton";
 import { CategoryExtraModal } from "@/components/molecules/CategoryExtraModal";
+import { SelectDropdown } from "@/components/molecules/SelectDropdown";
 import { EmptyState } from "@/components/atoms/EmptyState";
 import { Spinner } from "@/components/atoms/Spinner";
 import { PROGRAM_TYPE_LABEL, type ProgramType } from "@/types";
@@ -21,10 +22,10 @@ const TYPE_TABS: { value: string; label: string }[] = [
 ];
 
 const PUBLIC_SORT_OPTIONS: { value: PublicCatalogSort; label: string }[] = [
-  { value: "popular", label: "🔥 Paling Banyak Didukung" },
-  { value: "urgent", label: "⏳ Paling Mendesak" },
-  { value: "near_goal", label: "🎯 Hampir Terkumpul" },
-  { value: "latest", label: "✨ Terbitan Terbaru" },
+  { value: "popular", label: "Paling Banyak Didukung" },
+  { value: "urgent", label: "Paling Mendesak" },
+  { value: "near_goal", label: "Hampir Terkumpul" },
+  { value: "latest", label: "Terbitan Terbaru" },
 ];
 
 const QUICK_TAGS = ["Masjid", "Air Bersih", "Pendidikan", "Zakat", "Kemanusiaan"];
@@ -155,18 +156,15 @@ export function ProgramBrowserOrganism() {
               )}
 
               {/* Inline Impact Sort Dropdown */}
-              <div className="border-l border-brand-200 pl-2 pr-1 shrink-0">
-                <select
+              <div className="border-l border-brand-200 pl-2 pr-1 shrink-0 w-[200px]">
+                <SelectDropdown
                   value={selectedSort}
-                  onChange={(e) => handleSortChange(e.target.value as PublicCatalogSort)}
-                  className="rounded-xl bg-brand-50/90 px-2.5 py-1.5 text-xs font-bold text-brand-900 border border-brand-200/80 focus:outline-none cursor-pointer"
-                >
-                  {PUBLIC_SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => handleSortChange(val as PublicCatalogSort)}
+                  options={PUBLIC_SORT_OPTIONS}
+                  size="sm"
+                  className="rounded-xl bg-brand-50/90 font-bold border-brand-200/80 text-brand-900 border"
+                  clearable={false}
+                />
               </div>
             </div>
 
