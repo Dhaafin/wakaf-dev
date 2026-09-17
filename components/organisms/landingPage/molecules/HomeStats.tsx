@@ -159,7 +159,7 @@ export function HomeStats({ className = "" }: HomeStatsProps) {
                   <span className="font-serif text-3xl font-bold tracking-tight text-brand-950 group-hover:text-white sm:text-4xl transition-colors duration-500">
                     <CountUp
                       value={data?.totalProgram ?? 0}
-                      format={(n) => formatRupiahCompact(n)}
+                      format={(n) => n.toLocaleString("id-ID")}
                     />
                   </span>
                   <span className="text-sm font-semibold text-brand-600 group-hover:text-emerald-200 transition-colors duration-500">Program Aktif</span>
