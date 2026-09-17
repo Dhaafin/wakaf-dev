@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { breakdownDuration, pad2 } from "@/lib/format";
 
 // Countdown mundur menuju `expiresAt` (ISO). Benar-benar berjalan (interval 1s).
-// DEMO: durasi total aslinya 24 jam, tapi dipercepat jadi ~3 menit
-// (lihat lib/config.ts -> VA_TTL_MS). Komponen ini tidak peduli berapa
+// Komponen ini tidak peduli berapa
 // durasinya — ia hanya menghitung selisih ke `expiresAt`.
 export function Countdown({
   expiresAt,

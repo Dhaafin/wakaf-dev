@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
-import type { AnnouncementBannerConfig, HeroSectionConfig } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig, PaymentConfig, TutorialSectionConfig, TutorialStep } from "@/types";
 
 const INITIAL_BANNER_CONFIG: AnnouncementBannerConfig = {
   enabled: true,
@@ -25,6 +25,46 @@ const INITIAL_HERO_CONFIG: HeroSectionConfig = {
   showSecondaryCta: true,
 };
 
+const INITIAL_PAYMENT_CONFIG: PaymentConfig = {
+  expiryDuration: 24,
+  expiryUnit: "hours",
+};
+
+const INITIAL_TUTORIAL_CONFIG: TutorialSectionConfig = {
+  title: "Empat langkah, selesai",
+  subtitle: "Berwakaf dan berdonasi kini lebih mudah, cepat, dan transparan.",
+  steps: [
+    {
+      stepNumber: "01",
+      title: "Pilih jenis & program",
+      description: "Wakaf uang, wakaf melalui uang, infaq & shadaqah, atau zakat.",
+      icon: "search",
+      imageUrl: "/images/tutorial/step-1.jpg",
+    },
+    {
+      stepNumber: "02",
+      title: "Isi & konfirmasi",
+      description: "Nominal, atas nama sendiri/orang lain, publik atau anonim.",
+      icon: "edit",
+      imageUrl: "/images/tutorial/step-2.jpg",
+    },
+    {
+      stepNumber: "03",
+      title: "Bayar via Virtual Account",
+      description: "Nomor VA terbit otomatis. Bayar sebelum waktu habis.",
+      icon: "payment",
+      imageUrl: "/images/tutorial/step-3.jpg",
+    },
+    {
+      stepNumber: "04",
+      title: "Terima bukti resmi",
+      description: "Sertifikat wakaf / bukti donasi / bukti setor zakat, bernomor unik & bisa diverifikasi.",
+      icon: "check",
+      imageUrl: "/images/tutorial/step-4.jpg",
+    },
+  ],
+};
+
 export function useAdminSettings() {
   const { push } = useToast();
 
@@ -43,6 +83,17 @@ export function useAdminSettings() {
   const [initialLoadedHero, setInitialLoadedHero] =
     useState<HeroSectionConfig>(INITIAL_HERO_CONFIG);
 
+  // Form State Payment Config
+  const [payment, setPayment] = useState<PaymentConfig>(INITIAL_PAYMENT_CONFIG);
+  const [initialLoadedPayment, setInitialLoadedPayment] =
+    useState<PaymentConfig>(INITIAL_PAYMENT_CONFIG);
+
+  // Form State Tutorial Section
+  const [tutorial, setTutorial] =
+    useState<TutorialSectionConfig>(INITIAL_TUTORIAL_CONFIG);
+  const [initialLoadedTutorial, setInitialLoadedTutorial] =
+    useState<TutorialSectionConfig>(INITIAL_TUTORIAL_CONFIG);
+
   // Fetch settings saat pertama kali render
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -56,6 +107,14 @@ export function useAdminSettings() {
         if (settings.hero) {
           setHero(settings.hero);
           setInitialLoadedHero(settings.hero);
+        }
+        if (settings.payment) {
+          setPayment(settings.payment);
+          setInitialLoadedPayment(settings.payment);
+        }
+        if (settings.tutorial) {
+          setTutorial(settings.tutorial);
+          setInitialLoadedTutorial(settings.tutorial);
         }
       }
     } catch {
@@ -101,10 +160,60 @@ export function useAdminSettings() {
     [],
   );
 
+  // Handler update field payment config
+  const updatePaymentField = useCallback(
+    <K extends keyof PaymentConfig>(
+      field: K,
+      value: PaymentConfig[K],
+    ) => {
+      setPayment((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
+
+  // Handler update field tutorial section
+  const updateTutorialField = useCallback(
+    <K extends keyof TutorialSectionConfig>(
+      field: K,
+      value: TutorialSectionConfig[K],
+    ) => {
+      setTutorial((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
+
+  // Handler update step item tutorial
+  const updateTutorialStep = useCallback(
+    (index: number, field: keyof TutorialStep, value: string) => {
+      setTutorial((prev) => {
+        const nextSteps = [...prev.steps];
+        if (nextSteps[index]) {
+          nextSteps[index] = {
+            ...nextSteps[index],
+            [field]: value,
+          };
+        }
+        return {
+          ...prev,
+          steps: nextSteps,
+        };
+      });
+    },
+    [],
+  );
+
   // Deteksi apakah ada perubahan yang belum disimpan
   const hasChanges =
     JSON.stringify(topBanner) !== JSON.stringify(initialLoadedBanner) ||
-    JSON.stringify(hero) !== JSON.stringify(initialLoadedHero);
+    JSON.stringify(hero) !== JSON.stringify(initialLoadedHero) ||
+    JSON.stringify(payment) !== JSON.stringify(initialLoadedPayment) ||
+    JSON.stringify(tutorial) !== JSON.stringify(initialLoadedTutorial);
 
   // Simpan perubahan ke server
   const handleSave = useCallback(async () => {
@@ -126,11 +235,31 @@ export function useAdminSettings() {
       return;
     }
 
+    if (payment.expiryDuration <= 0) {
+      push({
+        kind: "error",
+        title: "Durasi Tidak Valid",
+        desc: "Durasi kedaluwarsa pembayaran harus lebih dari 0.",
+      });
+      return;
+    }
+
+    if (!tutorial.title.trim() || !Array.isArray(tutorial.steps) || tutorial.steps.length === 0) {
+      push({
+        kind: "error",
+        title: "Panduan Langkah Belum Lengkap",
+        desc: "Judul panduan langkah dan minimal satu langkah wajib diisi.",
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const updated = await api.updateSettings({
         topBanner,
         hero,
+        payment,
+        tutorial,
       });
 
       if (updated.topBanner) {
@@ -140,6 +269,14 @@ export function useAdminSettings() {
       if (updated.hero) {
         setHero(updated.hero);
         setInitialLoadedHero(updated.hero);
+      }
+      if (updated.payment) {
+        setPayment(updated.payment);
+        setInitialLoadedPayment(updated.payment);
+      }
+      if (updated.tutorial) {
+        setTutorial(updated.tutorial);
+        setInitialLoadedTutorial(updated.tutorial);
       }
 
       push({
@@ -156,22 +293,29 @@ export function useAdminSettings() {
     } finally {
       setSaving(false);
     }
-  }, [topBanner, hero, push]);
+  }, [topBanner, hero, payment, tutorial, push]);
 
   // Reset form ke data server terakhir
   const handleReset = useCallback(() => {
     setTopBanner(initialLoadedBanner);
     setHero(initialLoadedHero);
-  }, [initialLoadedBanner, initialLoadedHero]);
+    setPayment(initialLoadedPayment);
+    setTutorial(initialLoadedTutorial);
+  }, [initialLoadedBanner, initialLoadedHero, initialLoadedPayment, initialLoadedTutorial]);
 
   return {
     loading,
     saving,
     topBanner,
     hero,
+    payment,
+    tutorial,
     hasChanges,
     updateBannerField,
     updateHeroField,
+    updatePaymentField,
+    updateTutorialField,
+    updateTutorialStep,
     handleSave,
     handleReset,
     refetch: fetchSettings,

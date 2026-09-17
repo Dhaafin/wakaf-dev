@@ -19,6 +19,10 @@ export interface CreateSnapTransactionParams {
   gross_amount: number;
   customer_details: MidtransCustomerDetails;
   item_details?: MidtransItemDetails[];
+  custom_expiry?: {
+    expiry_duration: number;
+    unit: "minute" | "hour" | "day";
+  };
 }
 
 export interface SnapTransactionResult {
@@ -77,6 +81,12 @@ export async function createSnapTransaction(
       },
       customer_details: params.customer_details,
       item_details: params.item_details,
+      ...(params.custom_expiry && {
+        custom_expiry: {
+          expiry_duration: params.custom_expiry.expiry_duration,
+          unit: params.custom_expiry.unit,
+        },
+      }),
     }),
   });
 

@@ -8,8 +8,72 @@ import { Skeleton } from "@/components/atoms/Skeleton";
 import { Spinner } from "@/components/atoms/Spinner";
 
 import { AdminPageHeader } from "@/components/molecules/AdminPageHeader";
+import { SelectDropdown, type SelectOption } from "@/components/molecules/SelectDropdown";
+import { FileInput } from "@/components/molecules/FileInput";
+import type { TutorialIconKey } from "@/types";
 
-type SettingsTab = "hero" | "banner";
+type SettingsTab = "hero" | "banner" | "payment" | "tutorial";
+
+const SETTINGS_TABS: {
+  id: SettingsTab;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    id: "hero",
+    label: "Hero Section",
+    icon: (
+      <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
+  },
+  {
+    id: "banner",
+    label: "Bar Pengumuman",
+    icon: (
+      <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+        <line x1="4" y1="22" x2="4" y2="15" />
+      </svg>
+    ),
+  },
+  {
+    id: "payment",
+    label: "Pembayaran",
+    icon: (
+      <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    id: "tutorial",
+    label: "Langkah Wakaf",
+    icon: (
+      <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 11l3 3L22 4" />
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+      </svg>
+    ),
+  },
+];
+
+const EXPIRY_UNIT_OPTIONS: readonly SelectOption<"minutes" | "hours" | "days">[] = [
+  { value: "minutes", label: "Menit" },
+  { value: "hours", label: "Jam" },
+  { value: "days", label: "Hari" },
+];
+
+const TUTORIAL_ICON_OPTIONS: readonly SelectOption<TutorialIconKey>[] = [
+  { value: "search", label: "🔍 Pencarian (Search)" },
+  { value: "edit", label: "✍️ Formulir (Edit/Form)" },
+  { value: "payment", label: "💳 Pembayaran (Virtual Account)" },
+  { value: "check", label: "📜 Bukti Resmi (Certificate/Check)" },
+  { value: "heart", label: "❤️ Amal Jariyah (Heart)" },
+  { value: "shield", label: "🛡️ Amanah Terpercaya (Shield)" },
+];
 
 export function AdminSettingsOrganism() {
   const {
@@ -17,9 +81,14 @@ export function AdminSettingsOrganism() {
     saving,
     topBanner,
     hero,
+    payment,
+    tutorial,
     hasChanges,
     updateBannerField,
     updateHeroField,
+    updatePaymentField,
+    updateTutorialField,
+    updateTutorialStep,
     handleSave,
     handleReset,
   } = useAdminSettings();
@@ -43,62 +112,43 @@ export function AdminSettingsOrganism() {
             <Skeleton variant="rect" height={120} className="w-full rounded-xl" />
           ) : (
             <div className="card rounded-xl border border-brand-200/80 bg-white p-2 shadow-xs flex flex-row md:flex-col gap-1 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => setActiveTab("hero")}
-                className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
-                  activeTab === "hero"
-                    ? "text-brand-950 font-bold bg-brand-50/70"
-                    : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg>
-                  <span className="text-xs truncate">Hero Section</span>
-                </div>
+              {SETTINGS_TABS.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`group relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
+                      isActive
+                        ? "text-brand-950 font-bold bg-brand-50/70"
+                        : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {tab.icon}
+                      <span className="text-xs truncate">{tab.label}</span>
+                    </div>
 
-                {activeTab === "hero" && (
-                  <motion.div
-                    layoutId="activeSettingsTabUnderline"
-                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-              </button>
+                    {tab.id === "banner" && (
+                      <span
+                        className={`h-2 w-2 rounded-full shrink-0 ${
+                          topBanner.enabled ? "bg-emerald-500" : "bg-brand-300"
+                        }`}
+                      />
+                    )}
 
-              <button
-                type="button"
-                onClick={() => setActiveTab("banner")}
-                className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
-                  activeTab === "banner"
-                    ? "text-brand-950 font-bold bg-brand-50/70"
-                    : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                    <line x1="4" y1="22" x2="4" y2="15" />
-                  </svg>
-                  <span className="text-xs truncate">Bar Pengumuman</span>
-                </div>
-
-                <span
-                  className={`h-2 w-2 rounded-full shrink-0 ${
-                    topBanner.enabled ? "bg-emerald-500" : "bg-brand-300"
-                  }`}
-                />
-
-                {activeTab === "banner" && (
-                  <motion.div
-                    layoutId="activeSettingsTabUnderline"
-                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-              </button>
+                    {/* Underline: grows on hover when inactive, stays full when active */}
+                    <span
+                      className={`absolute bottom-0 left-3 right-3 h-0.5 rounded-full transition-all duration-300 ease-out origin-left pointer-events-none ${
+                        isActive
+                          ? "bg-emerald-600 scale-x-100 opacity-100"
+                          : "bg-emerald-600 scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100 group-focus-visible:scale-x-100 group-focus-visible:opacity-100"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -109,7 +159,7 @@ export function AdminSettingsOrganism() {
             <Skeleton variant="rect" height={400} className="w-full rounded-xl" />
           ) : (
             <AnimatePresence mode="wait">
-            {activeTab === "hero" ? (
+            {activeTab === "hero" && (
               <motion.div
                 key="tab-hero"
                 initial={{ opacity: 0, y: 8 }}
@@ -252,7 +302,9 @@ export function AdminSettingsOrganism() {
                   </button>
                 </div>
               </motion.div>
-            ) : (
+            )}
+
+            {activeTab === "banner" && (
               <motion.div
                 key="tab-banner"
                 initial={{ opacity: 0, y: 8 }}
@@ -318,6 +370,217 @@ export function AdminSettingsOrganism() {
                       value={topBanner.linkUrl ?? ""}
                       onChange={(e) => updateBannerField("linkUrl", e.target.value)}
                     />
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-100 bg-brand-50/40 p-4 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={!hasChanges || saving}
+                    className="btn-outline px-4 py-1.5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!hasChanges || saving}
+                    className="btn-primary px-5 py-1.5 text-xs font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <Spinner className="h-3.5 w-3.5 text-white" />
+                        <span>Menyimpan…</span>
+                      </>
+                    ) : (
+                      <span>Simpan</span>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "payment" && (
+              <motion.div
+                key="tab-payment"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="card rounded-xl overflow-hidden border border-brand-200/80 bg-white shadow-xs"
+              >
+                <div className="border-b border-brand-100 bg-brand-50/40 px-5 py-4">
+                  <h2 className="font-serif text-base font-bold text-brand-950">
+                    Pengaturan Pembayaran
+                  </h2>
+                </div>
+
+                <div className="p-5 space-y-5">
+                  <div>
+                    <h3 className="text-sm font-semibold text-brand-900 mb-1">
+                      Batas Kedaluwarsa Transaksi (Midtrans)
+                    </h3>
+                    <p className="text-xs text-brand-500 mb-4">
+                      Tentukan berapa lama tautan pembayaran Virtual Account/QRIS akan aktif sebelum dibatalkan otomatis oleh sistem.
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2 max-w-md">
+                      <TextInput
+                        label="Durasi"
+                        required
+                        type="number"
+                        min={1}
+                        value={payment.expiryDuration}
+                        onChange={(e) =>
+                          updatePaymentField(
+                            "expiryDuration",
+                            parseInt(e.target.value) || 1,
+                          )
+                        }
+                      />
+                      <SelectDropdown<"minutes" | "hours" | "days">
+                        label="Satuan Waktu"
+                        required
+                        value={payment.expiryUnit}
+                        onChange={(val) => updatePaymentField("expiryUnit", val)}
+                        options={EXPIRY_UNIT_OPTIONS}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-100 bg-brand-50/40 p-4 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={!hasChanges || saving}
+                    className="btn-outline px-4 py-1.5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!hasChanges || saving}
+                    className="btn-primary px-5 py-1.5 text-xs font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <Spinner className="h-3.5 w-3.5 text-white" />
+                        <span>Menyimpan…</span>
+                      </>
+                    ) : (
+                      <span>Simpan</span>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "tutorial" && (
+              <motion.div
+                key="tab-tutorial"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="card rounded-xl overflow-hidden border border-brand-200/80 bg-white shadow-xs"
+              >
+                <div className="border-b border-brand-100 bg-brand-50/40 px-5 py-4">
+                  <h2 className="font-serif text-base font-bold text-brand-950">
+                    Pengaturan Langkah Wakaf (Tutorial Beranda)
+                  </h2>
+                  <p className="text-xs text-brand-500 mt-0.5">
+                    Atur teks tajuk serta 4 kartu langkah kemudahan berdonasi dan berwakaf di halaman utama.
+                  </p>
+                </div>
+
+                <div className="p-5 space-y-6">
+                  {/* Judul & Subjudul Section */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <TextInput
+                      label="Judul Section"
+                      required
+                      placeholder="Empat langkah, selesai"
+                      value={tutorial.title}
+                      onChange={(e) => updateTutorialField("title", e.target.value)}
+                    />
+                    <TextInput
+                      label="Subjudul Section"
+                      placeholder="Berwakaf dan berdonasi kini lebih mudah..."
+                      value={tutorial.subtitle}
+                      onChange={(e) => updateTutorialField("subtitle", e.target.value)}
+                    />
+                  </div>
+
+                  {/* 4 Kartu Langkah */}
+                  <div className="space-y-4 pt-2">
+                    <div className="text-xs font-bold text-brand-900 uppercase tracking-wider">
+                      Daftar Langkah Tutorial ({tutorial.steps.length} Langkah)
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      {tutorial.steps.map((step, idx) => (
+                        <div
+                          key={step.stepNumber || idx}
+                          className="rounded-xl border border-brand-200 bg-brand-50/20 p-4 space-y-3.5 relative"
+                        >
+                          <div className="flex items-center justify-between pb-2 border-b border-brand-100">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                              Langkah {step.stepNumber || `0${idx + 1}`}
+                            </span>
+                            <span className="text-[11px] font-medium text-brand-400">
+                              Kartu {idx + 1} dari {tutorial.steps.length}
+                            </span>
+                          </div>
+
+                          <TextInput
+                            label="Judul Langkah"
+                            required
+                            placeholder="Contoh: Pilih jenis & program"
+                            value={step.title}
+                            onChange={(e) =>
+                              updateTutorialStep(idx, "title", e.target.value)
+                            }
+                          />
+
+                          <div>
+                            <label className="label">
+                              Deskripsi Langkah <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                              rows={2}
+                              placeholder="Penjelasan ringkas langkah..."
+                              value={step.description}
+                              onChange={(e) =>
+                                updateTutorialStep(idx, "description", e.target.value)
+                              }
+                              className="input resize-none text-xs"
+                            />
+                          </div>
+
+                          <SelectDropdown<TutorialIconKey>
+                            label="Ikon Langkah"
+                            value={step.icon || "check"}
+                            onChange={(val) =>
+                              updateTutorialStep(idx, "icon", val)
+                            }
+                            options={TUTORIAL_ICON_OPTIONS}
+                          />
+
+                          <FileInput
+                            label="Gambar Ilustrasi Langkah"
+                            value={step.imageUrl || ""}
+                            onChange={(url) =>
+                              updateTutorialStep(idx, "imageUrl", url)
+                            }
+                            folder="tutorial"
+                            hint="Unggah langsung ke Vercel Blob atau masukkan tautan URL gambar ilustrasi."
+                            allowManualUrl
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

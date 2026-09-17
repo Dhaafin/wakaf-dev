@@ -9,6 +9,10 @@ import { disbursementsPaths } from "./paths/disbursements";
 import { wakifPaths } from "./paths/wakif";
 import { settingsPaths } from "./paths/settings";
 import { healthPaths } from "./paths/health";
+import { adminPaths } from "./paths/admin";
+import { statsPaths } from "./paths/stats";
+import { uploadPaths } from "./paths/upload";
+import { authPaths } from "./paths/auth";
 
 export const openApiDocument = {
   openapi: "3.1.0",
@@ -25,6 +29,10 @@ export const openApiDocument = {
     ...wakifPaths,
     ...settingsPaths,
     ...healthPaths,
+    ...adminPaths,
+    ...statsPaths,
+    ...uploadPaths,
+    ...authPaths,
   },
   components: {
     schemas: allSchemas,

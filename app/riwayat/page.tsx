@@ -15,12 +15,26 @@ import { PROGRAM_TYPE_LABEL, PROGRAM_TYPE_TERMS } from "@/types";
 
 import { useSession as useBetterAuthSession, signOut } from "@/lib/auth-client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function RiwayatPage() {
   const { data: authSession, isPending } = useBetterAuthSession();
   const wakif = useSession((s) => s.wakif);
   const logoutWakif = useSession((s) => s.logoutWakif);
+  const router = useRouter();
 
-  if (isPending) {
+  const currentUser = authSession?.user
+    ? { email: authSession.user.email, nama: authSession.user.name || authSession.user.email }
+    : wakif;
+
+  useEffect(() => {
+    if (!isPending && !currentUser) {
+      router.replace("/login");
+    }
+  }, [isPending, currentUser, router]);
+
+  if (isPending || !currentUser) {
     return (
       <div className="container-app flex max-w-3xl items-center justify-center py-20">
         <Spinner className="h-8 w-8 text-brand-600" />
@@ -28,18 +42,12 @@ export default function RiwayatPage() {
     );
   }
 
-  const currentUser = authSession?.user
-    ? { email: authSession.user.email, nama: authSession.user.name || authSession.user.email }
-    : wakif;
-
   async function handleLogout() {
     if (authSession) {
       await signOut();
     }
     logoutWakif();
   }
-
-  if (!currentUser) return <WakifLogin />;
 
   return (
     <div className="container-app max-w-3xl py-10">
@@ -59,127 +67,6 @@ export default function RiwayatPage() {
       </div>
 
       <RiwayatList email={currentUser.email} />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// LOGIN WAKIF (mock) — email + OTP dummy. Kode "123456" selalu diterima.
-// ---------------------------------------------------------------------------
-function WakifLogin() {
-  const loginWakif = useSession((s) => s.loginWakif);
-  const { push } = useToast();
-  const [step, setStep] = useState<"email" | "otp">("email");
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  async function kirimOtp(e: React.FormEvent) {
-    e.preventDefault();
-    setErrors({});
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setErrors({ email: "Format email tidak valid." });
-      return;
-    }
-    setLoading(true);
-    // Mock: tidak benar-benar mengirim OTP, hanya jeda lalu pindah langkah.
-    await new Promise((r) => setTimeout(r, 700));
-    setLoading(false);
-    setStep("otp");
-    push({
-      kind: "info",
-      title: "Kode OTP terkirim (demo)",
-      desc: `Gunakan kode ${DEMO_OTP} untuk masuk.`,
-    });
-  }
-
-  async function verifikasiOtp(e: React.FormEvent) {
-    e.preventDefault();
-    setErrors({});
-    setLoading(true);
-    try {
-      const res = await api.wakifLogin(email.trim(), otp.trim());
-      loginWakif({ email: res.email, nama: res.nama });
-      push({ kind: "success", title: "Berhasil masuk" });
-    } catch (err) {
-      if (err instanceof ApiError && err.fieldErrors) setErrors(err.fieldErrors);
-      else push({ kind: "error", title: "Login gagal" });
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="container-app max-w-md py-16">
-      <div className="card p-8">
-        <h1 className="font-serif text-2xl font-bold text-brand-950">
-          Masuk untuk lihat riwayat
-        </h1>
-        <p className="mt-1 text-sm text-brand-600">
-          Tanpa kata sandi. Masukkan email yang Anda pakai saat bertransaksi.
-        </p>
-
-        {step === "email" ? (
-          <form onSubmit={kirimOtp} className="mt-6 space-y-3">
-            <div>
-              <label htmlFor="email" className="label">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@contoh.com"
-                className={`input ${errors.email ? "input-error" : ""}`}
-              />
-              {errors.email && <p className="field-error">{errors.email}</p>}
-              <p className="mt-1 text-xs text-brand-400">
-                Coba <span className="font-mono">wakif@contoh.id</span> untuk
-                melihat data riwayat contoh.
-              </p>
-            </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading && <Spinner className="h-4 w-4" />}
-              Kirim kode OTP
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={verifikasiOtp} className="mt-6 space-y-3">
-            <div>
-              <label htmlFor="otp" className="label">
-                Kode OTP
-              </label>
-              <input
-                id="otp"
-                inputMode="numeric"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="6 digit"
-                className={`input text-center font-mono text-lg tracking-[0.5em] ${
-                  errors.otp ? "input-error" : ""
-                }`}
-              />
-              {errors.otp && <p className="field-error">{errors.otp}</p>}
-              <p className="mt-1 text-xs text-brand-400">
-                Demo: kode selalu <span className="font-mono">{DEMO_OTP}</span>.
-              </p>
-            </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading && <Spinner className="h-4 w-4" />}
-              Masuk
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep("email")}
-              className="btn-ghost w-full text-xs"
-            >
-              Ganti email
-            </button>
-          </form>
-        )}
-      </div>
     </div>
   );
 }

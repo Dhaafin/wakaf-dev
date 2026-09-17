@@ -3,7 +3,7 @@ import { db } from "@/lib/db/client";
 import { transactions, programs } from "@/lib/db/schema";
 import { ok, fail } from "@/lib/api/server";
 import { validateWakafForm } from "@/lib/validation";
-import { VA_TTL_MS, BANK_OPTIONS } from "@/lib/config";
+import { BANK_OPTIONS } from "@/lib/config";
 import { createId } from "@/lib/id";
 import { createSnapTransaction } from "@/lib/midtrans";
 import { serializeTransaction } from "@/lib/db/serialize";
@@ -190,8 +190,17 @@ export async function POST(req: NextRequest) {
     const randDigits = Math.floor(10000000 + Math.random() * 90000000);
     const vaNumber = `${code}99${randDigits}`;
 
-    // Waktu kedaluwarsa tagihan (default 24 jam, atau VA_TTL_MS untuk demo)
-    const expiresAt = new Date(Date.now() + (VA_TTL_MS || 24 * 60 * 60 * 1000));
+    // Fetch konfigurasi pembayaran dinamis dari database
+    const { getPaymentConfig } = await import("@/lib/settings");
+    const paymentConfig = await getPaymentConfig();
+
+    let expiryMs = 24 * 60 * 60 * 1000;
+    if (paymentConfig.expiryUnit === "minutes") expiryMs = paymentConfig.expiryDuration * 60 * 1000;
+    else if (paymentConfig.expiryUnit === "hours") expiryMs = paymentConfig.expiryDuration * 60 * 60 * 1000;
+    else if (paymentConfig.expiryUnit === "days") expiryMs = paymentConfig.expiryDuration * 24 * 60 * 60 * 1000;
+
+    // Waktu kedaluwarsa tagihan (dihitung dari config)
+    const expiresAt = new Date(Date.now() + expiryMs);
 
     // Request Snap Token dari Midtrans
     let snapToken: string | undefined;
@@ -213,6 +222,10 @@ export async function POST(req: NextRequest) {
             name: prog.nama.slice(0, 50),
           },
         ],
+        custom_expiry: {
+          expiry_duration: paymentConfig.expiryDuration,
+          unit: paymentConfig.expiryUnit === "minutes" ? "minute" : paymentConfig.expiryUnit === "hours" ? "hour" : "day"
+        }
       });
       snapToken = snapRes.token;
       snapRedirectUrl = snapRes.redirect_url;

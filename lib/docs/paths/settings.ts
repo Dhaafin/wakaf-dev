@@ -133,11 +133,96 @@ export const settingsPaths = {
       },
     },
   },
+  "/api/tutorial": {
+    get: {
+      tags: ["Pengaturan Website"],
+      summary: "Data Tutorial Langkah Beranda",
+      description: "Mengambil judul, subjudul, dan langkah-langkah panduan kemudahan berwakaf di halaman utama.",
+      responses: {
+        200: {
+          description: "Pengaturan tutorial berhasil diambil.",
+          content: {
+            "application/json": {
+              schema: {
+                allOf: [
+                  { $ref: "#/components/schemas/ApiSuccessResponse" },
+                  {
+                    type: "object",
+                    properties: {
+                      data: {
+                        type: "object",
+                        properties: {
+                          title: { type: "string", example: "Empat langkah, selesai" },
+                          subtitle: { type: "string", example: "Berwakaf dan berdonasi kini lebih mudah, cepat, dan transparan." },
+                          steps: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                stepNumber: { type: "string", example: "01" },
+                                title: { type: "string", example: "Pilih jenis & program" },
+                                description: { type: "string", example: "Wakaf uang, wakaf melalui uang, infaq & shadaqah, atau zakat." },
+                                icon: { type: "string", enum: ["search", "edit", "payment", "check", "heart", "shield"], example: "search" },
+                                imageUrl: { type: "string", example: "/images/tutorial/step-1.jpg" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    put: {
+      tags: ["Pengaturan Website"],
+      summary: "Perbarui Tutorial Langkah Beranda",
+      description: "Memperbarui judul, subjudul, langkah, ikon, dan gambar tutorial (khusus Admin).",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                title: { type: "string", example: "Empat langkah, selesai" },
+                subtitle: { type: "string", example: "Berwakaf dan berdonasi kini lebih mudah, cepat, dan transparan." },
+                steps: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      stepNumber: { type: "string", example: "01" },
+                      title: { type: "string", example: "Pilih jenis & program" },
+                      description: { type: "string", example: "Wakaf uang, wakaf melalui uang..." },
+                      icon: { type: "string", enum: ["search", "edit", "payment", "check", "heart", "shield"], example: "search" },
+                      imageUrl: { type: "string", example: "/images/tutorial/step-1.jpg" },
+                    },
+                    required: ["title", "description"],
+                  },
+                },
+              },
+              required: ["title", "steps"],
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Konfigurasi tutorial berhasil disimpan.",
+        },
+      },
+    },
+  },
   "/api/settings": {
     get: {
       tags: ["Pengaturan Website"],
       summary: "Semua Pengaturan Website",
-      description: "Mengambil seluruh konfigurasi umum, banner pengumuman, dan Hero Section situs.",
+      description: "Mengambil seluruh konfigurasi umum, banner pengumuman, Hero Section, dan tutorial situs.",
       responses: {
         200: {
           description: "Konfigurasi berhasil diambil.",
@@ -154,6 +239,8 @@ export const settingsPaths = {
                         properties: {
                           topBanner: { type: "object" },
                           hero: { type: "object" },
+                          payment: { type: "object" },
+                          tutorial: { type: "object" },
                         },
                       },
                     },
@@ -168,7 +255,7 @@ export const settingsPaths = {
     put: {
       tags: ["Pengaturan Website"],
       summary: "Perbarui Pengaturan Website",
-      description: "Memperbarui konfigurasi situs secara agregat (banner & hero).",
+      description: "Memperbarui konfigurasi situs secara agregat (banner, hero, payment, dan tutorial).",
       requestBody: {
         required: true,
         content: {
@@ -178,6 +265,14 @@ export const settingsPaths = {
               properties: {
                 topBanner: { type: "object" },
                 hero: { type: "object" },
+                payment: {
+                  type: "object",
+                  properties: {
+                    expiryDuration: { type: "number", example: 24 },
+                    expiryUnit: { type: "string", enum: ["minutes", "hours", "days"], example: "hours" },
+                  },
+                },
+                tutorial: { type: "object" },
               },
             },
           },
