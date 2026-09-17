@@ -20,6 +20,8 @@ export function AdminSettingsOrganism() {
     hasChanges,
     updateBannerField,
     updateHeroField,
+    payment,
+    updatePaymentField,
     handleSave,
     handleReset,
   } = useAdminSettings();
