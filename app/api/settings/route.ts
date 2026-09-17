@@ -30,6 +30,11 @@ export async function PUT(req: NextRequest) {
       await saveHeroConfig(body.hero);
     }
 
+    if (body.payment) {
+      const { savePaymentConfig } = await import("@/lib/settings");
+      await savePaymentConfig(body.payment);
+    }
+
     const updated = await getAllSiteSettings();
     return ok(updated);
   } catch (err) {

@@ -1,7 +1,6 @@
 "use client";
 
 import { Countdown } from "@/components/countdown";
-import { VA_TTL_LABEL } from "@/lib/config";
 
 interface PaymentCountdownCardProps {
   txId: string;
@@ -36,7 +35,7 @@ export function PaymentCountdownCard({
           <Countdown expiresAt={expiresAt} onExpire={onExpire} />
         </div>
         <p className="mt-3 text-[11px] text-brand-400">
-          Selesaikan sebelum waktu di atas habis. Durasi berlaku: {VA_TTL_LABEL}
+          Selesaikan sebelum waktu di atas habis.
         </p>
       </div>
     </div>

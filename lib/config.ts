@@ -5,17 +5,6 @@
 // ============================================================================
 
 /**
- * Masa berlaku Virtual Account.
- * DEMO: 3 menit supaya skenario "countdown habis -> expired" bisa
- *       ditunjukkan di depan klien tanpa menunggu lama.
- * PRODUKSI: ganti ke 24 * 60 * 60 * 1000 (24 jam).
- */
-export const VA_TTL_MS = 3 * 60 * 1000;
-
-/** Label yang ditampilkan di UI untuk masa berlaku VA di atas. */
-export const VA_TTL_LABEL = "3 menit (dipercepat untuk demo — aslinya 24 jam)";
-
-/**
  * Rentang delay tiruan tiap "API call" (ms) agar transisi loading terasa
  * seperti memanggil backend sungguhan. Lihat lib/api/client.ts.
  */

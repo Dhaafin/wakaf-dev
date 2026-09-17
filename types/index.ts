@@ -422,9 +422,15 @@ export interface HeroSectionConfig {
   showSecondaryCta?: boolean;
 }
 
+export interface PaymentConfig {
+  expiryDuration: number; // nilai durasi
+  expiryUnit: "minutes" | "hours" | "days"; // unit durasi midtrans
+}
+
 export interface SiteSettings {
   topBanner: AnnouncementBannerConfig;
   hero: HeroSectionConfig;
+  payment: PaymentConfig;
   updatedAt?: string;
 }
 

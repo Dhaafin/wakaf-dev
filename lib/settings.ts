@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { siteSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import type { AnnouncementBannerConfig, HeroSectionConfig, SiteSettings } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig, PaymentConfig, SiteSettings } from "@/types";
 
 export const DEFAULT_TOP_BANNER: AnnouncementBannerConfig = {
   enabled: true,
@@ -162,14 +162,81 @@ export async function saveHeroConfig(
   return config;
 }
 
+export const DEFAULT_PAYMENT_CONFIG: PaymentConfig = {
+  expiryDuration: 24,
+  expiryUnit: "hours",
+};
+
+export async function getPaymentConfig(): Promise<PaymentConfig> {
+  try {
+    const rows = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "payment_config"))
+      .limit(1);
+
+    if (!rows || rows.length === 0) {
+      return DEFAULT_PAYMENT_CONFIG;
+    }
+
+    const parsed = JSON.parse(rows[0].value) as Partial<PaymentConfig>;
+    return {
+      expiryDuration:
+        typeof parsed.expiryDuration === "number" ? parsed.expiryDuration : DEFAULT_PAYMENT_CONFIG.expiryDuration,
+      expiryUnit:
+        parsed.expiryUnit === "minutes" || parsed.expiryUnit === "hours" || parsed.expiryUnit === "days"
+          ? parsed.expiryUnit
+          : DEFAULT_PAYMENT_CONFIG.expiryUnit,
+    };
+  } catch (err) {
+    console.error("Error reading payment_config setting:", err);
+    return DEFAULT_PAYMENT_CONFIG;
+  }
+}
+
+export async function savePaymentConfig(
+  config: PaymentConfig,
+): Promise<PaymentConfig> {
+  const valueJson = JSON.stringify({
+    expiryDuration: config.expiryDuration,
+    expiryUnit: config.expiryUnit,
+  });
+
+  const rows = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.key, "payment_config"))
+    .limit(1);
+
+  if (rows && rows.length > 0) {
+    await db
+      .update(siteSettings)
+      .set({
+        value: valueJson,
+        updatedAt: new Date(),
+      })
+      .where(eq(siteSettings.key, "payment_config"));
+  } else {
+    await db.insert(siteSettings).values({
+      key: "payment_config",
+      value: valueJson,
+      updatedAt: new Date(),
+    });
+  }
+
+  return config;
+}
+
 export async function getAllSiteSettings(): Promise<SiteSettings> {
-  const [topBanner, hero] = await Promise.all([
+  const [topBanner, hero, payment] = await Promise.all([
     getTopBannerConfig(),
     getHeroConfig(),
+    getPaymentConfig(),
   ]);
 
   return {
     topBanner,
     hero,
+    payment,
   };
 }

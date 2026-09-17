@@ -9,7 +9,7 @@ import { Spinner } from "@/components/atoms/Spinner";
 
 import { AdminPageHeader } from "@/components/molecules/AdminPageHeader";
 
-type SettingsTab = "hero" | "banner";
+type SettingsTab = "hero" | "banner" | "payment";
 
 export function AdminSettingsOrganism() {
   const {
@@ -92,6 +92,32 @@ export function AdminSettingsOrganism() {
                 />
 
                 {activeTab === "banner" && (
+                  <motion.div
+                    layoutId="activeSettingsTabUnderline"
+                    className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("payment")}
+                className={`relative px-3.5 py-3 rounded-lg text-left transition-colors flex items-center justify-between gap-3 select-none flex-1 md:flex-initial cursor-pointer ${
+                  activeTab === "payment"
+                    ? "text-brand-950 font-bold bg-brand-50/70"
+                    : "text-brand-600 hover:text-brand-900 hover:bg-brand-50/30 font-medium"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <svg className="h-4 w-4 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                  <span className="text-xs truncate">Pembayaran</span>
+                </div>
+
+                {activeTab === "payment" && (
                   <motion.div
                     layoutId="activeSettingsTabUnderline"
                     className="absolute bottom-0 left-3 right-3 h-0.5 bg-emerald-600 rounded-full"

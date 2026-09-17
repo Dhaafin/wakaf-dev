@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/lib/store/toast";
-import type { AnnouncementBannerConfig, HeroSectionConfig } from "@/types";
+import type { AnnouncementBannerConfig, HeroSectionConfig, PaymentConfig } from "@/types";
 
 const INITIAL_BANNER_CONFIG: AnnouncementBannerConfig = {
   enabled: true,
@@ -25,6 +25,11 @@ const INITIAL_HERO_CONFIG: HeroSectionConfig = {
   showSecondaryCta: true,
 };
 
+const INITIAL_PAYMENT_CONFIG: PaymentConfig = {
+  expiryDuration: 24,
+  expiryUnit: "hours",
+};
+
 export function useAdminSettings() {
   const { push } = useToast();
 
@@ -43,6 +48,11 @@ export function useAdminSettings() {
   const [initialLoadedHero, setInitialLoadedHero] =
     useState<HeroSectionConfig>(INITIAL_HERO_CONFIG);
 
+  // Form State Payment Config
+  const [payment, setPayment] = useState<PaymentConfig>(INITIAL_PAYMENT_CONFIG);
+  const [initialLoadedPayment, setInitialLoadedPayment] =
+    useState<PaymentConfig>(INITIAL_PAYMENT_CONFIG);
+
   // Fetch settings saat pertama kali render
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -56,6 +66,10 @@ export function useAdminSettings() {
         if (settings.hero) {
           setHero(settings.hero);
           setInitialLoadedHero(settings.hero);
+        }
+        if (settings.payment) {
+          setPayment(settings.payment);
+          setInitialLoadedPayment(settings.payment);
         }
       }
     } catch {
@@ -101,10 +115,25 @@ export function useAdminSettings() {
     [],
   );
 
+  // Handler update field payment config
+  const updatePaymentField = useCallback(
+    <K extends keyof PaymentConfig>(
+      field: K,
+      value: PaymentConfig[K],
+    ) => {
+      setPayment((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [],
+  );
+
   // Deteksi apakah ada perubahan yang belum disimpan
   const hasChanges =
     JSON.stringify(topBanner) !== JSON.stringify(initialLoadedBanner) ||
-    JSON.stringify(hero) !== JSON.stringify(initialLoadedHero);
+    JSON.stringify(hero) !== JSON.stringify(initialLoadedHero) ||
+    JSON.stringify(payment) !== JSON.stringify(initialLoadedPayment);
 
   // Simpan perubahan ke server
   const handleSave = useCallback(async () => {
@@ -126,11 +155,21 @@ export function useAdminSettings() {
       return;
     }
 
+    if (payment.expiryDuration <= 0) {
+      push({
+        kind: "error",
+        title: "Durasi Tidak Valid",
+        desc: "Durasi kedaluwarsa pembayaran harus lebih dari 0.",
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const updated = await api.updateSettings({
         topBanner,
         hero,
+        payment,
       });
 
       if (updated.topBanner) {
@@ -140,6 +179,10 @@ export function useAdminSettings() {
       if (updated.hero) {
         setHero(updated.hero);
         setInitialLoadedHero(updated.hero);
+      }
+      if (updated.payment) {
+        setPayment(updated.payment);
+        setInitialLoadedPayment(updated.payment);
       }
 
       push({
@@ -156,22 +199,25 @@ export function useAdminSettings() {
     } finally {
       setSaving(false);
     }
-  }, [topBanner, hero, push]);
+  }, [topBanner, hero, payment, push]);
 
   // Reset form ke data server terakhir
   const handleReset = useCallback(() => {
     setTopBanner(initialLoadedBanner);
     setHero(initialLoadedHero);
-  }, [initialLoadedBanner, initialLoadedHero]);
+    setPayment(initialLoadedPayment);
+  }, [initialLoadedBanner, initialLoadedHero, initialLoadedPayment]);
 
   return {
     loading,
     saving,
     topBanner,
     hero,
+    payment,
     hasChanges,
     updateBannerField,
     updateHeroField,
+    updatePaymentField,
     handleSave,
     handleReset,
     refetch: fetchSettings,
