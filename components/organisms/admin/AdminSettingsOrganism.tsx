@@ -135,7 +135,7 @@ export function AdminSettingsOrganism() {
             <Skeleton variant="rect" height={400} className="w-full rounded-xl" />
           ) : (
             <AnimatePresence mode="wait">
-            {activeTab === "hero" ? (
+            {activeTab === "hero" && (
               <motion.div
                 key="tab-hero"
                 initial={{ opacity: 0, y: 8 }}
@@ -278,7 +278,9 @@ export function AdminSettingsOrganism() {
                   </button>
                 </div>
               </motion.div>
-            ) : (
+            )}
+
+            {activeTab === "banner" && (
               <motion.div
                 key="tab-banner"
                 initial={{ opacity: 0, y: 8 }}
@@ -344,6 +346,88 @@ export function AdminSettingsOrganism() {
                       value={topBanner.linkUrl ?? ""}
                       onChange={(e) => updateBannerField("linkUrl", e.target.value)}
                     />
+                  </div>
+                </div>
+
+                <div className="border-t border-brand-100 bg-brand-50/40 p-4 flex justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    disabled={!hasChanges || saving}
+                    className="btn-outline px-4 py-1.5 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!hasChanges || saving}
+                    className="btn-primary px-5 py-1.5 text-xs font-semibold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <Spinner className="h-3.5 w-3.5 text-white" />
+                        <span>Menyimpan…</span>
+                      </>
+                    ) : (
+                      <span>Simpan</span>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "payment" && (
+              <motion.div
+                key="tab-payment"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="card rounded-xl overflow-hidden border border-brand-200/80 bg-white shadow-xs"
+              >
+                <div className="border-b border-brand-100 bg-brand-50/40 px-5 py-4">
+                  <h2 className="font-serif text-base font-bold text-brand-950">
+                    Pengaturan Pembayaran
+                  </h2>
+                </div>
+
+                <div className="p-5 space-y-5">
+                  <div>
+                    <h3 className="text-sm font-semibold text-brand-900 mb-1">
+                      Batas Kedaluwarsa Transaksi (Midtrans)
+                    </h3>
+                    <p className="text-xs text-brand-500 mb-4">
+                      Tentukan berapa lama tautan pembayaran Virtual Account/QRIS akan aktif sebelum dibatalkan otomatis oleh sistem.
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2 max-w-md">
+                      <div>
+                        <label className="block text-xs font-semibold text-brand-900 mb-1.5">
+                          Durasi <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={payment.expiryDuration}
+                          onChange={(e) => updatePaymentField("expiryDuration", parseInt(e.target.value) || 1)}
+                          className="w-full rounded-lg border border-brand-200 bg-white p-3 text-sm text-brand-950 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-brand-900 mb-1.5">
+                          Satuan Waktu <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={payment.expiryUnit}
+                          onChange={(e) => updatePaymentField("expiryUnit", e.target.value as any)}
+                          className="w-full rounded-lg border border-brand-200 bg-white p-3 text-sm text-brand-950 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        >
+                          <option value="minutes">Menit</option>
+                          <option value="hours">Jam</option>
+                          <option value="days">Hari</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
