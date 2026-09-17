@@ -41,23 +41,42 @@ export function PaymentSuccessOrganism({ txId }: { txId: string }) {
     }
 
     let active = true;
-    setVerifying(true);
-    api
-      .syncTransaction(initialTx.id)
-      .then((res) => {
+    let attempts = 0;
+    const MAX_ATTEMPTS = 5;
+
+    const pollSync = async () => {
+      try {
+        setVerifying(true);
+        const res = await api.syncTransaction(initialTx.id);
         if (!active) return;
+        
         if (res && res.status === "paid") {
           setSyncedTx(res);
+          setVerifying(false);
         } else {
-          router.replace(`/wakaf/${initialTx.id}`);
+          attempts++;
+          if (attempts < MAX_ATTEMPTS) {
+            setTimeout(pollSync, 3000);
+          } else {
+            // Jika sudah 5 kali (15 detik) tetap pending, baru balikin ke halaman tunggu
+            setVerifying(false);
+            router.replace(`/wakaf/${initialTx.id}`);
+          }
         }
-      })
-      .catch(() => {
-        if (active) router.replace(`/wakaf/${initialTx.id}`);
-      })
-      .finally(() => {
-        if (active) setVerifying(false);
-      });
+      } catch (error) {
+        if (active) {
+          attempts++;
+          if (attempts < MAX_ATTEMPTS) {
+            setTimeout(pollSync, 3000);
+          } else {
+            setVerifying(false);
+            router.replace(`/wakaf/${initialTx.id}`);
+          }
+        }
+      }
+    };
+
+    pollSync();
 
     return () => {
       active = false;
